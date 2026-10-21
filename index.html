@@ -79,9 +79,13 @@
   .navlabel input[type=date] {
     position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%;
   }
+  .badges { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin: -4px 0 12px; }
+  .badges:empty { display: none; }
+  .badge { font-size: 14px; padding: 5px 12px; border-radius: 999px; background: var(--card);
+           border: 1px solid var(--line); }
 
   /* Summary ring */
-  .summary { display: flex; align-items: center; gap: 18px; }
+  .summary-row { display: flex; align-items: center; gap: 18px; }
   .ring { width: 112px; height: 112px; flex: none; position: relative; }
   .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
   .ring .track { stroke: var(--soft); }
@@ -91,18 +95,44 @@
   .summary .left-label { font-size: 14px; color: var(--muted); }
   .summary .left-amount { font-size: 34px; font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
   .summary .sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .smart { font-size: 14px; color: var(--muted); margin-top: 14px; padding-top: 12px;
+           border-top: 1px solid var(--line); }
+  .smart:empty { display: none; }
   .state-warn .bar { stroke: var(--warn); }
   .state-over .bar { stroke: var(--over); }
   .state-over .left-amount { color: var(--over); }
 
+  /* Savings jar */
+  .jar-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+  .jar-top b { font-size: 17px; }
+  .jar .meter { height: 10px; border-radius: 5px; }
+  .jar .meter i { border-radius: 5px; transition: width .4s ease; }
+  .jar .sub { font-size: 14px; color: var(--muted); margin-top: 8px; }
+
+  /* Backup reminder */
+  .banner {
+    display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 10px 12px;
+    margin-bottom: 14px; border-radius: 14px;
+    background: color-mix(in srgb, var(--warn) 14%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
+  }
+  .banner span { flex: 1; }
+  .banner .go { font-weight: 700; color: var(--warn); }
+  .banner .x { color: var(--muted); font-size: 22px; line-height: 1; padding: 0 4px; }
+
   /* Add form */
+  .quick { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .quick small { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .quick .chips { margin-bottom: 0; }
+  .quick .chip { background: color-mix(in srgb, var(--accent) 12%, var(--card)); }
   .amountrow { display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid var(--line);
-               padding-bottom: 8px; margin-bottom: 12px; }
+               padding-bottom: 8px; margin-bottom: 8px; }
   .amountrow .cur { font-size: 28px; color: var(--muted); font-weight: 600; }
   .amountrow input {
     flex: 1; min-width: 0; border: 0; outline: 0; background: transparent;
     font-size: 36px; font-weight: 700; letter-spacing: -.02em; padding: 0;
   }
+  .hint { font-size: 14px; color: var(--muted); min-height: 20px; margin-bottom: 10px; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
   .chip {
     padding: 8px 12px; border-radius: 999px; background: var(--soft); font-size: 15px;
@@ -113,6 +143,7 @@
     width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 12px;
     padding: 12px 14px; outline: 0; font-size: 16px;
   }
+  select.field { -webkit-appearance: none; appearance: none; }
   .field:focus { border-color: var(--accent); }
   .btnrow { display: flex; gap: 8px; margin-top: 12px; }
   .primary, .secondary, .danger {
@@ -146,6 +177,24 @@
   .stat b { font-size: 22px; letter-spacing: -.01em; }
   .stat b.good { color: var(--accent); }
   .stat b.bad { color: var(--over); }
+  .insights { list-style: none; margin: 0; padding: 0; }
+  .insights li { display: flex; gap: 10px; padding: 9px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
+  .insights li:first-child { padding-top: 0; }
+  .insights li:last-child { border-bottom: 0; padding-bottom: 0; }
+  .cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .cal .wd { text-align: center; font-size: 12px; color: var(--muted); }
+  .cal .d {
+    aspect-ratio: 1; border-radius: 10px; display: grid; place-items: center;
+    font-size: 14px; font-weight: 600; background: var(--soft); color: var(--ink);
+  }
+  .cal .d.off { background: transparent; color: var(--muted); font-weight: 400; }
+  .cal .d.zero { background: color-mix(in srgb, var(--accent) 80%, var(--card)); }
+  .cal .d.ok { background: color-mix(in srgb, var(--accent) 26%, var(--card)); }
+  .cal .d.warn { background: color-mix(in srgb, var(--warn) 40%, var(--card)); }
+  .cal .d.over { background: color-mix(in srgb, var(--over) 50%, var(--card)); }
+  .cal .d.today { outline: 2px solid var(--ink); outline-offset: -2px; }
+  .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 12px; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
   .catrow { display: grid; grid-template-columns: 28px 1fr auto; gap: 4px 10px; align-items: center;
             margin-bottom: 10px; }
   .catrow:last-child { margin-bottom: 0; }
@@ -161,10 +210,12 @@
 
   /* Settings */
   label.row { display: block; margin-bottom: 14px; }
+  label.row:last-child { margin-bottom: 0; }
   label.row span { display: block; font-size: 14px; color: var(--muted); margin: 0 4px 6px; }
   .stack { display: grid; gap: 8px; }
   .stack .secondary, .stack .danger { width: 100%; }
   .note { font-size: 14px; color: var(--muted); margin: 8px 4px 0; }
+  .card .note { margin: -6px 4px 14px; }
 
   /* Tab bar */
   .tabs {
@@ -202,6 +253,7 @@
   }
   .sheet h3 { margin: 0 0 4px; font-size: 22px; }
   .sheet p { margin: 0 0 18px; color: var(--muted); }
+  .sheet label.row:last-of-type { margin-bottom: 18px; }
 </style>
 </head>
 <body>
@@ -217,28 +269,49 @@
       </label>
       <button class="arrow" id="dayNext" aria-label="Next day">›</button>
     </div>
+    <div class="badges" id="badges"></div>
+
+    <div class="banner hidden" id="backupBanner">
+      <span id="backupText"></span>
+      <button class="go" id="backupNow">Back up</button>
+      <button class="x" id="backupLater" aria-label="Remind me later">×</button>
+    </div>
 
     <div class="card summary" id="summary">
-      <div class="ring">
-        <svg viewBox="0 0 120 120">
-          <circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="12"/>
-          <circle class="bar" id="ringBar" cx="60" cy="60" r="52" fill="none" stroke-width="12"
-                  stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
-        </svg>
-        <div class="pct num" id="ringPct">0%</div>
+      <div class="summary-row">
+        <div class="ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="12"/>
+            <circle class="bar" id="ringBar" cx="60" cy="60" r="52" fill="none" stroke-width="12"
+                    stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+          </svg>
+          <div class="pct num" id="ringPct">0%</div>
+        </div>
+        <div>
+          <div class="left-label" id="leftLabel">Left today</div>
+          <div class="left-amount num" id="leftAmount">0</div>
+          <div class="sub num" id="spentOf">Spent 0 of 0</div>
+        </div>
       </div>
-      <div>
-        <div class="left-label" id="leftLabel">Left today</div>
-        <div class="left-amount num" id="leftAmount">0</div>
-        <div class="sub num" id="spentOf">Spent 0 of 0</div>
-      </div>
+      <div class="smart" id="smartLine"></div>
+    </div>
+
+    <div class="card jar hidden" id="jarCard">
+      <div class="jar-top"><b id="jarName"></b><span class="num" id="jarAmt"></span></div>
+      <div class="meter"><i id="jarBar"></i></div>
+      <div class="sub" id="jarSub"></div>
     </div>
 
     <div class="card">
+      <div class="quick hidden" id="quick">
+        <small>Again? Tap to add</small>
+        <div class="chips" id="quickChips"></div>
+      </div>
       <div class="amountrow">
         <span class="cur" data-cur></span>
         <input id="amt" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Amount">
       </div>
+      <div class="hint" id="amtHint"></div>
       <div class="chips" id="cats"></div>
       <input class="field" id="note" type="text" placeholder="Note (optional)" maxlength="60" autocomplete="off">
       <div class="btnrow">
@@ -265,6 +338,20 @@
       <button class="arrow" id="monNext" aria-label="Next month">›</button>
     </div>
     <div class="card stats" id="stats"></div>
+    <div id="insightWrap" class="hidden">
+      <h2>Insights</h2>
+      <div class="card"><ul class="insights" id="insights"></ul></div>
+    </div>
+    <h2>Calendar</h2>
+    <div class="card">
+      <div class="cal" id="cal"></div>
+      <div class="legend">
+        <span><i style="background: color-mix(in srgb, var(--accent) 80%, var(--card))"></i>Spent nothing</span>
+        <span><i style="background: color-mix(in srgb, var(--accent) 26%, var(--card))"></i>Under</span>
+        <span><i style="background: color-mix(in srgb, var(--warn) 40%, var(--card))"></i>Close</span>
+        <span><i style="background: color-mix(in srgb, var(--over) 50%, var(--card))"></i>Over</span>
+      </div>
+    </div>
     <h2>By category</h2>
     <div class="card" id="catBreak"></div>
     <h2>Days</h2>
@@ -276,16 +363,42 @@
   <!-- SETTINGS VIEW -->
   <section id="view-settings" class="view">
     <div class="nav"><div class="navlabel" style="margin: 0 auto"><strong>Settings</strong></div></div>
+    <h2>Budget</h2>
     <div class="card">
       <label class="row"><span>Daily budget</span>
         <input class="field num" id="setDaily" type="text" inputmode="decimal" autocomplete="off">
       </label>
+      <p class="note">A new budget applies from today onward. Past days keep the budget they had.</p>
       <label class="row"><span>Currency symbol</span>
         <input class="field" id="setCur" type="text" maxlength="4" autocomplete="off">
       </label>
-      <button class="primary" id="saveSettings" style="width:100%">Save</button>
-      <p class="note">A new budget applies from today onward. Past days keep the budget they had.</p>
+      <label class="row"><span>Money you don't spend…</span>
+        <select class="field" id="setMode">
+          <option value="jar">Goes into my savings jar</option>
+          <option value="rollover">Rolls over to the rest of the month</option>
+        </select>
+      </label>
     </div>
+
+    <h2>Savings jar</h2>
+    <div class="card">
+      <label class="row"><span>Saving for</span>
+        <input class="field" id="setGoalName" type="text" maxlength="30" placeholder="e.g. New phone" autocomplete="off">
+      </label>
+      <label class="row"><span>Goal amount (leave empty for no jar)</span>
+        <input class="field num" id="setGoalAmt" type="text" inputmode="decimal" autocomplete="off">
+      </label>
+    </div>
+
+    <h2>Price in work time</h2>
+    <div class="card">
+      <label class="row"><span>What you earn per hour (optional)</span>
+        <input class="field num" id="setHourly" type="text" inputmode="decimal" placeholder="e.g. 250" autocomplete="off">
+      </label>
+      <p class="note" style="margin-bottom:0">Shows how many hours of work each purchase costs you.</p>
+    </div>
+
+    <button class="primary" id="saveSettings" style="width:100%; margin-bottom: 6px">Save settings</button>
 
     <h2>Your data</h2>
     <div class="card stack">
@@ -346,6 +459,7 @@
   ];
   const catById = Object.fromEntries(CATS.map(c => [c.id, c]));
   const $ = id => document.getElementById(id);
+  const DAY = 864e5;
 
   // ---------- dates ----------
   const pad = n => String(n).padStart(2, '0');
@@ -353,17 +467,20 @@
   const dateOf = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayKey = () => keyOf(new Date());
   const addDays = (k, n) => { const d = dateOf(k); d.setDate(d.getDate() + n); return keyOf(d); };
+  const daysIn = m => { const [y, mo] = m.split('-').map(Number); return new Date(y, mo, 0).getDate(); };
 
   // ---------- storage ----------
   let db = load();
+  let spendCache = null;
   function load() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORE));
       if (raw && Array.isArray(raw.entries)) return raw;
     } catch (e) {}
-    return { currency: '৳', budgets: [], entries: [], start: todayKey() };
+    return { currency: '৳', budgets: [], entries: [], start: todayKey(), mode: 'jar' };
   }
   function save() {
+    spendCache = null;
     try { localStorage.setItem(STORE, JSON.stringify(db)); }
     catch (e) { toast('Could not save — storage is full or blocked'); }
   }
@@ -378,20 +495,69 @@
     db.budgets = db.budgets.filter(b => b.from < from);
     db.budgets.push({ from, amount });
   }
+  function spentOn(k) {
+    if (!spendCache) {
+      spendCache = {};
+      for (const e of db.entries) spendCache[e.date] = (spendCache[e.date] || 0) + e.amount;
+    }
+    return spendCache[k] || 0;
+  }
+  // First day that counts: when the app was set up, or the earliest entry if older.
+  const firstDay = () => db.entries.reduce((m, e) => e.date < m ? e.date : m, db.start || todayKey());
 
   // ---------- formatting ----------
   const fmt = n => {
     const v = Math.round(n * 100) / 100;
-    return db.currency + Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    return db.currency + Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: Math.abs(v) >= 100 ? 0 : 2 });
   };
-  const signed = n => (n < 0 ? '−' : '') + fmt(n);
   const parseAmt = s => {
     const v = parseFloat(String(s).replace(/,/g, '.').replace(/[^\d.]/g, ''));
     return isFinite(v) && v > 0 ? Math.round(v * 100) / 100 : 0;
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const workTime = amount => {
+    const h = amount / db.hourly;
+    if (h < 1) return `${Math.max(1, Math.round(h * 60))} min`;
+    return `${h < 10 ? Math.round(h * 10) / 10 : Math.round(h)} h`;
+  };
   const dayEntries = k => db.entries.filter(e => e.date === k).sort((a, b) => b.t - a.t);
-  const spentOn = k => db.entries.reduce((s, e) => e.date === k ? s + e.amount : s, 0);
+
+  // ---------- smart numbers ----------
+  // Consecutive finished days (ending yesterday) spent within budget.
+  function streak() {
+    const f = firstDay();
+    let n = 0, k = addDays(todayKey(), -1);
+    while (k >= f && spentOn(k) <= budgetFor(k)) { n++; k = addDays(k, -1); }
+    return n;
+  }
+  function bestStreak() {
+    let best = 0, run = 0;
+    for (let k = firstDay(), t = todayKey(); k < t; k = addDays(k, 1)) {
+      run = spentOn(k) <= budgetFor(k) ? run + 1 : 0;
+      best = Math.max(best, run);
+    }
+    return best;
+  }
+  // Rollover mode: what's left of this month's budget, spread over the days left (today included).
+  function smartAllowance() {
+    const t = todayKey(), m = t.slice(0, 7), f = firstDay();
+    let pool = 0, daysLeft = 0;
+    for (let d = 1; d <= daysIn(m); d++) {
+      const k = `${m}-${pad(d)}`;
+      if (k < f) continue;
+      pool += budgetFor(k);
+      if (k < t) pool -= spentOn(k); else daysLeft++;
+    }
+    return Math.max(0, pool / daysLeft);
+  }
+  // Jar mode: everything not spent on finished days since the goal was set.
+  function jarSaved() {
+    const t = todayKey();
+    let saved = 0, days = 0;
+    const from = db.goal.from > firstDay() ? db.goal.from : firstDay();
+    for (let k = from; k < t; k = addDays(k, 1)) { saved += budgetFor(k) - spentOn(k); days++; }
+    return { saved: Math.max(0, saved), days };
+  }
 
   // ---------- day view ----------
   let curDay = todayKey();
@@ -413,7 +579,8 @@
   function renderDay() {
     const t = todayKey();
     const d = dateOf(curDay);
-    const diff = Math.round((dateOf(t) - d) / 864e5);
+    const isToday = curDay === t;
+    const diff = Math.round((dateOf(t) - d) / DAY);
     $('dayTitle').textContent = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday'
       : d.toLocaleDateString(undefined, { weekday: 'long' });
     $('daySub').textContent = d.toLocaleDateString(undefined,
@@ -422,30 +589,147 @@
     $('dayPick').max = t;
     $('dayNext').disabled = curDay >= t;
 
-    const budget = budgetFor(curDay);
+    const rollover = isToday && db.mode === 'rollover';
+    const base = budgetFor(curDay);
+    const budget = rollover ? smartAllowance() : base;
     const spent = spentOn(curDay);
     const left = budget - spent;
     const ratio = budget > 0 ? spent / budget : (spent > 0 ? 1 : 0);
     const C = 326.73;
     $('ringBar').style.strokeDashoffset = C * (1 - Math.min(ratio, 1));
     $('ringPct').textContent = budget > 0 ? Math.round(ratio * 100) + '%' : '—';
-    $('summary').className = 'card summary' + (ratio >= 1 && spent > 0 && left < 0 ? ' state-over' : ratio >= .8 ? ' state-warn' : '');
-    $('leftLabel').textContent = left < 0 ? 'Over budget by' : (diff === 0 ? 'Left today' : 'Left that day');
+    $('summary').className = 'card summary' + (left < 0 ? ' state-over' : ratio >= .8 ? ' state-warn' : '');
+    $('leftLabel').textContent = left < 0 ? 'Over budget by'
+      : rollover ? 'Safe to spend today' : isToday ? 'Left today' : 'Left that day';
     $('leftAmount').textContent = fmt(left);
     $('spentOf').textContent = `Spent ${fmt(spent)} of ${fmt(budget)}`;
+
+    let line = '';
+    if (rollover) {
+      const extra = budget - base;
+      line = extra >= 1 ? `🔁 Includes ${fmt(extra)} you didn't spend earlier this month.`
+        : extra <= -1 ? `🔁 ${fmt(-extra)} less than usual, to make up for spending more earlier this month.`
+        : '🔁 Whatever you don\'t spend rolls over to the rest of the month.';
+    } else if (isToday && db.goal && left > 0) {
+      line = `🫙 ${fmt(left)} goes into your jar tonight if you stop here.`;
+    }
+    $('smartLine').textContent = line;
+
+    const s = streak();
+    $('badges').innerHTML = isToday && s >= 1
+      ? `<span class="badge">🔥 ${s} day${s === 1 ? '' : 's'} in a row under budget</span>` : '';
+
+    renderJar(isToday);
+    renderBackupBanner(isToday);
+    renderQuick();
+    renderHint();
 
     const items = dayEntries(curDay);
     $('listHead').textContent = items.length ? `${items.length} ${items.length === 1 ? 'entry' : 'entries'}` : 'Entries';
     $('list').innerHTML = items.length ? items.map(e => {
       const c = catById[e.cat] || catById.other;
       const time = new Date(e.t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+      const work = db.hourly ? ` · ${workTime(e.amount)} of work` : '';
       return `<li data-id="${e.id}" class="${e.id === editingId ? 'editing' : ''}">
         <div class="emoji">${c.emoji}</div>
         <div class="info"><div class="title">${esc(e.note || c.name)}</div>
-          <div class="meta">${e.note ? c.name + ' · ' : ''}${time}</div></div>
+          <div class="meta">${e.note ? c.name + ' · ' : ''}${time}${work}</div></div>
         <div class="amt num">${fmt(e.amount)}</div></li>`;
     }).join('') : `<li class="empty" style="display:block">Nothing recorded${diff === 0 ? ' yet today' : ' for this day'}.</li>`;
     document.querySelectorAll('[data-cur]').forEach(el => el.textContent = db.currency);
+  }
+
+  function renderJar(isToday) {
+    const show = isToday && db.goal && db.mode !== 'rollover';
+    $('jarCard').classList.toggle('hidden', !show);
+    if (!show) return;
+    const { saved, days } = jarSaved();
+    const target = db.goal.target;
+    const pct = Math.min(100, saved / target * 100);
+    $('jarName').textContent = `🫙 ${db.goal.name}`;
+    $('jarAmt').textContent = `${fmt(saved)} / ${fmt(target)}`;
+    $('jarBar').style.width = pct + '%';
+    let sub;
+    if (saved >= target) sub = '🎉 Goal reached! You can set a new one in Settings.';
+    else if (days >= 3 && saved > 0) {
+      const perDay = saved / days;
+      const need = Math.ceil((target - saved) / perDay);
+      const when = dateOf(addDays(todayKey(), need)).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+      sub = `${Math.floor(pct)}% there. At your pace you'll reach it in about ${need} day${need === 1 ? '' : 's'} (${when}).`;
+    } else sub = 'Fills up every night with whatever you didn\'t spend that day.';
+    $('jarSub').textContent = sub;
+  }
+
+  function renderBackupBanner(isToday) {
+    const since = Math.max(db.lastBackup || 0, db.backupSnooze || 0, dateOf(db.start || todayKey()).getTime());
+    const show = isToday && db.entries.length >= 5 && Date.now() - since > 7 * DAY;
+    $('backupBanner').classList.toggle('hidden', !show);
+    if (show) $('backupText').textContent = db.lastBackup
+      ? `💾 Last backup was ${Math.floor((Date.now() - db.lastBackup) / DAY)} days ago.`
+      : '💾 You haven\'t saved a backup yet.';
+  }
+  function backup() {
+    shareFile(`budget-backup-${todayKey()}.json`, JSON.stringify(db, null, 1), 'application/json');
+    db.lastBackup = Date.now();
+    save(); renderDay();
+  }
+  $('backupNow').addEventListener('click', backup);
+  $('backupLater').addEventListener('click', () => { db.backupSnooze = Date.now() - 4 * DAY; save(); renderDay(); });
+
+  // Things bought at least twice in the last 60 days, same price, one tap to add again.
+  function frequent() {
+    const since = addDays(todayKey(), -60);
+    const groups = {};
+    for (const e of db.entries) {
+      if (e.date < since) continue;
+      const key = `${e.cat}|${(e.note || '').toLowerCase()}|${e.amount}`;
+      const g = groups[key] || (groups[key] = { e, n: 0 });
+      g.n++;
+      if (e.t > g.e.t) g.e = e;
+    }
+    return Object.values(groups).filter(g => g.n >= 2).sort((a, b) => b.n - a.n).slice(0, 4).map(g => g.e);
+  }
+  let quickItems = [];
+  function renderQuick() {
+    quickItems = editingId ? [] : frequent();
+    $('quick').classList.toggle('hidden', !quickItems.length);
+    $('quickChips').innerHTML = quickItems.map((e, i) => {
+      const c = catById[e.cat] || catById.other;
+      return `<button class="chip" data-q="${i}">${c.emoji} ${esc(e.note || c.name)} · ${fmt(e.amount)}</button>`;
+    }).join('');
+  }
+  $('quickChips').addEventListener('click', ev => {
+    const b = ev.target.closest('[data-q]');
+    if (!b) return;
+    const q = quickItems[b.dataset.q];
+    const e = addEntry(q.amount, q.cat, q.note);
+    toast(`Added ${esc(q.note || catById[q.cat].name)} ${fmt(q.amount)}`, () => {
+      db.entries = db.entries.filter(x => x.id !== e.id); save(); renderDay();
+    });
+  });
+
+  function renderHint() {
+    const a = parseAmt($('amt').value);
+    const parts = [];
+    if (a) {
+      const b = budgetFor(curDay);
+      if (b) parts.push(`${Math.round(a / b * 100)}% of a day's budget`);
+      if (db.hourly) parts.push(`⏱️ ${workTime(a)} of your work`);
+    }
+    $('amtHint').textContent = parts.join(' · ');
+  }
+  $('amt').addEventListener('input', renderHint);
+
+  function addEntry(amount, cat, note) {
+    const now = new Date();
+    // Entries for past days get a time on that day so they sort sensibly.
+    const t = curDay === todayKey() ? now.getTime()
+      : dateOf(curDay).getTime() + (now.getHours() * 60 + now.getMinutes()) * 6e4;
+    const e = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                date: curDay, amount, cat, note, t };
+    db.entries.push(e);
+    save(); renderDay();
+    return e;
   }
 
   function resetForm() {
@@ -461,23 +745,17 @@
     const amount = parseAmt($('amt').value);
     if (!amount) { $('amt').focus(); toast('Enter an amount first'); return; }
     const note = $('note').value.trim();
+    $('amt').blur(); $('note').blur();
     if (editingId) {
       const e = db.entries.find(x => x.id === editingId);
       if (e) Object.assign(e, { amount, note, cat: curCat });
+      resetForm(); save(); renderDay();
       toast('Saved');
     } else {
-      const now = new Date();
-      // Entries for past days get a time on that day so they sort sensibly.
-      const t = curDay === todayKey() ? now.getTime()
-        : dateOf(curDay).getTime() + (now.getHours() * 60 + now.getMinutes()) * 6e4;
-      db.entries.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-                        date: curDay, amount, cat: curCat, note, t });
+      resetForm();
+      addEntry(amount, curCat, note);
       toast(`Added ${fmt(amount)}`);
     }
-    save();
-    resetForm();
-    $('amt').blur(); $('note').blur();
-    renderDay();
   });
   $('note').addEventListener('keydown', e => { if (e.key === 'Enter') $('addBtn').click(); });
   $('amt').addEventListener('keydown', e => { if (e.key === 'Enter') $('addBtn').click(); });
@@ -513,23 +791,22 @@
 
   // ---------- history view ----------
   let curMonth = todayKey().slice(0, 7);
-  const shiftMonth = (m, n) => { const [y, mo] = m.split('-').map(Number); const d = new Date(y, mo - 1 + n, 1); return keyOf(d).slice(0, 7); };
+  const shiftMonth = (m, n) => { const [y, mo] = m.split('-').map(Number); return keyOf(new Date(y, mo - 1 + n, 1)).slice(0, 7); };
 
   function renderHistory() {
     const t = todayKey();
+    const f = firstDay();
     const [y, mo] = curMonth.split('-').map(Number);
     const first = new Date(y, mo - 1, 1);
+    const dim = daysIn(curMonth);
     $('monTitle').textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
     $('monNext').disabled = curMonth >= t.slice(0, 7);
 
-    // Days that count: from the first day of use (or first entry) up to today.
-    const firstEntry = db.entries.reduce((m, e) => e.date < m ? e.date : m, db.start || t);
+    // Days that count: from the first day of use up to today, newest first.
     const days = [];
-    const daysInMonth = new Date(y, mo, 0).getDate();
-    for (let d = daysInMonth; d >= 1; d--) {
+    for (let d = dim; d >= 1; d--) {
       const k = `${curMonth}-${pad(d)}`;
-      if (k > t || k < firstEntry) continue;
-      days.push(k);
+      if (k <= t && k >= f) days.push(k);
     }
     const monthEntries = db.entries.filter(e => e.date.startsWith(curMonth));
     const spent = monthEntries.reduce((s, e) => s + e.amount, 0);
@@ -543,7 +820,64 @@
       <div class="stat"><small>Budget</small><b class="num">${fmt(budget)}</b></div>
       <div class="stat"><small>${saved < 0 ? 'Overspent' : 'Saved'}</small><b class="num ${saved < 0 ? 'bad' : 'good'}">${fmt(saved)}</b></div>
       <div class="stat"><small>Daily average</small><b class="num">${fmt(days.length ? spent / days.length : 0)}</b></div>
-      <div class="stat" style="grid-column: 1 / 3"><small>Days within budget</small><b class="num">${within} of ${days.length}</b></div>`;
+      <div class="stat"><small>Days within budget</small><b class="num">${within} of ${days.length}</b></div>
+      <div class="stat"><small>Best streak</small><b class="num">🔥 ${bestStreak()}</b></div>`;
+
+    // Insights
+    const ins = [];
+    if (curMonth === t.slice(0, 7) && days.length >= 3) {
+      const rest = dim - dateOf(t).getDate();
+      const forecast = spent / days.length * (days.length + rest);
+      let full = budget;
+      for (let i = 1; i <= rest; i++) full += budgetFor(addDays(t, i));
+      ins.push(['📈', `At this pace you'll spend <b>${fmt(forecast)}</b> this month — ${forecast > full
+        ? `<b>${fmt(forecast - full)} over</b>` : `${fmt(full - forecast)} under`} budget.`]);
+    }
+    const byNote = {};
+    for (const e of monthEntries) {
+      if (!e.note) continue;
+      const k = e.note.toLowerCase();
+      const g = byNote[k] || (byNote[k] = { name: e.note, n: 0, sum: 0 });
+      g.n++; g.sum += e.amount;
+    }
+    const habit = Object.values(byNote).filter(g => g.n >= 3).sort((a, b) => b.n - a.n || b.sum - a.sum)[0];
+    if (habit && days.length) {
+      ins.push(['🔁', `<b>${esc(habit.name)}</b>: ${habit.n} times this month, ${fmt(habit.sum)}. Keep it up and that's about <b>${fmt(habit.sum / days.length * 365)}</b> a year.`]);
+    }
+    if (monthEntries.length) {
+      const big = monthEntries.reduce((a, b) => b.amount > a.amount ? b : a);
+      const c = catById[big.cat] || catById.other;
+      ins.push(['💥', `Biggest expense: <b>${esc(big.note || c.name)}</b>, ${fmt(big.amount)} on ${dateOf(big.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}.`]);
+    }
+    const allDays = [];
+    for (let k = f; k < t; k = addDays(k, 1)) allDays.push(k);
+    if (allDays.length >= 14) {
+      const wk = Array.from({ length: 7 }, () => ({ sum: 0, n: 0 }));
+      for (const k of allDays) { const w = wk[dateOf(k).getDay()]; w.sum += spentOn(k); w.n++; }
+      const top = wk.map((w, i) => ({ i, avg: w.n ? w.sum / w.n : 0 })).sort((a, b) => b.avg - a.avg)[0];
+      if (top.avg > 0) {
+        const name = new Date(2023, 0, 1 + top.i).toLocaleDateString(undefined, { weekday: 'long' });
+        ins.push(['📅', `You spend the most on <b>${name}s</b> — ${fmt(top.avg)} on average.`]);
+      }
+    }
+    if (db.hourly && spent) ins.push(['⏱️', `This month's spending cost you about <b>${workTime(spent)}</b> of work.`]);
+    $('insightWrap').classList.toggle('hidden', !ins.length);
+    $('insights').innerHTML = ins.map(([i, s]) => `<li><span>${i}</span><span>${s}</span></li>`).join('');
+
+    // Calendar (weeks start on Sunday)
+    let cal = Array.from({ length: 7 }, (_, i) =>
+      `<div class="wd">${new Date(2023, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'narrow' })}</div>`).join('');
+    cal += '<div></div>'.repeat(first.getDay());
+    for (let d = 1; d <= dim; d++) {
+      const k = `${curMonth}-${pad(d)}`;
+      let cls = 'off';
+      if (k <= t && k >= f) {
+        const s = spentOn(k), b = budgetFor(k);
+        cls = s === 0 ? 'zero' : s > b ? 'over' : s >= b * .8 ? 'warn' : 'ok';
+      }
+      cal += `<button class="d ${cls}${k === t ? ' today' : ''}" data-day="${k}"${cls === 'off' ? ' disabled' : ''}>${d}</button>`;
+    }
+    $('cal').innerHTML = cal;
 
     const byCat = {};
     monthEntries.forEach(e => byCat[e.cat] = (byCat[e.cat] || 0) + e.amount);
@@ -560,8 +894,7 @@
       const s = spentOn(k), b = budgetFor(k);
       const r = b > 0 ? s / b : (s > 0 ? 1 : 0);
       const cls = s > b ? 'over' : r >= .8 ? 'warn' : '';
-      const d = dateOf(k);
-      const label = k === t ? 'Today' : d.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+      const label = k === t ? 'Today' : dateOf(k).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
       return `<li data-day="${k}"><div class="info">
           <div class="title" style="display:flex;justify-content:space-between;gap:8px">
             <span>${label}</span><span class="num">${fmt(s)} <span class="muted" style="font-weight:400">/ ${fmt(b)}</span></span></div>
@@ -571,25 +904,40 @@
   }
   $('monPrev').addEventListener('click', () => { curMonth = shiftMonth(curMonth, -1); renderHistory(); });
   $('monNext').addEventListener('click', () => { curMonth = shiftMonth(curMonth, 1); renderHistory(); });
-  $('dayList').addEventListener('click', e => {
-    const li = e.target.closest('[data-day]');
-    if (!li) return;
-    goDay(li.dataset.day);
+  const openDay = e => {
+    const el = e.target.closest('[data-day]');
+    if (!el || el.disabled) return;
+    goDay(el.dataset.day);
     showTab('day');
-  });
+  };
+  $('dayList').addEventListener('click', openDay);
+  $('cal').addEventListener('click', openDay);
 
   // ---------- settings ----------
   function renderSettings() {
     $('setDaily').value = budgetFor(todayKey()) || '';
     $('setCur').value = db.currency;
+    $('setMode').value = db.mode || 'jar';
+    $('setGoalName').value = db.goal ? db.goal.name : '';
+    $('setGoalAmt').value = db.goal ? db.goal.target : '';
+    $('setHourly').value = db.hourly || '';
     const n = db.entries.length;
-    $('storeInfo').textContent = `${n} entr${n === 1 ? 'y' : 'ies'} saved on this device.`;
+    $('storeInfo').textContent = `${n} entr${n === 1 ? 'y' : 'ies'} saved on this device.`
+      + (db.lastBackup ? ` Last backup: ${new Date(db.lastBackup).toLocaleDateString()}.` : '');
   }
   $('saveSettings').addEventListener('click', () => {
     const amt = parseAmt($('setDaily').value);
     if (!amt) { toast('Enter a daily budget'); return; }
     if (amt !== budgetFor(todayKey())) setBudget(amt);
     db.currency = $('setCur').value.trim() || db.currency;
+    db.mode = $('setMode').value;
+    const target = parseAmt($('setGoalAmt').value);
+    db.goal = target ? {
+      name: $('setGoalName').value.trim() || 'Savings',
+      target,
+      from: db.goal ? db.goal.from : todayKey(),
+    } : null;
+    db.hourly = parseAmt($('setHourly').value);
     save(); renderSettings(); renderDay();
     toast('Settings saved');
   });
@@ -613,8 +961,7 @@
       e.note || '', e.amount, budgetFor(e.date)]));
     shareFile(`budget-${todayKey()}.csv`, rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv');
   });
-  $('backupJson').addEventListener('click', () =>
-    shareFile(`budget-backup-${todayKey()}.json`, JSON.stringify(db, null, 1), 'application/json'));
+  $('backupJson').addEventListener('click', () => { backup(); renderSettings(); });
   $('restoreBtn').addEventListener('click', () => $('restoreFile').click());
   $('restoreFile').addEventListener('change', async e => {
     const f = e.target.files[0];
@@ -678,7 +1025,7 @@
     renderAll();
   });
 
-  function renderAll() { renderCats(); renderDay(); renderHistory(); renderSettings(); }
+  function renderAll() { spendCache = null; renderCats(); renderDay(); renderHistory(); renderSettings(); }
 
   // Jump back to today if the app is reopened on a new day.
   let lastSeen = todayKey();

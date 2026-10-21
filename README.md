@@ -10,6 +10,14 @@ A small offline app for recording what I spend each day against a daily budget. 
 - Go back to earlier days to record or review them
 - Monthly history: total spent, budget, saved/overspent, daily average, days within budget, spending by category
 - Export a CSV spreadsheet, save a JSON backup, restore from a backup
+- **Savings jar:** set a goal; every night the jar fills with whatever wasn't spent that day, with an estimate of when the goal will be reached
+- **Rollover mode** (alternative to the jar): unspent money is spread over the rest of the month, so today's "safe to spend" grows when you save and shrinks after overspending
+- **Streaks:** days in a row under budget, plus best streak
+- **Price in work time:** enter your hourly income and every amount also shows how many hours of work it cost
+- **One-tap repeats:** things bought at least twice recently appear as quick-add buttons
+- **Calendar:** each day colored by spent nothing / under / close / over
+- **Insights:** month-end forecast, small habits projected over a year, biggest expense, the weekday you spend most
+- Weekly reminder to save a backup
 
 ## Install on iPhone
 
