@@ -13,7 +13,7 @@ A small offline app for recording what I spend each day against a daily budget. 
 
 ## Install on iPhone
 
-1. Open the hosted page in **Safari** (must be Safari).
+1. Open **https://fmsami.github.io/daily-budget/** in **Safari** (must be Safari).
 2. Tap **Share** → **Add to Home Screen** → **Add**.
 3. Open it once from the home screen while online. After that it works fully offline.
 
