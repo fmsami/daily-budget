@@ -24,6 +24,15 @@ A small offline app for recording what I spend each day against a daily budget. 
 - **Search** across all expenses, trips and bills
 - **Your own categories** with any emoji
 - **PIN lock:** asks for a 4-digit PIN on open and after 30 seconds away
+- **Wallets & income:** Cash, bKash, Bank… with live balances; record money in, move money between wallets, correct a balance
+- **Monthly category limits** with warnings on the Today screen
+- **Charts:** last 30 days (with the budget line) and last 12 months
+- **Type to add:** "tea 20" or "uber 250" — the category is guessed from past entries and keywords
+- **Mood:** rate each day, and an insight shows whether you spend more on good or bad days
+- **Achievements:** 18 badges for streaks, saving, trips, bills and more
+- **Wishlist** with a one-week cooling-off period and "days of saving" for each item
+- **Hide amounts** privacy mode, **5 neon color themes**, shareable month summary, evening reminder when nothing is logged
+- Futuristic 3D look: aurora background, glass cards that tilt under your finger, glowing ring
 
 ## Install on iPhone
 

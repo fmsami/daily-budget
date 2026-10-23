@@ -28,8 +28,8 @@
     --accent-ink: #041018;
     --warn: #ffb547;
     --over: #ff4d79;
-    --glow: rgba(46,240,208,.45);
-    --grad: linear-gradient(135deg, #2ef0d0, #5b8cff 60%, #7c5cff);
+    --glow: color-mix(in srgb, var(--accent) 45%, transparent);
+    --grad: linear-gradient(135deg, var(--accent), var(--accent3) 60%, var(--accent2));
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html { background: var(--bg); }
@@ -50,15 +50,15 @@
   .bgfx { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
           background: radial-gradient(120% 70% at 50% -10%, #1b2458 0%, #0a0f24 45%, #060912 75%); }
   .orb { position: absolute; border-radius: 50%; filter: blur(70px); animation: drift 20s ease-in-out infinite alternate; }
-  .o1 { width: 340px; height: 340px; background: #7c5cff; top: -90px; left: -120px; opacity: .45; }
-  .o2 { width: 300px; height: 300px; background: #2ef0d0; top: 32%; right: -140px; opacity: .25; animation-duration: 26s; }
+  .o1 { width: 340px; height: 340px; background: var(--accent2); top: -90px; left: -120px; opacity: .45; }
+  .o2 { width: 300px; height: 300px; background: var(--accent); top: 32%; right: -140px; opacity: .25; animation-duration: 26s; }
   .o3 { width: 280px; height: 280px; background: #ff4d9a; bottom: -80px; left: 5%; opacity: .18; animation-duration: 32s; }
   @keyframes drift { to { transform: translate(70px, 90px) scale(1.2); } }
   .grid {
     position: absolute; left: -60%; right: -60%; bottom: -14%; height: 52%;
     background-image:
-      linear-gradient(rgba(124,92,255,.32) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,92,255,.32) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--accent2) 32%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--accent2) 32%, transparent) 1px, transparent 1px);
     background-size: 46px 46px;
     transform: perspective(420px) rotateX(64deg); transform-origin: 50% 100%;
     -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 80%);
@@ -109,7 +109,7 @@
     background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 6px 14px -8px rgba(0,0,0,.8);
   }
-  .nav button.arrow:active { transform: scale(.92); background: rgba(46,240,208,.12); }
+  .nav button.arrow:active { transform: scale(.92); background: color-mix(in srgb, var(--accent) 12%, transparent); }
   .nav button.arrow:disabled { opacity: .2; }
   .nav .navbtn { min-width: 44px; height: 44px; color: var(--accent); font-weight: 700;
                  text-shadow: 0 0 12px var(--glow); }
@@ -117,7 +117,7 @@
   .navlabel strong {
     display: block; font-size: 24px; font-weight: 800; letter-spacing: -.01em;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-    background: linear-gradient(90deg, #ffffff, #b9fff2 60%, #c9b8ff);
+    background: linear-gradient(90deg, #ffffff, color-mix(in srgb, var(--accent) 35%, #fff) 60%, color-mix(in srgb, var(--accent2) 40%, #fff));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
   .navlabel small { color: var(--muted); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
@@ -134,7 +134,7 @@
   }
 
   /* Summary: glowing 3D ring with a glass orb in the middle */
-  .summary { overflow: hidden; border-color: rgba(46,240,208,.22);
+  .summary { overflow: hidden; border-color: color-mix(in srgb, var(--accent) 22%, transparent);
              box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 0 46px -14px var(--glow), 0 24px 40px -24px rgba(0,0,0,.9); }
   .summary::after {
     content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
@@ -145,21 +145,21 @@
   .summary-row { display: flex; align-items: center; gap: 18px; position: relative; z-index: 1; }
   .ring { width: 118px; height: 118px; flex: none; position: relative; }
   .ring svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible;
-              filter: drop-shadow(0 0 7px rgba(46,240,208,.65)); }
+              filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 65%, transparent)); }
   .ring .track { stroke: rgba(255,255,255,.07); }
   .ring .bar { stroke: url(#gOk); transition: stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1); }
   .ring .pct {
     position: absolute; inset: 19px; border-radius: 50%; display: grid; place-items: center;
     font-weight: 800; font-size: 19px; letter-spacing: -.02em;
-    background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.22), rgba(124,92,255,.14) 42%, rgba(4,8,20,.6) 100%);
+    background: radial-gradient(circle at 34% 28%, rgba(255,255,255,.22), color-mix(in srgb, var(--accent2) 14%, transparent) 42%, rgba(4,8,20,.6) 100%);
     box-shadow: inset 0 -8px 16px rgba(0,0,0,.55), inset 0 4px 10px rgba(255,255,255,.1), 0 10px 20px -8px rgba(0,0,0,.8);
   }
   .summary .left-label { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
   .summary .left-amount {
     font-size: 38px; font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin: 2px 0;
-    background: linear-gradient(90deg, #ffffff, #9ffbea);
+    background: linear-gradient(90deg, #ffffff, color-mix(in srgb, var(--accent) 45%, #fff));
     -webkit-background-clip: text; background-clip: text; color: transparent;
-    filter: drop-shadow(0 0 14px rgba(46,240,208,.35));
+    filter: drop-shadow(0 0 14px color-mix(in srgb, var(--accent) 35%, transparent));
   }
   .summary .sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
   .smart { position: relative; z-index: 1; font-size: 14px; color: #b7c2e0; margin-top: 14px; padding-top: 12px;
@@ -192,8 +192,8 @@
   .banner .go { flex: none; font-weight: 700; color: var(--warn); text-shadow: 0 0 12px rgba(255,181,71,.5); }
   .banner .x { color: var(--muted); font-size: 22px; line-height: 1; padding: 0 4px; }
   .banner.info {
-    background: linear-gradient(90deg, rgba(46,240,208,.13), rgba(91,140,255,.05));
-    border-color: rgba(46,240,208,.28);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 13%, transparent), color-mix(in srgb, var(--accent3) 5%, transparent));
+    border-color: color-mix(in srgb, var(--accent) 28%, transparent);
     box-shadow: inset 3px 0 0 var(--accent), 0 10px 24px -14px var(--glow);
   }
   .banner.info .go { color: var(--accent); text-shadow: 0 0 12px var(--glow); }
@@ -204,7 +204,7 @@
   .quick small, .formlabel { display: block; font-size: 11px; font-weight: 700; letter-spacing: .14em;
                              text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
   .quick .chips { margin-bottom: 0; }
-  .quick .chip { background: linear-gradient(135deg, rgba(124,92,255,.22), rgba(91,140,255,.1)); border-color: rgba(124,92,255,.35); }
+  .quick .chip { background: linear-gradient(135deg, color-mix(in srgb, var(--accent2) 22%, transparent), color-mix(in srgb, var(--accent3) 10%, transparent)); border-color: color-mix(in srgb, var(--accent2) 35%, transparent); }
   .amountrow { display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid var(--line);
                padding-bottom: 8px; margin-bottom: 8px; }
   .amountrow:focus-within { border-bottom-color: var(--accent); box-shadow: 0 1px 0 0 var(--accent), 0 12px 18px -16px var(--glow); }
@@ -224,8 +224,8 @@
   }
   .chip:active { transform: scale(.94); }
   .chip.on {
-    border-color: rgba(46,240,208,.7); background: rgba(46,240,208,.14);
-    box-shadow: 0 0 0 1px rgba(46,240,208,.25), 0 0 18px -3px var(--glow), inset 0 1px 0 rgba(255,255,255,.15);
+    border-color: color-mix(in srgb, var(--accent) 70%, transparent); background: color-mix(in srgb, var(--accent) 14%, transparent);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent), 0 0 18px -3px var(--glow), inset 0 1px 0 rgba(255,255,255,.15);
   }
   .field {
     width: 100%; border: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.28); border-radius: 14px;
@@ -236,7 +236,7 @@
   .field::placeholder { color: rgba(234,242,255,.32); }
   select.field, input[type=date].field { -webkit-appearance: none; appearance: none; }
   select.field option { background: var(--card-solid); }
-  .field:focus { border-color: var(--accent); box-shadow: inset 0 2px 6px rgba(0,0,0,.35), 0 0 0 3px rgba(46,240,208,.15), 0 0 18px -4px var(--glow); }
+  .field:focus { border-color: var(--accent); box-shadow: inset 0 2px 6px rgba(0,0,0,.35), 0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent), 0 0 18px -4px var(--glow); }
   .field + .field { margin-top: 8px; }
   .two { display: flex; gap: 8px; }
   .two > * { flex: 1; min-width: 0; }
@@ -247,9 +247,9 @@
   }
   .primary {
     background: var(--grad); color: var(--accent-ink);
-    box-shadow: 0 12px 26px -10px rgba(46,240,208,.6), 0 4px 0 #1f3f8f, inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.15);
+    box-shadow: 0 12px 26px -10px color-mix(in srgb, var(--accent) 60%, transparent), 0 4px 0 color-mix(in srgb, var(--accent3) 40%, #000), inset 0 1px 0 rgba(255,255,255,.55), inset 0 -2px 0 rgba(0,0,0,.15);
   }
-  .primary:active { transform: translateY(3px); box-shadow: 0 6px 14px -8px rgba(46,240,208,.6), 0 1px 0 #1f3f8f, inset 0 1px 0 rgba(255,255,255,.5); }
+  .primary:active { transform: translateY(3px); box-shadow: 0 6px 14px -8px color-mix(in srgb, var(--accent) 60%, transparent), 0 1px 0 color-mix(in srgb, var(--accent3) 40%, #000), inset 0 1px 0 rgba(255,255,255,.5); }
   .secondary {
     background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
     box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 3px 0 rgba(0,0,0,.45);
@@ -267,7 +267,7 @@
          background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.08); box-shadow: inset 0 2px 8px rgba(0,0,0,.4); }
   .seg button { flex: 1; padding: 10px 4px; border-radius: 12px; font-size: 14px; font-weight: 700; color: var(--muted); transition: .2s; }
   .seg button.on {
-    color: var(--ink); background: linear-gradient(135deg, rgba(46,240,208,.22), rgba(124,92,255,.22));
+    color: var(--ink); background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent2) 22%, transparent));
     box-shadow: 0 0 16px -4px var(--glow), inset 0 1px 0 rgba(255,255,255,.18);
   }
 
@@ -291,7 +291,7 @@
   .list .meta { font-size: 13px; color: var(--muted); }
   .list .amt { font-weight: 700; }
   .list .x { color: var(--muted); font-size: 22px; line-height: 1; padding: 4px 6px; margin-right: -6px; }
-  .list li.editing { background: rgba(46,240,208,.08); border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(46,240,208,.3); }
+  .list li.editing { background: color-mix(in srgb, var(--accent) 8%, transparent); border-radius: 14px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
   .empty { text-align: center; color: var(--muted); padding: 20px 8px; font-size: 15px; }
 
   /* History */
@@ -317,10 +317,10 @@
   }
   .cal .d:active { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 rgba(0,0,0,.4); }
   .cal .d.off { background: transparent; border-color: transparent; box-shadow: none; color: rgba(138,150,184,.5); font-weight: 400; }
-  .cal .d.zero { background: linear-gradient(145deg, #5ff7de, #16b89e); color: #031612; border-color: rgba(255,255,255,.25);
-                 box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 0 #0c6f60, 0 0 18px -4px var(--glow); }
-  .cal .d.ok { background: linear-gradient(145deg, rgba(46,240,208,.32), rgba(46,240,208,.12)); border-color: rgba(46,240,208,.3);
-               box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 4px 0 rgba(10,70,62,.7); }
+  .cal .d.zero { background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 70%, #fff), color-mix(in srgb, var(--accent) 72%, #000)); color: #031612; border-color: rgba(255,255,255,.25);
+                 box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 4px 0 color-mix(in srgb, var(--accent) 40%, #000), 0 0 18px -4px var(--glow); }
+  .cal .d.ok { background: linear-gradient(145deg, color-mix(in srgb, var(--accent) 32%, transparent), color-mix(in srgb, var(--accent) 12%, transparent)); border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+               box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 4px 0 color-mix(in srgb, var(--accent) 30%, #000); }
   .cal .d.warn { background: linear-gradient(145deg, #ffd27a, #e8902a); color: #1f1200; border-color: rgba(255,255,255,.2);
                  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 4px 0 #8a5212, 0 0 16px -5px rgba(255,181,71,.7); }
   .cal .d.over { background: linear-gradient(145deg, #ff7f9f, #e0245a); color: #fff; border-color: rgba(255,255,255,.2);
@@ -328,8 +328,8 @@
   .cal .d.today { outline: 2px solid #fff; outline-offset: 1px; }
   .legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--muted); margin-top: 14px; }
   .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
-  .legend i.zero { background: #2ef0d0; box-shadow: 0 0 8px var(--glow); }
-  .legend i.ok { background: rgba(46,240,208,.35); }
+  .legend i.zero { background: var(--accent); box-shadow: 0 0 8px var(--glow); }
+  .legend i.ok { background: color-mix(in srgb, var(--accent) 35%, transparent); }
   .legend i.warn { background: #ffb547; }
   .legend i.over { background: #ff4d79; }
   .catrow { display: grid; grid-template-columns: 28px 1fr auto; gap: 5px 10px; align-items: center;
@@ -339,8 +339,8 @@
   .catrow .val { font-size: 15px; font-weight: 700; }
   .meter { grid-column: 2 / 4; height: 7px; background: rgba(0,0,0,.35); border-radius: 4px; overflow: hidden;
            box-shadow: inset 0 1px 3px rgba(0,0,0,.6); }
-  .meter i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, #2ef0d0, #5b8cff, #7c5cff);
-             box-shadow: 0 0 12px rgba(46,240,208,.6); }
+  .meter i { display: block; height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent3), var(--accent2));
+             box-shadow: 0 0 12px color-mix(in srgb, var(--accent) 60%, transparent); }
   .meter i.warn { background: linear-gradient(90deg, #ffd166, #ff8a3d); box-shadow: 0 0 12px rgba(255,181,71,.6); }
   .meter i.over { background: linear-gradient(90deg, #ff7a9c, #ff2e63); box-shadow: 0 0 12px rgba(255,77,121,.7); }
   .daylist li { cursor: pointer; }
@@ -351,7 +351,7 @@
   .tripcard { display: block; width: 100%; text-align: left; overflow: hidden; }
   .tripcard::before {
     content: ''; position: absolute; top: -40px; right: -40px; width: 140px; height: 140px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(124,92,255,.35), transparent 70%); pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent2) 35%, transparent), transparent 70%); pointer-events: none;
   }
   .tripcard .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; position: relative; }
   .tripcard b { font-size: 19px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -359,14 +359,14 @@
   .tripcard .meter { margin: 12px 0 8px; }
   .pill { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
           padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,.07); color: var(--muted); border: 1px solid rgba(255,255,255,.1); }
-  .pill.active { background: rgba(46,240,208,.15); color: var(--accent); border-color: rgba(46,240,208,.4); box-shadow: 0 0 14px -3px var(--glow); }
+  .pill.active { background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); box-shadow: 0 0 14px -3px var(--glow); }
   .pill.upcoming { background: rgba(255,181,71,.13); color: var(--warn); border-color: rgba(255,181,71,.35); }
   .prow { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; padding: 8px 0;
           border-bottom: 1px solid var(--line); }
   .prow span:first-child { font-weight: 600; }
   .prow span:last-child { font-size: 14px; text-align: right; }
   .settle { padding-top: 12px; display: grid; gap: 8px; font-size: 15px; }
-  .settle > div { padding: 10px 12px; border-radius: 12px; background: rgba(46,240,208,.07); border: 1px solid rgba(46,240,208,.18); }
+  .settle > div { padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 7%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); }
 
   /* Settings */
   label.row { display: block; margin-bottom: 14px; }
@@ -386,7 +386,7 @@
     background: rgba(14,19,42,.72);
     -webkit-backdrop-filter: blur(22px) saturate(160%); backdrop-filter: blur(22px) saturate(160%);
     border: 1px solid rgba(255,255,255,.1);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 40px -12px rgba(0,0,0,.9), 0 0 30px -14px rgba(124,92,255,.6);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 18px 40px -12px rgba(0,0,0,.9), 0 0 30px -14px color-mix(in srgb, var(--accent2) 60%, transparent);
   }
   .tabs button {
     flex: 1; max-width: 120px; padding: 8px 0 6px; display: grid; justify-items: center; gap: 3px;
@@ -394,7 +394,7 @@
     border-radius: 20px; position: relative; transition: color .2s, background .2s;
   }
   .tabs button svg { width: 24px; height: 24px; transition: transform .2s, filter .2s; }
-  .tabs button.on { color: var(--accent); background: rgba(46,240,208,.08); }
+  .tabs button.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
   .tabs button.on svg { transform: translateY(-1px) scale(1.08); filter: drop-shadow(0 0 6px var(--glow)); }
   .tabs button.on::after {
     content: ''; position: absolute; bottom: 1px; width: 18px; height: 3px; border-radius: 2px;
@@ -407,7 +407,7 @@
     transform: translate(-50%, 20px) scale(.96); opacity: 0; pointer-events: none;
     background: rgba(18,24,52,.9); color: var(--ink); border-radius: 16px; padding: 12px 16px;
     -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-    border: 1px solid rgba(46,240,208,.3); box-shadow: 0 0 24px -6px var(--glow), 0 16px 30px -12px rgba(0,0,0,.9);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent); box-shadow: 0 0 24px -6px var(--glow), 0 16px 30px -12px rgba(0,0,0,.9);
     display: flex; gap: 16px; align-items: center; font-size: 15px; font-weight: 600; transition: .3s cubic-bezier(.2,.8,.2,1);
     max-width: calc(100% - 32px); white-space: nowrap;
   }
@@ -424,7 +424,7 @@
     width: 100%; max-width: 560px; border-radius: 26px 26px 0 0;
     background: linear-gradient(180deg, #141b3d, #0b1028);
     border: 1px solid rgba(255,255,255,.1); border-bottom: 0;
-    box-shadow: 0 -10px 40px -10px rgba(124,92,255,.45), inset 0 1px 0 rgba(255,255,255,.12);
+    box-shadow: 0 -10px 40px -10px color-mix(in srgb, var(--accent2) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.12);
     padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
     max-height: 92vh; overflow-y: auto;
     animation: slideup .35s cubic-bezier(.2,.8,.2,1);
@@ -457,7 +457,7 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 -4px 10px rgba(0,0,0,.4), 0 6px 0 rgba(0,0,0,.45), 0 14px 20px -10px rgba(0,0,0,.9);
     transition: transform .1s, box-shadow .1s;
   }
-  .keypad button:active { transform: translateY(4px); background: rgba(46,240,208,.2);
+  .keypad button:active { transform: translateY(4px); background: color-mix(in srgb, var(--accent) 20%, transparent);
                           box-shadow: inset 0 1px 0 rgba(255,255,255,.2), 0 2px 0 rgba(0,0,0,.45), 0 0 20px -4px var(--glow); }
   .keypad button.blank { visibility: hidden; }
   .keypad button.del { background: none; border: 0; box-shadow: none; font-size: 22px; }
@@ -466,15 +466,68 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+
+  /* New features */
+  .eye { position: absolute; top: 10px; right: 10px; z-index: 2; width: 34px; height: 34px; border-radius: 12px;
+         display: grid; place-items: center; color: var(--muted); background: rgba(255,255,255,.05); border: 1px solid var(--line); }
+  .eye svg { width: 18px; height: 18px; }
+  .eye.on { color: var(--accent); box-shadow: 0 0 14px -4px var(--glow); }
+  .badge.cool { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 18%, transparent), color-mix(in srgb, var(--accent2) 14%, transparent));
+                border-color: color-mix(in srgb, var(--accent) 40%, transparent); box-shadow: 0 0 20px -6px var(--glow), inset 0 1px 0 rgba(255,255,255,.12); }
+  .banner.bad { background: linear-gradient(90deg, rgba(255,77,121,.16), rgba(255,77,121,.04)); border-color: rgba(255,77,121,.35);
+                box-shadow: inset 3px 0 0 var(--over), 0 10px 24px -14px rgba(255,77,121,.6); }
+  .magic { position: relative; margin-bottom: 14px; }
+  .magic .field { padding-right: 54px; }
+  .magic button { position: absolute; right: 6px; top: 6px; width: 40px; height: 36px; border-radius: 11px;
+                  background: var(--grad); color: var(--accent-ink); font-weight: 800; font-size: 18px; box-shadow: 0 0 14px -4px var(--glow); }
+  .magic button:active { transform: scale(.92); }
+  .moods { display: flex; justify-content: space-between; gap: 6px; }
+  .moods button { flex: 1; max-width: 58px; aspect-ratio: 1; border-radius: 16px; font-size: 26px;
+                  background: rgba(255,255,255,.04); border: 1px solid var(--line); filter: grayscale(.7); opacity: .55; transition: .2s; }
+  .moods button.on { filter: none; opacity: 1; transform: translateY(-3px) scale(1.06); border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+                     box-shadow: 0 0 18px -4px var(--glow), inset 0 1px 0 rgba(255,255,255,.15); }
+  .h2btn { margin-left: auto; color: var(--accent); font-size: 11px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+  .chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart text { font-size: 9px; fill: var(--muted); font-weight: 600; }
+  .chart .bline { fill: none; stroke: var(--warn); stroke-width: 1.2; stroke-dasharray: 3 3; opacity: .8; }
+  .limrow { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .limrow span { flex: 1; font-size: 15px; }
+  .limrow .field { flex: 0 0 130px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; text-align: left; min-height: 124px; margin: 0; overflow: hidden; }
+  .tile .ti { font-size: 30px; margin-bottom: 6px; filter: drop-shadow(0 0 10px var(--glow)); }
+  .tile b { font-size: 17px; font-weight: 800; }
+  .tile small { font-size: 13px; color: var(--muted); }
+  .tile::before { content: ''; position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; border-radius: 50%;
+                  background: radial-gradient(circle, color-mix(in srgb, var(--accent2) 30%, transparent), transparent 70%); pointer-events: none; }
+  .badgegrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .bdg { text-align: center; padding: 14px 6px 12px; border-radius: 18px; background: rgba(255,255,255,.04); border: 1px solid var(--line); }
+  .bdg .e { font-size: 32px; display: block; line-height: 1.2; }
+  .bdg b { display: block; font-size: 13px; margin-top: 6px; }
+  .bdg small { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; line-height: 1.3; }
+  .bdg.on { border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+            background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 14%, transparent), rgba(255,255,255,.02));
+            box-shadow: 0 0 22px -8px var(--glow), inset 0 1px 0 rgba(255,255,255,.12); }
+  .bdg.on .e { filter: drop-shadow(0 0 10px var(--glow)); }
+  .bdg:not(.on) { opacity: .5; }
+  .swatches { display: flex; gap: 14px; flex-wrap: wrap; }
+  .swatch { width: 46px; height: 46px; border-radius: 50%; border: 2px solid transparent;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,.35), 0 6px 14px -6px rgba(0,0,0,.8); }
+  .swatch.on { border-color: #fff; box-shadow: 0 0 18px -2px rgba(255,255,255,.5); }
+  .list .amt.bad { color: var(--over); }
+  .list .amt.good { color: var(--accent); }
+  #moreHome > *, [id^="sec-"] > * { animation: rise .55s cubic-bezier(.2,.8,.2,1) backwards; }
 </style>
 </head>
 <body>
 <div class="bgfx" aria-hidden="true"><i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i><div class="grid"></div></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
-    <linearGradient id="gOk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ef0d0"/><stop offset=".55" stop-color="#5b8cff"/><stop offset="1" stop-color="#9b7bff"/></linearGradient>
+    <linearGradient id="gOk" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color: var(--accent)"/><stop offset=".55" style="stop-color: var(--accent3)"/><stop offset="1" style="stop-color: var(--accent2)"/></linearGradient>
     <linearGradient id="gWarn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffe08a"/><stop offset="1" stop-color="#ff7a3d"/></linearGradient>
     <linearGradient id="gOver" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff8fab"/><stop offset="1" stop-color="#d42cff"/></linearGradient>
+    <linearGradient id="gBar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: var(--accent)"/><stop offset="1" style="stop-color: var(--accent2)" stop-opacity=".55"/></linearGradient>
+    <linearGradient id="gBarOver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a9c"/><stop offset="1" stop-color="#d42cff" stop-opacity=".6"/></linearGradient>
   </defs>
 </svg>
 <main>
@@ -491,8 +544,7 @@
     </div>
     <div class="badges" id="badges"></div>
 
-    <div id="tripBanner"></div>
-    <div id="billBanner"></div>
+    <div id="nudges"></div>
     <div class="banner hidden" id="backupBanner">
       <span id="backupText"></span>
       <button class="go" id="backupNow">Back up</button>
@@ -500,6 +552,9 @@
     </div>
 
     <div class="card summary tilt" id="summary">
+      <button class="eye" id="hideBtn" aria-label="Hide amounts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
       <div class="summary-row">
         <div class="ring">
           <svg viewBox="0 0 120 120">
@@ -525,6 +580,10 @@
     </div>
 
     <div class="card">
+      <div class="magic">
+        <input class="field" id="magic" type="text" placeholder="⚡ Type it: “tea 20”, “uber 250”" autocomplete="off" enterkeyhint="done">
+        <button id="magicGo" aria-label="Add">➜</button>
+      </div>
       <div class="quick hidden" id="quick">
         <small>Again? Tap to add</small>
         <div class="chips" id="quickChips"></div>
@@ -535,12 +594,18 @@
       </div>
       <div class="hint" id="amtHint"></div>
       <div class="chips" id="cats"></div>
+      <div class="chips hidden" id="walletChips"></div>
       <input class="field" id="note" type="text" placeholder="Note (optional)" maxlength="60" autocomplete="off">
       <div class="btnrow">
         <button class="danger hidden" id="delBtn">Delete</button>
         <button class="secondary hidden" id="cancelBtn">Cancel</button>
         <button class="primary" id="addBtn">Add expense</button>
       </div>
+    </div>
+
+    <div class="card">
+      <span class="formlabel" id="moodLabel">How's today going?</span>
+      <div class="moods" id="moods"></div>
     </div>
 
     <h2 id="listHead">Entries</h2>
@@ -639,9 +704,19 @@
 
     <div id="histMain">
       <div class="card stats tilt" id="stats"></div>
+      <button class="secondary wide" id="shareMonth" style="margin-bottom: 14px">📤 Share this month's summary</button>
       <div id="insightWrap" class="hidden">
         <h2>Insights</h2>
         <div class="card"><ul class="insights" id="insights"></ul></div>
+      </div>
+      <h2>Trends</h2>
+      <div class="card">
+        <div class="seg" id="trendSeg">
+          <button data-trend="days" class="on">Last 30 days</button>
+          <button data-trend="months">Last 12 months</button>
+        </div>
+        <div id="trend"></div>
+        <p class="note end" id="trendNote"></p>
       </div>
       <h2>Calendar</h2>
       <div class="card">
@@ -653,7 +728,7 @@
           <span><i class="over"></i>Over</span>
         </div>
       </div>
-      <h2>By category</h2>
+      <h2>By category <button class="h2btn" id="editLimits">Set limits</button></h2>
       <div class="card" id="catBreak"></div>
       <h2>Days</h2>
       <div class="card" style="padding: 4px 12px">
@@ -662,16 +737,67 @@
     </div>
   </section>
 
-  <!-- MORE VIEW: bills, lend & borrow, settings -->
+  <!-- MORE VIEW -->
   <section id="view-more" class="view">
-    <div class="nav"><div class="navlabel" style="margin: 0 auto"><strong>More</strong></div></div>
-    <div class="seg" id="moreSeg">
-      <button data-sec="bills" class="on">Bills</button>
-      <button data-sec="loans">Lend &amp; borrow</button>
-      <button data-sec="settings">Settings</button>
+    <div id="moreHome">
+      <div class="nav"><div class="navlabel" style="margin: 0 auto"><strong>More</strong></div></div>
+      <div class="tiles">
+        <button class="card tile tilt" data-sec="wallets"><span class="ti">👛</span><b>Wallets</b><small id="tileWallets"></small></button>
+        <button class="card tile tilt" data-sec="bills"><span class="ti">💡</span><b>Bills</b><small id="tileBills"></small></button>
+        <button class="card tile tilt" data-sec="loans"><span class="ti">🤝</span><b>Lend &amp; borrow</b><small id="tileLoans"></small></button>
+        <button class="card tile tilt" data-sec="wishes"><span class="ti">🎁</span><b>Wishlist</b><small id="tileWishes"></small></button>
+        <button class="card tile tilt" data-sec="badges"><span class="ti">🏆</span><b>Achievements</b><small id="tileBadges"></small></button>
+        <button class="card tile tilt" data-sec="settings"><span class="ti">⚙️</span><b>Settings</b><small>Budget, look, PIN, backup</small></button>
+      </div>
     </div>
 
-    <div id="sec-bills">
+    <div id="sec-wallets" class="hidden">
+      <div class="nav"><button class="arrow" data-back aria-label="Back">‹</button><div class="navlabel"><strong>Wallets</strong></div><span style="width: 44px"></span></div>
+      <div class="card summary tilt">
+        <div class="left-label">Total balance</div>
+        <div class="left-amount num" id="walletTotal">0</div>
+        <div class="sub" id="walletSub"></div>
+      </div>
+      <div class="card" style="padding: 4px 12px"><ul class="list" id="walletList"></ul></div>
+      <h2>Money in</h2>
+      <div class="card">
+        <div class="amountrow">
+          <span class="cur" data-cur></span>
+          <input id="incAmt" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Amount">
+        </div>
+        <input class="field" id="incNote" type="text" placeholder="From where? e.g. Salary, gift" maxlength="40" autocomplete="off" style="margin: 8px 0 12px">
+        <div class="chips hidden" id="incWallets"></div>
+        <button class="primary wide" id="incAdd">Add money in</button>
+      </div>
+      <div id="moveWrap">
+        <h2>Move money</h2>
+        <div class="card">
+          <div class="two">
+            <select class="field" id="trFrom" aria-label="From wallet"></select>
+            <select class="field" id="trTo" aria-label="To wallet"></select>
+          </div>
+          <input class="field num" id="trAmt" type="text" inputmode="decimal" placeholder="Amount" autocomplete="off" style="margin-top: 8px">
+          <button class="secondary wide" id="trAdd" style="margin-top: 12px">Move</button>
+        </div>
+      </div>
+      <h2>Add a wallet</h2>
+      <div class="card">
+        <div class="two">
+          <input class="field" id="wlEmoji" type="text" maxlength="4" placeholder="👛" autocomplete="off" style="flex: 0 0 64px; text-align: center">
+          <input class="field" id="wlName" type="text" maxlength="20" placeholder="e.g. bKash, Bank, Card" autocomplete="off">
+        </div>
+        <input class="field num" id="wlBal" type="text" inputmode="decimal" placeholder="Money in it right now" autocomplete="off" style="margin-top: 8px">
+        <button class="secondary wide" id="wlAdd" style="margin-top: 12px">Add wallet</button>
+      </div>
+      <div id="moneyLogWrap" class="hidden">
+        <h2>Recent money in &amp; moves</h2>
+        <div class="card" style="padding: 4px 12px"><ul class="list" id="moneyLog"></ul></div>
+      </div>
+      <p class="note">Pick a wallet when you add an expense and its balance updates by itself. Tap a wallet to correct its balance.</p>
+    </div>
+
+    <div id="sec-bills" class="hidden">
+      <div class="nav"><button class="arrow" data-back aria-label="Back">‹</button><div class="navlabel"><strong>Bills</strong></div><span style="width: 44px"></span></div>
       <div class="card stats" id="billStats"></div>
       <div class="card" style="padding: 4px 12px"><ul class="list" id="billList"></ul></div>
       <h2>Add a monthly bill</h2>
@@ -687,6 +813,7 @@
     </div>
 
     <div id="sec-loans" class="hidden">
+      <div class="nav"><button class="arrow" data-back aria-label="Back">‹</button><div class="navlabel"><strong>Lend &amp; borrow</strong></div><span style="width: 44px"></span></div>
       <div class="card stats">
         <div class="stat"><small>Owed to you</small><b class="num good" id="owedToMe"></b></div>
         <div class="stat"><small>You owe</small><b class="num bad" id="iOwe"></b></div>
@@ -712,7 +839,31 @@
       </div>
     </div>
 
+    <div id="sec-wishes" class="hidden">
+      <div class="nav"><button class="arrow" data-back aria-label="Back">‹</button><div class="navlabel"><strong>Wishlist</strong></div><span style="width: 44px"></span></div>
+      <div class="card stats">
+        <div class="stat"><small>On your list</small><b class="num" id="wishCount"></b></div>
+        <div class="stat"><small>Total</small><b class="num" id="wishTotal"></b></div>
+      </div>
+      <div class="card" style="padding: 4px 12px"><ul class="list" id="wishList"></ul></div>
+      <h2>Add something you want</h2>
+      <div class="card">
+        <div class="two">
+          <input class="field" id="wishName" type="text" maxlength="40" placeholder="e.g. Headphones" autocomplete="off">
+          <input class="field num" id="wishPrice" type="text" inputmode="decimal" placeholder="Price" autocomplete="off" style="flex: 0 0 120px">
+        </div>
+        <button class="primary wide" id="wishAdd" style="margin-top: 12px">Add to wishlist</button>
+      </div>
+      <p class="note">Each item gets a week to cool off, so you only buy what you still want. Tap an item when you buy it and it's added as an expense.</p>
+    </div>
+
+    <div id="sec-badges" class="hidden">
+      <div class="nav"><button class="arrow" data-back aria-label="Back">‹</button><div class="navlabel"><strong>Achievements</strong><small id="badgeCount"></small></div><span style="width: 44px"></span></div>
+      <div class="badgegrid" id="badgeGrid"></div>
+    </div>
+
     <div id="sec-settings" class="hidden">
+      <div class="nav"><button class="arrow" data-back aria-label="Back">‹</button><div class="navlabel"><strong>Settings</strong></div><span style="width: 44px"></span></div>
       <h2>Budget</h2>
       <div class="card">
         <label class="row"><span>Daily budget</span>
@@ -749,6 +900,14 @@
       </div>
 
       <button class="primary wide" id="saveSettings" style="margin-bottom: 6px">Save settings</button>
+
+      <h2>Look</h2>
+      <div class="card">
+        <span class="formlabel">Neon color</span>
+        <div class="swatches" id="swatches"></div>
+        <button class="secondary wide" id="hideToggle" style="margin-top: 16px">Hide amounts</button>
+        <p class="note end">Hiding amounts shows ••• instead of numbers, handy in public. You can also tap the eye on the Today screen.</p>
+      </div>
 
       <h2>Your categories</h2>
       <div class="card">
@@ -842,6 +1001,18 @@
   </div>
 </div>
 
+<div class="modal hidden" id="limitSheet">
+  <div class="sheet">
+    <h3>Monthly limits</h3>
+    <p>The most you want to spend on each category in a month. Leave empty for no limit.</p>
+    <div id="limitRows"></div>
+    <div class="btnrow">
+      <button class="secondary" id="limCancel">Cancel</button>
+      <button class="primary" id="limSave">Save</button>
+    </div>
+  </div>
+</div>
+
 <div class="lock hidden" id="lock">
   <div class="lockbox">
     <div class="lockicon">🔒</div>
@@ -876,6 +1047,28 @@
     { id: 'tickets', emoji: '🎟️', name: 'Tickets' },
   ];
   const OTHER = { id: 'other', emoji: '📦', name: 'Other' };
+  // Words that hint at a category when typing "tea 20" into quick add.
+  const KEYWORDS = {
+    food: ['tea', 'cha', 'coffee', 'lunch', 'dinner', 'breakfast', 'snack', 'restaurant', 'pizza', 'burger',
+           'biryani', 'kacchi', 'fuchka', 'juice', 'cake', 'sweets', 'ice cream', 'food', 'meal', 'khabar'],
+    transport: ['uber', 'pathao', 'rickshaw', 'cng', 'bus', 'taxi', 'train', 'metro', 'fuel', 'petrol',
+                'octane', 'diesel', 'parking', 'toll', 'ride', 'fare', 'launch', 'flight'],
+    groceries: ['grocery', 'groceries', 'bazar', 'rice', 'vegetable', 'fish', 'meat', 'chicken', 'beef', 'milk',
+                'egg', 'oil', 'dal', 'onion', 'potato', 'fruit', 'bread', 'shwapno', 'meena'],
+    shopping: ['clothes', 'shirt', 'pant', 'shoe', 'dress', 'saree', 'panjabi', 'bag', 'watch', 'daraz',
+               'amazon', 'gift', 'cosmetic', 'perfume', 'gadget'],
+    bills: ['electric', 'internet', 'wifi', 'recharge', 'mobile', 'phone bill', 'gas', 'water', 'rent', 'bill'],
+    fun: ['movie', 'cinema', 'netflix', 'spotify', 'game', 'concert', 'party', 'outing', 'youtube'],
+    health: ['medicine', 'pharmacy', 'doctor', 'hospital', 'clinic', 'test', 'dentist', 'gym', 'vitamin'],
+  };
+  const THEMES = {
+    cyan:    ['#2ef0d0', '#5b8cff', '#7c5cff'],
+    magenta: ['#ff4fd8', '#b45cff', '#5b6cff'],
+    gold:    ['#ffd166', '#ff9f43', '#ff5e7a'],
+    lime:    ['#b6ff3b', '#2ef08a', '#1fc8ff'],
+    ice:     ['#8fe9ff', '#7aa7ff', '#c3b5ff'],
+  };
+  const MOODS = ['😞', '😕', '😐', '🙂', '😄'];
   const $ = id => document.getElementById(id);
   const DAY = 864e5;
 
@@ -895,9 +1088,13 @@
   let db = load();
   let spendCache = null;
   function normalize(d) {
-    for (const k of ['budgets', 'entries', 'trips', 'bills', 'loans', 'customCats']) if (!Array.isArray(d[k])) d[k] = [];
+    for (const k of ['budgets', 'entries', 'trips', 'bills', 'loans', 'customCats',
+                     'wallets', 'incomes', 'transfers', 'wishes', 'badges']) if (!Array.isArray(d[k])) d[k] = [];
+    for (const k of ['limits', 'moods']) if (!d[k] || typeof d[k] !== 'object') d[k] = {};
+    if (!d.wallets.length) d.wallets.push({ id: 'cash', emoji: '💵', name: 'Cash', opening: 0 });
     d.currency = d.currency || '৳';
     d.mode = d.mode || 'jar';
+    d.theme = THEMES[d.theme] ? d.theme : 'cyan';
     d.start = d.start || todayKey();
     return d;
   }
@@ -912,6 +1109,7 @@
     spendCache = null;
     try { localStorage.setItem(STORE, JSON.stringify(db)); }
     catch (e) { toast('Could not save — storage is full or blocked'); }
+    queueBadges();
   }
   // Budget in effect on a given day: the latest change made on or before it.
   function budgetFor(k) {
@@ -936,6 +1134,20 @@
   // First day that counts: when the app was set up, or the earliest entry if older.
   const firstDay = () => db.entries.reduce((m, e) => isDaily(e) && e.date < m ? e.date : m, db.start || todayKey());
 
+  // ---------- wallets ----------
+  const walletById = id => db.wallets.find(w => w.id === id);
+  const defWallet = () => (walletById(db.lastWallet) || db.wallets[0]).id;
+  function balanceOf(w) {
+    let b = w.opening || 0;
+    for (const i of db.incomes) if (i.wallet === w.id) b += i.amount;
+    for (const x of db.transfers) { if (x.to === w.id) b += x.amount; if (x.from === w.id) b -= x.amount; }
+    for (const e of db.entries) if (e.wallet === w.id) b -= e.amount;
+    return b;
+  }
+  const totalBalance = () => db.wallets.reduce((s, w) => s + balanceOf(w), 0);
+  const walletChipsHtml = (sel, attr) => db.wallets.map(w =>
+    `<button class="chip${w.id === sel ? ' on' : ''}" ${attr}="${w.id}">${w.emoji} ${esc(w.name)}</button>`).join('');
+
   // ---------- categories ----------
   const dailyCats = () => [...BASE_CATS, ...db.customCats, OTHER];
   const tripCats = () => [...['food', 'transport'].map(catOf), ...TRIP_EXTRA, ...['shopping', 'fun'].map(catOf), ...db.customCats, OTHER];
@@ -947,10 +1159,12 @@
     `<button class="chip${isOn(c.id) ? ' on' : ''}" ${attr}="${c.id}">${c.emoji} ${esc(c.name)}</button>`).join('');
 
   // ---------- formatting ----------
-  const fmt = n => {
+  const fmtRaw = n => {
     const v = Math.round(n * 100) / 100;
     return db.currency + Math.abs(v).toLocaleString(undefined, { maximumFractionDigits: Math.abs(v) >= 100 ? 0 : 2 });
   };
+  const fmt = n => db.hide ? db.currency + '•••' : fmtRaw(n);
+  const signed = n => (n < 0 ? '−' : '') + fmt(n);
   const parseAmt = s => {
     const v = parseFloat(String(s).replace(/,/g, '.').replace(/[^\d.]/g, ''));
     return isFinite(v) && v > 0 ? Math.round(v * 100) / 100 : 0;
@@ -968,28 +1182,37 @@
     const from = el._v === undefined ? 0 : el._v;
     el._v = value;
     cancelAnimationFrame(el._raf);
-    if (from === value || calm()) { el.textContent = fmt(value); return; }
+    if (from === value || calm() || db.hide) { el.textContent = signed(value); return; }
     const t0 = performance.now();
     const step = now => {
       const p = Math.min(1, (now - t0) / 700);
-      el.textContent = p < 1 ? fmt(Math.round(from + (value - from) * (1 - Math.pow(1 - p, 3)))) : fmt(value);
+      el.textContent = p < 1 ? signed(Math.round(from + (value - from) * (1 - Math.pow(1 - p, 3)))) : signed(value);
       if (p < 1) el._raf = requestAnimationFrame(step);
     };
     el._raf = requestAnimationFrame(step);
   }
   const dayEntries = k => db.entries.filter(e => e.date === k && isDaily(e)).sort((a, b) => b.t - a.t);
   const timeOn = k => { const n = new Date(); return dateOf(k).getTime() + (n.getHours() * 60 + n.getMinutes()) * 6e4; };
-  function catBreakHtml(entries) {
+  function catBreakHtml(entries, limits) {
     const total = entries.reduce((s, e) => s + e.amount, 0);
     const by = {};
     entries.forEach(e => by[e.cat] = (by[e.cat] || 0) + e.amount);
+    if (limits) for (const [id, lim] of Object.entries(limits)) if (lim > 0 && !(id in by)) by[id] = 0;
     const rows = Object.entries(by).sort((a, b) => b[1] - a[1]);
     if (!rows.length) return '<div class="empty">No spending yet.</div>';
-    const max = rows[0][1];
+    const max = rows[0][1] || 1;
     return rows.map(([id, v]) => {
       const c = catOf(id);
+      const lim = limits && limits[id];
+      if (lim) {
+        const r = v / lim;
+        return `<div class="catrow"><span>${c.emoji}</span><span class="name">${esc(c.name)}
+          <span class="muted">· ${Math.round(r * 100)}% of limit</span></span>
+          <span class="val num">${fmt(v)} <span class="muted" style="font-weight:400">/ ${fmt(lim)}</span></span>
+          <div class="meter"><i class="${r > 1 ? 'over' : r >= .8 ? 'warn' : ''}" style="width:${Math.min(r, 1) * 100}%"></i></div></div>`;
+      }
       return `<div class="catrow"><span>${c.emoji}</span><span class="name">${esc(c.name)}
-        <span class="muted">· ${Math.round(v / total * 100)}%</span></span>
+        <span class="muted">· ${total ? Math.round(v / total * 100) : 0}%</span></span>
         <span class="val num">${fmt(v)}</span><div class="meter"><i style="width:${v / max * 100}%"></i></div></div>`;
     }).join('');
   }
@@ -1030,19 +1253,40 @@
     for (let k = from; k < t; k = addDays(k, 1)) { saved += budgetFor(k) - spentOn(k); days++; }
     return { saved: Math.max(0, saved), days };
   }
+  // Average amount left unspent per day over the last 30 finished days.
+  function saveRate() {
+    const t = todayKey(), f = firstDay();
+    let s = 0, n = 0;
+    for (let i = 1; i <= 30; i++) {
+      const k = addDays(t, -i);
+      if (k < f) break;
+      s += budgetFor(k) - spentOn(k); n++;
+    }
+    return n >= 3 ? s / n : 0;
+  }
 
   // ---------- day view ----------
   let curDay = todayKey();
   let curCat = 'food';
+  let curWallet = null;
   let editingId = null;
+  const formWallet = () => walletById(curWallet) ? curWallet : defWallet();
 
   function renderCats() {
     $('cats').innerHTML = chipHtml(dailyCats(), id => id === curCat, 'data-cat');
+    $('walletChips').classList.toggle('hidden', db.wallets.length < 2);
+    $('walletChips').innerHTML = walletChipsHtml(formWallet(), 'data-wallet');
   }
   $('cats').addEventListener('click', e => {
     const b = e.target.closest('[data-cat]');
     if (!b) return;
     curCat = b.dataset.cat;
+    renderCats();
+  });
+  $('walletChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-wallet]');
+    if (!b) return;
+    curWallet = b.dataset.wallet;
     renderCats();
   });
 
@@ -1058,6 +1302,7 @@
     $('dayPick').value = curDay;
     $('dayPick').max = t;
     $('dayNext').disabled = curDay >= t;
+    $('hideBtn').classList.toggle('on', !!db.hide);
 
     const rollover = isToday && db.mode === 'rollover';
     const base = budgetFor(curDay);
@@ -1070,7 +1315,7 @@
     $('summary').className = 'card summary tilt' + (left < 0 ? ' state-over' : ratio >= .8 ? ' state-warn' : '');
     $('leftLabel').textContent = left < 0 ? 'Over budget by'
       : rollover ? 'Safe to spend today' : isToday ? 'Left today' : 'Left that day';
-    countTo($('leftAmount'), left);
+    countTo($('leftAmount'), Math.abs(left));
     $('spentOf').textContent = `Spent ${fmt(spent)} of ${fmt(budget)}`;
 
     let line = '';
@@ -1085,30 +1330,50 @@
     $('smartLine').textContent = line;
 
     const s = streak();
-    $('badges').innerHTML = isToday && s >= 1
-      ? `<span class="badge">🔥 ${plural(s, 'day')} in a row under budget</span>` : '';
+    const badges = [];
+    if (isToday && s >= 1) badges.push(`<span class="badge">🔥 ${plural(s, 'day')} in a row under budget</span>`);
+    if (isToday && (db.wallets.length > 1 || db.incomes.length)) {
+      badges.push(`<button class="badge cool" data-goto="wallets">👛 ${signed(totalBalance())}</button>`);
+    }
+    $('badges').innerHTML = badges.join('');
 
     renderJar(isToday);
-    renderTripBanner(isToday);
-    renderBillBanner(isToday);
+    renderNudges(isToday);
     renderBackupBanner(isToday);
     renderQuick();
     renderHint();
 
+    $('moodLabel').textContent = isToday ? 'How\'s today going?' : 'How was that day?';
+    $('moods').innerHTML = MOODS.map((m, i) =>
+      `<button class="${db.moods[curDay] === i + 1 ? 'on' : ''}" data-mood="${i + 1}" aria-label="Mood ${i + 1} of 5">${m}</button>`).join('');
+
     const items = dayEntries(curDay);
+    const multiWallet = db.wallets.length > 1;
     $('listHead').textContent = items.length ? `${items.length} ${items.length === 1 ? 'entry' : 'entries'}` : 'Entries';
     $('list').innerHTML = items.length ? items.map(e => {
       const c = catOf(e.cat);
       const time = new Date(e.t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-      const work = db.hourly ? ` · ${workTime(e.amount)} of work` : '';
+      const w = multiWallet && walletById(e.wallet);
+      const extra = (w ? ` · ${w.emoji} ${esc(w.name)}` : '') + (db.hourly ? ` · ${workTime(e.amount)} of work` : '');
       return `<li data-id="${e.id}" class="${e.id === editingId ? 'editing' : ''}">
         <div class="emoji">${c.emoji}</div>
         <div class="info"><div class="title">${esc(e.note || c.name)}</div>
-          <div class="meta">${e.note ? esc(c.name) + ' · ' : ''}${time}${work}</div></div>
+          <div class="meta">${e.note ? esc(c.name) + ' · ' : ''}${time}${extra}</div></div>
         <div class="amt num">${fmt(e.amount)}</div></li>`;
     }).join('') : `<li class="empty" style="display:block">Nothing recorded${diff === 0 ? ' yet today' : ' for this day'}.</li>`;
     document.querySelectorAll('[data-cur]').forEach(el => el.textContent = db.currency);
   }
+  $('badges').addEventListener('click', e => {
+    if (e.target.closest('[data-goto]')) { showTab('more'); showSec('wallets'); }
+  });
+  $('moods').addEventListener('click', e => {
+    const b = e.target.closest('[data-mood]');
+    if (!b) return;
+    const v = +b.dataset.mood;
+    if (db.moods[curDay] === v) delete db.moods[curDay]; else db.moods[curDay] = v;
+    save(); renderDay();
+  });
+  $('hideBtn').addEventListener('click', () => { db.hide = !db.hide; save(); renderAll(); toast(db.hide ? 'Amounts hidden' : 'Amounts shown'); });
 
   function renderJar(isToday) {
     const show = isToday && db.goal && db.mode !== 'rollover';
@@ -1130,28 +1395,42 @@
     $('jarSub').textContent = sub;
   }
 
-  function renderTripBanner(isToday) {
-    const active = isToday ? db.trips.filter(tr => tripInfo(tr).status === 'active') : [];
-    $('tripBanner').innerHTML = active.map(tr => {
+  // Banners on the Today screen: active trips, bills due, category limits, evening reminder.
+  function renderNudges(isToday) {
+    if (!isToday) { $('nudges').innerHTML = ''; return; }
+    const out = [];
+    for (const tr of db.trips) {
       const i = tripInfo(tr);
+      if (i.status !== 'active') continue;
       const state = i.left < 0 ? `${fmt(-i.left)} over budget` : `${fmt(i.perDay)} a day left`;
-      return `<button class="banner info" data-open-trip="${tr.id}"><span>✈️ <b>${esc(tr.name)}</b> · ${state}</span><span class="go">Open ›</span></button>`;
-    }).join('');
+      out.push(`<button class="banner info" data-open-trip="${tr.id}"><span>✈️ <b>${esc(tr.name)}</b> · ${state}</span><span class="go">Open ›</span></button>`);
+    }
+    db.bills.map(b => ({ b, ...billDue(b) })).filter(x => !x.paid && x.days <= 3).sort((a, b) => a.days - b.days)
+      .forEach(x => out.push(`<div class="banner${x.days < 0 ? '' : ' info'}"><span>💡 <b>${esc(x.b.name)}</b> ${fmt(x.b.amount)} ${dueText(x.days)}</span><button class="go" data-pay="${x.b.id}">Mark paid</button></div>`));
+    for (const a of limitAlerts()) {
+      out.push(a.v > a.lim
+        ? `<div class="banner bad"><span>${a.c.emoji} <b>${esc(a.c.name)}</b> is ${fmt(a.v - a.lim)} over its monthly limit.</span></div>`
+        : `<div class="banner"><span>${a.c.emoji} <b>${esc(a.c.name)}</b>: ${fmt(a.v)} of your ${fmt(a.lim)} limit used this month.</span></div>`);
+    }
+    if (new Date().getHours() >= 20 && !dayEntries(curDay).length && db.entries.length >= 3) {
+      out.push('<div class="banner info"><span>🌙 Nothing logged today. Forgot something? If not, that\'s a zero day. 🧘</span></div>');
+    }
+    $('nudges').innerHTML = out.join('');
   }
-  $('tripBanner').addEventListener('click', e => {
-    const b = e.target.closest('[data-open-trip]');
-    if (b) { showTab('trips'); openTrip(b.dataset.openTrip); }
+  $('nudges').addEventListener('click', e => {
+    const t = e.target.closest('[data-open-trip]');
+    if (t) { showTab('trips'); openTrip(t.dataset.openTrip); return; }
+    const p = e.target.closest('[data-pay]');
+    if (p) payBill(p.dataset.pay);
   });
-
-  function renderBillBanner(isToday) {
-    const due = isToday ? db.bills.map(b => ({ b, ...billDue(b) })).filter(x => !x.paid && x.days <= 3).sort((a, b) => a.days - b.days) : [];
-    $('billBanner').innerHTML = due.map(x =>
-      `<div class="banner${x.days < 0 ? '' : ' info'}"><span>💡 <b>${esc(x.b.name)}</b> ${fmt(x.b.amount)} ${dueText(x.days)}</span><button class="go" data-pay="${x.b.id}">Mark paid</button></div>`).join('');
+  function limitAlerts() {
+    const m = todayKey().slice(0, 7), by = {};
+    for (const e of db.entries) if (isDaily(e) && e.date.startsWith(m)) by[e.cat] = (by[e.cat] || 0) + e.amount;
+    return Object.entries(db.limits)
+      .filter(([id, lim]) => lim > 0 && (by[id] || 0) >= lim * .8)
+      .map(([id, lim]) => ({ c: catOf(id), v: by[id] || 0, lim }))
+      .sort((a, b) => b.v / b.lim - a.v / a.lim).slice(0, 2);
   }
-  $('billBanner').addEventListener('click', e => {
-    const b = e.target.closest('[data-pay]');
-    if (b) payBill(b.dataset.pay);
-  });
 
   function renderBackupBanner(isToday) {
     const since = Math.max(db.lastBackup || 0, db.backupSnooze || 0, dateOf(db.start || todayKey()).getTime());
@@ -1201,6 +1480,39 @@
     });
   });
 
+  // Quick add by typing, e.g. "tea 20" or "uber to office 250".
+  function guessCat(text) {
+    const low = text.toLowerCase();
+    const past = db.entries.filter(e => isDaily(e) && (e.note || '').toLowerCase() === low).sort((a, b) => b.t - a.t)[0];
+    if (past) return past.cat;
+    for (const c of db.customCats) if (low.includes(c.name.toLowerCase())) return c.id;
+    for (const [cat, words] of Object.entries(KEYWORDS)) {
+      if (words.some(w => new RegExp(`(^|[^a-z])${w}`).test(low))) return cat;
+    }
+    return null;
+  }
+  function magicAdd() {
+    const raw = $('magic').value.trim();
+    if (!raw) return;
+    const nums = raw.match(/\d+(?:[.,]\d+)?/g);
+    if (!nums) { toast('Add an amount, like “tea 20”'); return; }
+    const last = nums[nums.length - 1];
+    const amount = parseAmt(last);
+    if (!amount) return;
+    const i = raw.lastIndexOf(last);
+    let note = (raw.slice(0, i) + raw.slice(i + last.length)).replace(/\s+/g, ' ').trim();
+    note = note.charAt(0).toUpperCase() + note.slice(1);
+    const cat = (note && guessCat(note)) || curCat;
+    $('magic').value = '';
+    $('magic').blur();
+    const e = addEntry(amount, cat, note);
+    toast(`Added ${note || catOf(cat).name} ${fmt(amount)} · ${catOf(cat).emoji} ${catOf(cat).name}`, () => {
+      db.entries = db.entries.filter(x => x.id !== e.id); save(); renderDay();
+    });
+  }
+  $('magicGo').addEventListener('click', magicAdd);
+  $('magic').addEventListener('keydown', e => { if (e.key === 'Enter') magicAdd(); });
+
   function renderHint() {
     const a = parseAmt($('amt').value);
     const parts = [];
@@ -1213,9 +1525,10 @@
   }
   $('amt').addEventListener('input', renderHint);
 
-  function addEntry(amount, cat, note) {
-    const t = curDay === todayKey() ? Date.now() : timeOn(curDay);
-    const e = { id: uid(), date: curDay, amount, cat, note, t };
+  function addEntry(amount, cat, note, date = curDay, wallet = formWallet()) {
+    const t = date === todayKey() ? Date.now() : timeOn(date);
+    const e = { id: uid(), date, amount, cat, note, t, wallet };
+    db.lastWallet = wallet;
     db.entries.push(e);
     save(); renderDay();
     return e;
@@ -1223,11 +1536,13 @@
 
   function resetForm() {
     editingId = null;
+    curWallet = null;
     $('amt').value = '';
     $('note').value = '';
     $('addBtn').textContent = 'Add expense';
     $('delBtn').classList.add('hidden');
     $('cancelBtn').classList.add('hidden');
+    renderCats();
   }
 
   $('addBtn').addEventListener('click', () => {
@@ -1237,12 +1552,13 @@
     $('amt').blur(); $('note').blur();
     if (editingId) {
       const e = db.entries.find(x => x.id === editingId);
-      if (e) Object.assign(e, { amount, note, cat: curCat });
+      if (e) Object.assign(e, { amount, note, cat: curCat, wallet: formWallet() });
       resetForm(); save(); renderDay();
       toast('Saved');
     } else {
+      const wallet = formWallet();
       resetForm();
-      addEntry(amount, curCat, note);
+      addEntry(amount, curCat, note, curDay, wallet);
       toast(`Added ${fmt(amount)}`);
     }
   });
@@ -1256,6 +1572,7 @@
     if (!e) return;
     editingId = e.id;
     curCat = e.cat;
+    curWallet = e.wallet || null;
     $('amt').value = e.amount;
     $('note').value = e.note || '';
     $('addBtn').textContent = 'Save';
@@ -1377,7 +1694,7 @@
     $('tripPct').textContent = Math.round(ratio * 100) + '%';
     $('tripSummary').className = 'card summary tilt' + (info.left < 0 ? ' state-over' : ratio >= .8 ? ' state-warn' : '');
     $('tripLeftLabel').textContent = info.left < 0 ? 'Over budget by' : 'Left for the trip';
-    countTo($('tripLeftAmount'), info.left);
+    countTo($('tripLeftAmount'), Math.abs(info.left));
     $('tripSpentOf').textContent = `Spent ${fmt(info.spent)} of ${fmt(tr.budget)}`;
     $('tripSmart').textContent =
       info.status === 'active' ? (info.left > 0
@@ -1455,6 +1772,8 @@
       e.paidBy = tripPaidBy;
       if (split.length < people.length) e.split = split;
     }
+    // Only money you paid yourself leaves one of your wallets.
+    if ((e.paidBy || 'You') === 'You') e.wallet = defWallet();
     db.entries.push(e);
     save();
     $('tripAmt').value = ''; $('tripNote').value = '';
@@ -1540,7 +1859,7 @@
     const b = db.bills.find(x => x.id === id);
     if (!b) return;
     const { month } = billDue(b);
-    const e = { id: uid(), date: todayKey(), amount: b.amount, cat: 'bills', note: b.name, t: Date.now(), bill: b.id };
+    const e = { id: uid(), date: todayKey(), amount: b.amount, cat: 'bills', note: b.name, t: Date.now(), bill: b.id, wallet: defWallet() };
     db.entries.push(e);
     b.paid = b.paid || {};
     b.paid[month] = e.id;
@@ -1654,8 +1973,231 @@
   $('loanList').addEventListener('click', onLoanTap);
   $('settledList').addEventListener('click', onLoanTap);
 
+  // ---------- wallets section ----------
+  let incW = null;
+  const incWallet = () => walletById(incW) ? incW : defWallet();
+  function renderWallets() {
+    countTo($('walletTotal'), totalBalance());
+    $('walletSub').textContent = `Across ${plural(db.wallets.length, 'wallet')}`;
+    $('walletList').innerHTML = db.wallets.map(w => {
+      const b = balanceOf(w);
+      return `<li data-wl="${w.id}"><div class="emoji">${w.emoji}</div>
+        <div class="info"><div class="title">${esc(w.name)}</div><div class="meta">Tap to correct the balance</div></div>
+        <div class="amt num${b < 0 ? ' bad' : ''}">${signed(b)}</div>
+        ${db.wallets.length > 1 ? `<button class="x" data-delwl="${w.id}" aria-label="Remove wallet">×</button>` : ''}</li>`;
+    }).join('');
+    const multi = db.wallets.length > 1;
+    $('incWallets').classList.toggle('hidden', !multi);
+    $('incWallets').innerHTML = walletChipsHtml(incWallet(), 'data-iw');
+    $('moveWrap').classList.toggle('hidden', !multi);
+    const opts = db.wallets.map(w => `<option value="${w.id}">${w.emoji} ${esc(w.name)}</option>`).join('');
+    const keepFrom = $('trFrom').value, keepTo = $('trTo').value;
+    $('trFrom').innerHTML = opts; $('trTo').innerHTML = opts;
+    $('trFrom').value = walletById(keepFrom) ? keepFrom : db.wallets[0].id;
+    $('trTo').value = walletById(keepTo) ? keepTo : (db.wallets[1] || db.wallets[0]).id;
+    const log = [...db.incomes.map(i => ({ ...i, kind: 'in' })), ...db.transfers.map(x => ({ ...x, kind: 'move' }))]
+      .sort((a, b) => b.t - a.t).slice(0, 30);
+    $('moneyLogWrap').classList.toggle('hidden', !log.length);
+    $('moneyLog').innerHTML = log.map(x => {
+      if (x.kind === 'in') {
+        const w = walletById(x.wallet);
+        return `<li data-log="in:${x.id}"><div class="emoji">💰</div><div class="info"><div class="title">${esc(x.note)}</div>
+          <div class="meta">${short(x.date)}${w ? ` · into ${w.emoji} ${esc(w.name)}` : ''}</div></div><div class="amt num good">+${fmt(x.amount)}</div></li>`;
+      }
+      const f = walletById(x.from), to = walletById(x.to);
+      return `<li data-log="move:${x.id}"><div class="emoji">🔄</div><div class="info"><div class="title">${f ? esc(f.name) : '?'} → ${to ? esc(to.name) : '?'}</div>
+        <div class="meta">${short(x.date)}</div></div><div class="amt num">${fmt(x.amount)}</div></li>`;
+    }).join('');
+  }
+  $('walletList').addEventListener('click', ev => {
+    const del = ev.target.closest('[data-delwl]');
+    if (del) {
+      const w = walletById(del.dataset.delwl);
+      if (w && confirm(`Remove ${w.name}? Expenses paid from it stay in your records.`)) {
+        db.wallets = db.wallets.filter(x => x !== w);
+        if (db.lastWallet === w.id) delete db.lastWallet;
+        save(); renderWallets(); renderCats();
+      }
+      return;
+    }
+    const li = ev.target.closest('[data-wl]');
+    const w = li && walletById(li.dataset.wl);
+    if (!w) return;
+    const now = balanceOf(w);
+    const v = prompt(`How much is in ${w.name} right now?`, String(Math.round(now * 100) / 100));
+    if (v === null) return;
+    const n = parseFloat(String(v).replace(/,/g, ''));
+    if (!isFinite(n)) return;
+    w.opening = (w.opening || 0) + (n - now);
+    save(); renderWallets();
+    toast(`${w.name} balance updated`);
+  });
+  $('incWallets').addEventListener('click', e => {
+    const b = e.target.closest('[data-iw]');
+    if (b) { incW = b.dataset.iw; renderWallets(); }
+  });
+  $('incAdd').addEventListener('click', () => {
+    const amount = parseAmt($('incAmt').value);
+    if (!amount) { $('incAmt').focus(); toast('Enter an amount first'); return; }
+    db.incomes.push({ id: uid(), date: todayKey(), amount, note: $('incNote').value.trim() || 'Money in', wallet: incWallet(), t: Date.now() });
+    save();
+    $('incAmt').value = $('incNote').value = '';
+    $('incAmt').blur(); $('incNote').blur();
+    renderWallets();
+    toast(`+${fmt(amount)} added`);
+  });
+  $('trAdd').addEventListener('click', () => {
+    const from = $('trFrom').value, to = $('trTo').value;
+    const amount = parseAmt($('trAmt').value);
+    if (from === to) { toast('Pick two different wallets'); return; }
+    if (!amount) { $('trAmt').focus(); return; }
+    db.transfers.push({ id: uid(), date: todayKey(), amount, from, to, t: Date.now() });
+    save();
+    $('trAmt').value = '';
+    renderWallets();
+    toast(`Moved ${fmt(amount)}`);
+  });
+  $('wlAdd').addEventListener('click', () => {
+    const name = $('wlName').value.trim();
+    if (!name) { $('wlName').focus(); return; }
+    const bal = parseFloat(String($('wlBal').value).replace(/,/g, ''));
+    db.wallets.push({ id: 'w' + uid(), emoji: $('wlEmoji').value.trim() || '👛', name, opening: isFinite(bal) ? bal : 0 });
+    save();
+    $('wlName').value = $('wlEmoji').value = $('wlBal').value = '';
+    renderWallets(); renderCats();
+    toast(`${name} added`);
+  });
+  $('moneyLog').addEventListener('click', ev => {
+    const li = ev.target.closest('[data-log]');
+    if (!li) return;
+    const [kind, id] = li.dataset.log.split(':');
+    if (!confirm('Delete this record?')) return;
+    if (kind === 'in') db.incomes = db.incomes.filter(x => x.id !== id);
+    else db.transfers = db.transfers.filter(x => x.id !== id);
+    save(); renderWallets();
+  });
+
+  // ---------- wishlist ----------
+  function renderWishes() {
+    const rate = saveRate();
+    const list = [...db.wishes].sort((a, b) => a.added.localeCompare(b.added));
+    $('wishCount').textContent = list.length;
+    $('wishTotal').textContent = fmt(list.reduce((s, w) => s + w.price, 0));
+    $('wishList').innerHTML = list.length ? list.map(w => {
+      const cool = Math.max(0, 7 - dayDiff(w.added, todayKey()));
+      const parts = [cool ? `🧊 Think it over: ${plural(cool, 'more day')}` : '✅ You waited a week'];
+      if (rate > 0) parts.push(`≈ ${plural(Math.ceil(w.price / rate), 'day')} of saving`);
+      if (db.hourly) parts.push(`${workTime(w.price)} of work`);
+      return `<li data-wish="${w.id}"><div class="emoji">🎁</div>
+        <div class="info"><div class="title">${esc(w.name)}</div><div class="meta">${parts.join(' · ')}</div></div>
+        <div class="amt num">${fmt(w.price)}</div>
+        <button class="x" data-delwish="${w.id}" aria-label="Remove">×</button></li>`;
+    }).join('') : '<li class="empty" style="display:block">Nothing on your wishlist yet.</li>';
+  }
+  $('wishAdd').addEventListener('click', () => {
+    const name = $('wishName').value.trim();
+    const price = parseAmt($('wishPrice').value);
+    if (!name) { $('wishName').focus(); return; }
+    if (!price) { $('wishPrice').focus(); return; }
+    db.wishes.push({ id: uid(), name, price, added: todayKey() });
+    save();
+    $('wishName').value = $('wishPrice').value = '';
+    renderWishes();
+    toast(`${name} added to your wishlist`);
+  });
+  $('wishList').addEventListener('click', ev => {
+    const del = ev.target.closest('[data-delwish]');
+    if (del) {
+      db.wishes = db.wishes.filter(x => x.id !== del.dataset.delwish);
+      save(); renderWishes();
+      return;
+    }
+    const li = ev.target.closest('[data-wish]');
+    const w = li && db.wishes.find(x => x.id === li.dataset.wish);
+    if (!w) return;
+    const cool = Math.max(0, 7 - dayDiff(w.added, todayKey()));
+    const ask = cool
+      ? `You gave yourself a week to think, ${plural(cool, 'day')} to go. Buy ${w.name} anyway? It's added as a ${fmt(w.price)} expense today.`
+      : `Bought ${w.name}? It's added as a ${fmt(w.price)} expense today.`;
+    if (!confirm(ask)) return;
+    db.wishes = db.wishes.filter(x => x !== w);
+    if (!cool) db.wishBought = (db.wishBought || 0) + 1;
+    addEntry(w.price, 'shopping', w.name, todayKey(), defWallet());
+    renderWishes();
+    toast(`Enjoy your ${w.name}!`);
+  });
+
+  // ---------- achievements ----------
+  const BADGES = [
+    ['first',    '🌱', 'First step',     'Log your first expense',                    s => s.entries >= 1],
+    ['streak3',  '🔥', 'On a roll',      '3 days in a row under budget',              s => s.best >= 3],
+    ['streak7',  '⚡', 'Week warrior',   '7 days in a row under budget',              s => s.best >= 7],
+    ['streak30', '🛡️', 'Iron will',      '30 days in a row under budget',             s => s.best >= 30],
+    ['zero',     '🧘', 'Zero day',       'Get through a day spending nothing',        s => s.zero],
+    ['save1',    '💎', 'Saver',          () => `Stay ${fmtRaw(1000)} under budget in total`,  s => s.saved >= 1000],
+    ['save10',   '🏦', 'Vault',          () => `Stay ${fmtRaw(10000)} under budget in total`, s => s.saved >= 10000],
+    ['goal',     '🎯', 'Goal getter',    'Fill your savings jar',                     s => s.goalDone],
+    ['trip',     '✈️', 'Explorer',       'Plan your first trip',                      s => s.trips >= 1],
+    ['split',    '🤝', 'Fair share',     'Split a trip cost with friends',            s => s.split],
+    ['bill',     '⏰', 'On time',        'Pay a bill by its due date',                s => s.billOnTime],
+    ['wallets',  '👛', 'Organised',      'Use two or more wallets',                   s => s.wallets >= 2],
+    ['income',   '💰', 'Money in',       'Record some income',                        s => s.incomes >= 1],
+    ['mood',     '🌈', 'Self-aware',     'Log your mood on 7 days',                   s => s.moods >= 7],
+    ['wish',     '🎁', 'Patient buyer',  'Buy a wishlist item after waiting a week',  s => s.wishBought >= 1],
+    ['backup',   '💾', 'Safe keeper',    'Save a backup',                             s => !!db.lastBackup],
+    ['log100',   '📒', 'Record keeper',  'Log 100 expenses',                          s => s.entries >= 100],
+    ['log500',   '🗂️', 'Archivist',      'Log 500 expenses',                          s => s.entries >= 500],
+  ];
+  function badgeStats() {
+    const t = todayKey();
+    let saved = 0, zero = false, best = 0, run = 0;
+    for (let k = firstDay(); k < t; k = addDays(k, 1)) {
+      const s = spentOn(k), b = budgetFor(k);
+      saved += b - s;
+      if (s === 0) zero = true;
+      run = s <= b ? run + 1 : 0;
+      best = Math.max(best, run);
+    }
+    let billOnTime = false;
+    for (const b of db.bills) for (const [m, id] of Object.entries(b.paid || {})) {
+      const e = db.entries.find(x => x.id === id);
+      if (e && e.date <= `${m}-${pad(Math.min(b.day, daysIn(m)))}`) billOnTime = true;
+    }
+    const daily = db.entries.filter(isDaily).length;
+    return {
+      entries: daily, best, saved, billOnTime,
+      zero: zero && daily >= 3,
+      goalDone: !!db.goal && db.mode !== 'rollover' && jarSaved().saved >= db.goal.target,
+      trips: db.trips.length,
+      split: db.trips.some(tr => tr.people.length && db.entries.some(e => e.trip === tr.id)),
+      wallets: db.wallets.length, incomes: db.incomes.length,
+      moods: Object.keys(db.moods).length, wishBought: db.wishBought || 0,
+    };
+  }
+  let badgeTimer;
+  function queueBadges() { clearTimeout(badgeTimer); badgeTimer = setTimeout(checkBadges, 500); }
+  function checkBadges() {
+    if (!db.budgets.length) return;
+    const s = badgeStats();
+    const fresh = BADGES.filter(b => b[4](s) && !db.badges.includes(b[0]));
+    if (!fresh.length) return;
+    db.badges.push(...fresh.map(b => b[0]));
+    try { localStorage.setItem(STORE, JSON.stringify(db)); } catch (e) {}
+    setTimeout(() => toast(`🏆 Unlocked: ${fresh[0][2]}${fresh.length > 1 ? ` + ${fresh.length - 1} more` : ''}`), 1400);
+    if (moreSec === 'badges') renderBadges();
+  }
+  function renderBadges() {
+    $('badgeCount').textContent = `${db.badges.length} of ${BADGES.length} unlocked`;
+    $('badgeGrid').innerHTML = BADGES.map(([id, e, name, hint]) => {
+      const on = db.badges.includes(id);
+      return `<div class="bdg${on ? ' on' : ''}"><span class="e">${on ? e : '🔒'}</span><b>${name}</b><small>${typeof hint === 'function' ? hint() : hint}</small></div>`;
+    }).join('');
+  }
+
   // ---------- history view ----------
   let curMonth = todayKey().slice(0, 7);
+  let trendMode = 'days';
+  let monthSummary = '';
 
   function renderHistory() {
     renderSearch();
@@ -1664,7 +2206,8 @@
     const [y, mo] = curMonth.split('-').map(Number);
     const first = new Date(y, mo - 1, 1);
     const dim = daysIn(curMonth);
-    $('monTitle').textContent = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    const monthName = first.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
+    $('monTitle').textContent = monthName;
     $('monNext').disabled = curMonth >= t.slice(0, 7);
 
     // Days that count: from the first day of use up to today, newest first.
@@ -1679,6 +2222,7 @@
     const budget = days.reduce((s, k) => s + budgetFor(k), 0);
     const within = days.filter(k => spentOn(k) <= budgetFor(k)).length;
     const saved = budget - spent;
+    const best = bestStreak();
     $('monSub').textContent = days.length ? `${plural(days.length, 'day')} tracked` : 'No days tracked';
 
     $('stats').innerHTML = `
@@ -1687,7 +2231,7 @@
       <div class="stat"><small>${saved < 0 ? 'Overspent' : 'Saved'}</small><b class="num ${saved < 0 ? 'bad' : 'good'}">${fmt(saved)}</b></div>
       <div class="stat"><small>Daily average</small><b class="num">${fmt(days.length ? spent / days.length : 0)}</b></div>
       <div class="stat"><small>Days within budget</small><b class="num">${within} of ${days.length}</b></div>
-      <div class="stat"><small>Best streak</small><b class="num">🔥 ${bestStreak()}</b></div>`;
+      <div class="stat"><small>Best streak</small><b class="num">🔥 ${best}</b></div>`;
 
     // Insights
     const ins = [];
@@ -1698,6 +2242,14 @@
       for (let i = 1; i <= rest; i++) full += budgetFor(addDays(t, i));
       ins.push(['📈', `At this pace you'll spend <b>${fmt(forecast)}</b> this month — ${forecast > full
         ? `<b>${fmt(forecast - full)} over</b>` : `${fmt(full - forecast)} under`} budget.`]);
+      // Same point last month
+      const lm = shiftMonth(curMonth, -1), dayNo = dateOf(t).getDate();
+      const lastSoFar = db.entries.filter(e => isDaily(e) && e.date.startsWith(lm) && +e.date.slice(8) <= dayNo)
+        .reduce((s, e) => s + e.amount, 0);
+      if (lastSoFar > 0) {
+        const ch = Math.round((spent - lastSoFar) / lastSoFar * 100);
+        ins.push(['📊', `${fmt(spent)} so far, vs ${fmt(lastSoFar)} by this day last month — <b>${ch > 0 ? `${ch}% more` : ch < 0 ? `${-ch}% less` : 'the same'}</b>.`]);
+      }
     }
     const byNote = {};
     for (const e of monthEntries) {
@@ -1725,13 +2277,36 @@
         ins.push(['📅', `You spend the most on <b>${name}s</b> — ${fmt(top.avg)} on average.`]);
       }
     }
+    // Mood vs money
+    const moodDays = Object.entries(db.moods).filter(([k]) => k < t && k >= f);
+    const avgOf = ks => ks.length ? ks.reduce((s, k) => s + spentOn(k), 0) / ks.length : 0;
+    const low = moodDays.filter(([, v]) => v <= 2).map(([k]) => k), high = moodDays.filter(([, v]) => v >= 4).map(([k]) => k);
+    if (low.length >= 3 && high.length >= 3) {
+      const a = avgOf(low), b = avgOf(high);
+      if (b > 0 && a > b * 1.15) ins.push(['😕', `On rough days you spend <b>${Math.round((a / b - 1) * 100)}% more</b> (${fmt(a)} vs ${fmt(b)}).`]);
+      else if (a > 0 && b > a * 1.15) ins.push(['😄', `On great days you spend <b>${Math.round((b / a - 1) * 100)}% more</b> (${fmt(b)} vs ${fmt(a)}).`]);
+    }
     if (db.hourly && spent) ins.push(['⏱️', `This month's spending cost you about <b>${workTime(spent)}</b> of work.`]);
     const billsPaid = inMonth.filter(e => e.bill).reduce((s, e) => s + e.amount, 0);
     if (billsPaid) ins.push(['💡', `Bills paid this month: <b>${fmt(billsPaid)}</b>, on top of daily spending.`]);
     const tripSpent = inMonth.filter(e => e.trip).reduce((s, e) => s + e.amount, 0);
     if (tripSpent) ins.push(['✈️', `Trip spending this month: <b>${fmt(tripSpent)}</b>, kept apart from your daily budget.`]);
+    const income = db.incomes.filter(i => i.date.startsWith(curMonth)).reduce((s, i) => s + i.amount, 0);
+    if (income) {
+      const out = inMonth.filter(e => e.wallet).reduce((s, e) => s + e.amount, 0);
+      const kept = income - out;
+      ins.push(['💰', `Money in this month: <b>${fmt(income)}</b>. ${kept >= 0 ? `You kept <b>${fmt(kept)}</b> (${Math.round(kept / income * 100)}%).` : `You spent <b>${fmt(-kept)}</b> more than came in.`}`]);
+    }
     $('insightWrap').classList.toggle('hidden', !ins.length);
     $('insights').innerHTML = ins.map(([i, s]) => `<li><span>${i}</span><span>${s}</span></li>`).join('');
+
+    const topCat = Object.entries(monthEntries.reduce((m, e) => (m[e.cat] = (m[e.cat] || 0) + e.amount, m), {})).sort((a, b) => b[1] - a[1])[0];
+    monthSummary = `📊 ${monthName}: spent ${fmtRaw(spent)} of a ${fmtRaw(budget)} budget`
+      + (saved >= 0 ? ` (saved ${fmtRaw(saved)})` : ` (${fmtRaw(-saved)} over)`)
+      + `. ${within} of ${days.length} days under budget, best streak ${best} 🔥.`
+      + (topCat ? ` Most spent on ${catOf(topCat[0]).name} (${fmtRaw(topCat[1])}).` : '');
+
+    renderTrend();
 
     // Calendar (weeks start on Sunday)
     let cal = Array.from({ length: 7 }, (_, i) =>
@@ -1747,16 +2322,17 @@
       cal += `<button class="d ${cls}${k === t ? ' today' : ''}" data-day="${k}"${cls === 'off' ? ' disabled' : ''}>${d}</button>`;
     }
     $('cal').innerHTML = cal;
-    $('catBreak').innerHTML = catBreakHtml(monthEntries);
+    $('catBreak').innerHTML = catBreakHtml(monthEntries, db.limits);
 
     $('dayList').innerHTML = days.length ? days.map(k => {
       const s = spentOn(k), b = budgetFor(k);
       const r = b > 0 ? s / b : (s > 0 ? 1 : 0);
       const cls = s > b ? 'over' : r >= .8 ? 'warn' : '';
       const label = k === t ? 'Today' : dateOf(k).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
+      const mood = db.moods[k] ? ' ' + MOODS[db.moods[k] - 1] : '';
       return `<li data-day="${k}"><div class="info">
           <div class="title" style="display:flex;justify-content:space-between;gap:8px">
-            <span>${label}</span><span class="num">${fmt(s)} <span class="muted" style="font-weight:400">/ ${fmt(b)}</span></span></div>
+            <span>${label}${mood}</span><span class="num">${fmt(s)} <span class="muted" style="font-weight:400">/ ${fmt(b)}</span></span></div>
           <div class="meter"><i class="${cls}" style="width:${Math.min(r, 1) * 100}%"></i></div>
         </div><span class="chev">›</span></li>`;
     }).join('') : '<li class="empty" style="display:block">No days to show for this month.</li>';
@@ -1771,6 +2347,77 @@
   };
   $('dayList').addEventListener('click', openDay);
   $('cal').addEventListener('click', openDay);
+
+  // Bar chart: daily spending for 30 days (with the budget as a dashed line) or monthly totals for a year.
+  function renderTrend() {
+    const t = todayKey();
+    const bars = [];
+    if (trendMode === 'days') {
+      for (let i = 29; i >= 0; i--) {
+        const k = addDays(t, -i), v = spentOn(k), b = budgetFor(k);
+        bars.push({ v, b, over: v > b, label: i % 7 === 0 ? String(dateOf(k).getDate()) : '' });
+      }
+    } else {
+      const sums = {};
+      for (const e of db.entries) if (isDaily(e)) sums[e.date.slice(0, 7)] = (sums[e.date.slice(0, 7)] || 0) + e.amount;
+      for (let i = 11; i >= 0; i--) {
+        const m = shiftMonth(t.slice(0, 7), -i);
+        bars.push({ v: sums[m] || 0, label: dateOf(m + '-01').toLocaleDateString(undefined, { month: 'narrow' }) });
+      }
+    }
+    const W = 300, H = 110;
+    // Scale to typical days so one big purchase doesn't flatten the rest; taller bars run off the top.
+    const sorted = bars.map(x => x.v).sort((a, b) => a - b);
+    const typical = sorted[Math.ceil(sorted.length * .9) - 1] || 0;
+    const max = Math.max(1, typical * 1.15, ...bars.map(x => (x.b || 0) * 1.25));
+    const bw = W / bars.length;
+    let s = `<svg class="chart" viewBox="0 0 ${W} ${H + 16}" role="img" aria-label="Spending chart">`;
+    bars.forEach((x, i) => {
+      const h = Math.min(H, x.v / max * H);
+      if (x.v) s += `<rect x="${(i * bw + bw * .18).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${(bw * .64).toFixed(1)}" height="${Math.max(h, 2).toFixed(1)}" rx="${Math.min(3, bw * .25).toFixed(1)}" fill="url(#${x.over ? 'gBarOver' : 'gBar'})"/>`;
+      if (x.label) s += `<text x="${(i * bw + bw / 2).toFixed(1)}" y="${H + 12}" text-anchor="middle">${x.label}</text>`;
+    });
+    if (trendMode === 'days') {
+      s += `<polyline class="bline" points="${bars.map((x, i) => `${(i * bw + bw / 2).toFixed(1)},${(H - x.b / max * H).toFixed(1)}`).join(' ')}"/>`;
+    }
+    $('trend').innerHTML = s + '</svg>';
+    const total = bars.reduce((a, x) => a + x.v, 0);
+    $('trendNote').textContent = trendMode === 'days'
+      ? `${fmt(total)} in 30 days · ${fmt(total / 30)} a day on average. Dashed line = your budget.`
+      : `${fmt(total)} in 12 months · ${fmt(total / 12)} a month on average.`;
+  }
+  $('trendSeg').addEventListener('click', e => {
+    const b = e.target.closest('[data-trend]');
+    if (!b) return;
+    trendMode = b.dataset.trend;
+    $('trendSeg').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    renderTrend();
+  });
+  $('shareMonth').addEventListener('click', async () => {
+    if (navigator.share) {
+      try { await navigator.share({ text: monthSummary }); return; }
+      catch (e) { if (e.name === 'AbortError') return; }
+    }
+    try { await navigator.clipboard.writeText(monthSummary); toast('Summary copied'); }
+    catch (e) { toast('Sharing isn\'t available here'); }
+  });
+
+  // Monthly category limits
+  $('editLimits').addEventListener('click', () => {
+    $('limitRows').innerHTML = dailyCats().map(c =>
+      `<label class="limrow"><span>${c.emoji} ${esc(c.name)}</span><input class="field num" data-lim="${c.id}" type="text" inputmode="decimal" placeholder="No limit" value="${db.limits[c.id] || ''}" autocomplete="off"></label>`).join('');
+    $('limitSheet').classList.remove('hidden');
+  });
+  const closeLimits = () => $('limitSheet').classList.add('hidden');
+  $('limCancel').addEventListener('click', closeLimits);
+  $('limitSheet').addEventListener('click', e => { if (e.target.id === 'limitSheet') closeLimits(); });
+  $('limSave').addEventListener('click', () => {
+    const limits = {};
+    $('limitRows').querySelectorAll('[data-lim]').forEach(i => { const v = parseAmt(i.value); if (v) limits[i.dataset.lim] = v; });
+    db.limits = limits;
+    save(); closeLimits(); renderHistory(); renderDay();
+    toast('Limits saved');
+  });
 
   // Search everything: daily spending, trips and bills.
   function renderSearch() {
@@ -1800,11 +2447,20 @@
     const e = li && db.entries.find(x => x.id === li.dataset.hit);
     if (!e) return;
     if (e.trip) { showTab('trips'); openTrip(e.trip); }
-    else if (e.bill) showTab('more');
+    else if (e.bill) { showTab('more'); showSec('bills'); }
     else { goDay(e.date); showTab('day'); }
   });
 
   // ---------- settings ----------
+  function applyTheme() {
+    const [a, b, c] = THEMES[db.theme] || THEMES.cyan;
+    const r = document.documentElement.style;
+    r.setProperty('--accent', a);
+    r.setProperty('--accent3', b);
+    r.setProperty('--accent2', c);
+    r.setProperty('--glow', `color-mix(in srgb, ${a} 45%, transparent)`);
+    r.setProperty('--grad', `linear-gradient(135deg, ${a}, ${b} 60%, ${c})`);
+  }
   function renderSettings() {
     $('setDaily').value = budgetFor(todayKey()) || '';
     $('setCur').value = db.currency;
@@ -1812,6 +2468,9 @@
     $('setGoalName').value = db.goal ? db.goal.name : '';
     $('setGoalAmt').value = db.goal ? db.goal.target : '';
     $('setHourly').value = db.hourly || '';
+    $('swatches').innerHTML = Object.entries(THEMES).map(([id, [a, b, c]]) =>
+      `<button class="swatch${db.theme === id ? ' on' : ''}" data-theme="${id}" aria-label="${id}" style="background: linear-gradient(135deg, ${a}, ${b} 60%, ${c})"></button>`).join('');
+    $('hideToggle').textContent = db.hide ? 'Show amounts' : 'Hide amounts';
     $('customCatList').innerHTML = db.customCats.length
       ? db.customCats.map(c => `<button class="chip" data-rmcat="${c.id}">${c.emoji} ${esc(c.name)} ✕</button>`).join('')
       : '<span class="muted" style="font-size: 14px">No categories of your own yet.</span>';
@@ -1822,6 +2481,13 @@
     $('storeInfo').textContent = `${n} entr${n === 1 ? 'y' : 'ies'} saved on this device.`
       + (db.lastBackup ? ` Last backup: ${new Date(db.lastBackup).toLocaleDateString()}.` : '');
   }
+  $('swatches').addEventListener('click', e => {
+    const b = e.target.closest('[data-theme]');
+    if (!b) return;
+    db.theme = b.dataset.theme;
+    save(); applyTheme(); renderSettings();
+  });
+  $('hideToggle').addEventListener('click', () => { db.hide = !db.hide; save(); renderAll(); });
   $('saveSettings').addEventListener('click', () => {
     const amt = parseAmt($('setDaily').value);
     if (!amt) { toast('Enter a daily budget'); return; }
@@ -1852,6 +2518,7 @@
     const c = b && db.customCats.find(x => x.id === b.dataset.rmcat);
     if (!c || !confirm(`Remove ${c.name}? Expenses in it will show as Other.`)) return;
     db.customCats = db.customCats.filter(x => x !== c);
+    delete db.limits[c.id];
     if (curCat === c.id) curCat = 'food';
     if (tripCat === c.id) tripCat = 'food';
     save(); renderSettings(); renderCats();
@@ -1870,11 +2537,13 @@
   }
   $('exportCsv').addEventListener('click', () => {
     const q = s => `"${String(s).replace(/"/g, '""')}"`;
-    const rows = [['Date', 'Time', 'Type', 'Trip', 'Category', 'Note', 'Amount', 'Paid by', 'Daily budget']];
+    const wname = id => (walletById(id) || {}).name || '';
+    const rows = [['Date', 'Time', 'Type', 'Trip', 'Category', 'Note', 'Amount', 'Wallet', 'Paid by', 'Daily budget']];
     [...db.entries].sort((a, b) => a.t - b.t).forEach(e => rows.push([
       e.date, new Date(e.t).toTimeString().slice(0, 5), e.trip ? 'Trip' : e.bill ? 'Bill' : 'Daily',
-      e.trip ? (tripById(e.trip) || {}).name || '' : '', catOf(e.cat).name, e.note || '', e.amount,
-      e.trip ? e.paidBy || 'You' : '', isDaily(e) ? budgetFor(e.date) : '']));
+      e.trip ? (tripById(e.trip) || {}).name || '' : '', catOf(e.cat).name, e.note || '', -e.amount,
+      wname(e.wallet), e.trip ? e.paidBy || 'You' : '', isDaily(e) ? budgetFor(e.date) : '']));
+    db.incomes.forEach(i => rows.push([i.date, new Date(i.t).toTimeString().slice(0, 5), 'Income', '', '', i.note, i.amount, wname(i.wallet), '', '']));
     shareFile(`budget-${todayKey()}.csv`, rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv');
   });
   $('backupJson').addEventListener('click', () => { backup(); renderSettings(); });
@@ -1889,15 +2558,15 @@
       if (!confirm(`Replace what's on this phone with the backup (${data.entries.length} entries)?`)) return;
       db = normalize(data); save();
       curTrip = null;
-      renderAll(); toast('Backup restored');
+      applyTheme(); renderAll(); toast('Backup restored');
     } catch (err) { toast("That file isn't a budget backup"); }
   });
   function wipe() {
     localStorage.removeItem(STORE);
-    db = load(); curTrip = null; renderAll(); welcome();
+    db = load(); curTrip = null; applyTheme(); renderAll(); welcome();
   }
   $('wipeBtn').addEventListener('click', () => {
-    if (confirm('Erase all entries, trips, bills and settings on this phone? This cannot be undone.')) wipe();
+    if (confirm('Erase all entries, trips, bills, wallets and settings on this phone? This cannot be undone.')) wipe();
   });
 
   // ---------- PIN lock ----------
@@ -1983,19 +2652,35 @@
   for (const t of ['pointerup', 'pointercancel']) document.addEventListener(t, untilt);
 
   // ---------- tabs, More sections, toast, welcome ----------
-  let moreSec = 'bills';
+  const SECTIONS = ['wallets', 'bills', 'loans', 'wishes', 'badges', 'settings'];
+  let moreSec = null;
+  function renderMoreHome() {
+    $('tileWallets').textContent = signed(totalBalance());
+    const due = db.bills.filter(b => { const s = billDue(b); return !s.paid && s.days <= 3; }).length;
+    $('tileBills').textContent = due ? `${due} due soon` : db.bills.length ? 'All caught up' : 'Rent, internet, phone…';
+    const owed = db.loans.filter(l => !l.settled && l.dir === 'lent').reduce((s, l) => s + l.amount, 0);
+    $('tileLoans').textContent = owed ? `${fmt(owed)} owed to you` : 'Who owes who';
+    $('tileWishes').textContent = db.wishes.length ? plural(db.wishes.length, 'item') : 'Things you want';
+    $('tileBadges').textContent = `${db.badges.length} of ${BADGES.length} unlocked`;
+  }
   function showSec(s) {
     moreSec = s;
-    $('moreSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === s));
-    for (const x of ['bills', 'loans', 'settings']) $('sec-' + x).classList.toggle('hidden', x !== s);
+    $('moreHome').classList.toggle('hidden', !!s);
+    for (const x of SECTIONS) $('sec-' + x).classList.toggle('hidden', x !== s);
+    if (!s) renderMoreHome();
+    if (s === 'wallets') renderWallets();
     if (s === 'bills') renderBills();
     if (s === 'loans') renderLoans();
+    if (s === 'wishes') renderWishes();
+    if (s === 'badges') renderBadges();
     if (s === 'settings') renderSettings();
+    window.scrollTo(0, 0);
   }
-  $('moreSeg').addEventListener('click', e => {
+  $('moreHome').addEventListener('click', e => {
     const b = e.target.closest('[data-sec]');
     if (b) showSec(b.dataset.sec);
   });
+  document.querySelectorAll('[data-back]').forEach(b => b.addEventListener('click', () => showSec(null)));
 
   function showTab(name) {
     document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
@@ -2010,6 +2695,7 @@
     const b = e.target.closest('[data-tab]');
     if (!b) return;
     if (b.dataset.tab === 'trips') curTrip = null;
+    if (b.dataset.tab === 'more') moreSec = null;
     showTab(b.dataset.tab);
   });
 
@@ -2020,7 +2706,7 @@
     $('toastAct').classList.toggle('hidden', !undo);
     $('toast').classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => $('toast').classList.remove('show'), undo ? 5000 : 1800);
+    toastTimer = setTimeout(() => $('toast').classList.remove('show'), undo ? 5000 : 2200);
   }
   $('toastAct').addEventListener('click', () => {
     if (toastUndo) toastUndo();
@@ -2046,7 +2732,7 @@
   function renderAll() {
     spendCache = null;
     renderCats(); renderDay(); renderTrips(); renderHistory();
-    renderBills(); renderLoans(); renderSettings();
+    renderMoreHome(); renderWallets(); renderBills(); renderLoans(); renderWishes(); renderBadges(); renderSettings();
   }
 
   // Jump back to today if reopened on a new day; ask for the PIN after 30s away.
@@ -2058,9 +2744,11 @@
     if (t !== lastSeen) { if (curDay === lastSeen) curDay = t; lastSeen = t; renderAll(); }
   });
 
+  applyTheme();
   renderAll();
   if (db.pin) showLock('unlock');
   else if (!db.budgets.length) welcome();
+  queueBadges();
 
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator) {
