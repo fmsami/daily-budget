@@ -73,8 +73,10 @@
   }
   .nav button.arrow:active { background: var(--soft); }
   .nav button.arrow:disabled { opacity: .25; }
-  .navlabel { position: relative; text-align: center; }
-  .navlabel strong { display: block; font-size: 22px; letter-spacing: -.01em; }
+  .nav .navbtn { min-width: 44px; height: 44px; color: var(--accent); font-weight: 600; }
+  .navlabel { position: relative; text-align: center; min-width: 0; }
+  .navlabel strong { display: block; font-size: 22px; letter-spacing: -.01em;
+                     overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .navlabel small { color: var(--muted); font-size: 14px; }
   .navlabel input[type=date] {
     position: absolute; inset: 0; opacity: 0; width: 100%; height: 100%;
@@ -109,20 +111,25 @@
   .jar .meter i { border-radius: 5px; transition: width .4s ease; }
   .jar .sub { font-size: 14px; color: var(--muted); margin-top: 8px; }
 
-  /* Backup reminder */
+  /* Banners: backup reminder, bills due, active trip */
   .banner {
     display: flex; align-items: center; gap: 10px; font-size: 14px; padding: 10px 12px;
-    margin-bottom: 14px; border-radius: 14px;
+    margin-bottom: 14px; border-radius: 14px; width: 100%; text-align: left;
     background: color-mix(in srgb, var(--warn) 14%, var(--card));
     border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent);
   }
   .banner span { flex: 1; }
-  .banner .go { font-weight: 700; color: var(--warn); }
+  .banner .go { flex: none; font-weight: 700; color: var(--warn); }
   .banner .x { color: var(--muted); font-size: 22px; line-height: 1; padding: 0 4px; }
+  .banner.info {
+    background: color-mix(in srgb, var(--accent) 12%, var(--card));
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+  .banner.info .go { color: var(--accent); }
 
   /* Add form */
   .quick { margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
-  .quick small { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .quick small, .formlabel { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
   .quick .chips { margin-bottom: 0; }
   .quick .chip { background: color-mix(in srgb, var(--accent) 12%, var(--card)); }
   .amountrow { display: flex; align-items: baseline; gap: 6px; border-bottom: 1px solid var(--line);
@@ -141,10 +148,13 @@
   .chip.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--card)); }
   .field {
     width: 100%; border: 1px solid var(--line); background: var(--bg); border-radius: 12px;
-    padding: 12px 14px; outline: 0; font-size: 16px;
+    padding: 12px 14px; outline: 0; font-size: 16px; min-height: 48px;
   }
-  select.field { -webkit-appearance: none; appearance: none; }
+  select.field, input[type=date].field { -webkit-appearance: none; appearance: none; }
   .field:focus { border-color: var(--accent); }
+  .field + .field { margin-top: 8px; }
+  .two { display: flex; gap: 8px; }
+  .two > * { flex: 1; min-width: 0; }
   .btnrow { display: flex; gap: 8px; margin-top: 12px; }
   .primary, .secondary, .danger {
     flex: 1; min-height: 50px; border-radius: 14px; font-weight: 600; font-size: 17px;
@@ -153,21 +163,29 @@
   .primary:active { filter: brightness(.92); }
   .secondary { background: var(--soft); }
   .danger { background: color-mix(in srgb, var(--over) 14%, var(--card)); color: var(--over); }
+  .wide { width: 100%; }
   .hidden { display: none !important; }
 
-  /* Entry list */
+  /* Segmented control */
+  .seg { display: flex; background: var(--soft); border-radius: 12px; padding: 3px; margin-bottom: 14px; }
+  .seg button { flex: 1; padding: 9px 4px; border-radius: 9px; font-size: 14px; font-weight: 600; color: var(--muted); }
+  .seg button.on { background: var(--card); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+  /* Lists */
   .list { list-style: none; margin: 0; padding: 0; }
   .list li {
     display: flex; align-items: center; gap: 12px; padding: 12px 4px;
     border-bottom: 1px solid var(--line);
   }
   .list li:last-child { border-bottom: 0; }
+  .list li[data-id], .list li[data-te], .list li[data-hit], .list li[data-bill], .list li[data-loan] { cursor: pointer; }
   .list .emoji { width: 40px; height: 40px; border-radius: 12px; background: var(--soft);
                  display: grid; place-items: center; font-size: 20px; flex: none; }
   .list .info { flex: 1; min-width: 0; }
   .list .title { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .list .meta { font-size: 13px; color: var(--muted); }
   .list .amt { font-weight: 600; }
+  .list .x { color: var(--muted); font-size: 22px; line-height: 1; padding: 4px 6px; margin-right: -6px; }
   .list li.editing { background: var(--soft); border-radius: 12px; }
   .empty { text-align: center; color: var(--muted); padding: 20px 8px; font-size: 15px; }
 
@@ -175,8 +193,9 @@
   .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
   .stat small { display: block; color: var(--muted); font-size: 13px; }
   .stat b { font-size: 22px; letter-spacing: -.01em; }
-  .stat b.good { color: var(--accent); }
-  .stat b.bad { color: var(--over); }
+  .stat b.good, b.good { color: var(--accent); }
+  .stat b.bad, b.bad { color: var(--over); }
+  .search { margin-bottom: 14px; }
   .insights { list-style: none; margin: 0; padding: 0; }
   .insights li { display: flex; gap: 10px; padding: 9px 0; font-size: 15px; border-bottom: 1px solid var(--line); }
   .insights li:first-child { padding-top: 0; }
@@ -202,11 +221,26 @@
   .catrow .val { font-size: 15px; font-weight: 600; }
   .meter { grid-column: 2 / 4; height: 6px; background: var(--soft); border-radius: 3px; overflow: hidden; }
   .meter i { display: block; height: 100%; background: var(--accent); border-radius: 3px; }
+  .meter i.warn { background: var(--warn); }
+  .meter i.over { background: var(--over); }
   .daylist li { cursor: pointer; }
   .daylist .meter { width: 100%; margin-top: 6px; }
-  .daylist .meter i.warn { background: var(--warn); }
-  .daylist .meter i.over { background: var(--over); }
   .daylist .chev { color: var(--muted); font-size: 20px; }
+
+  /* Trips */
+  .tripcard { display: block; width: 100%; text-align: left; }
+  .tripcard .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .tripcard b { font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tripcard .sub { font-size: 14px; color: var(--muted); }
+  .tripcard .meter { margin: 10px 0 6px; }
+  .pill { flex: none; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+          background: var(--soft); color: var(--muted); }
+  .pill.active { background: color-mix(in srgb, var(--accent) 18%, var(--card)); color: var(--accent); }
+  .pill.upcoming { background: color-mix(in srgb, var(--warn) 16%, var(--card)); color: var(--warn); }
+  .prow { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; padding: 7px 0;
+          border-bottom: 1px solid var(--line); }
+  .prow span:last-child { font-size: 14px; text-align: right; }
+  .settle { padding-top: 12px; display: grid; gap: 8px; font-size: 15px; }
 
   /* Settings */
   label.row { display: block; margin-bottom: 14px; }
@@ -216,6 +250,7 @@
   .stack .secondary, .stack .danger { width: 100%; }
   .note { font-size: 14px; color: var(--muted); margin: 8px 4px 0; }
   .card .note { margin: -6px 4px 14px; }
+  .card .note.end { margin: 10px 4px 0; }
 
   /* Tab bar */
   .tabs {
@@ -227,7 +262,7 @@
     border-top: 1px solid var(--line);
   }
   .tabs button {
-    flex: 1; max-width: 140px; padding: 6px 0; display: grid; justify-items: center; gap: 2px;
+    flex: 1; max-width: 120px; padding: 6px 0; display: grid; justify-items: center; gap: 2px;
     color: var(--muted); font-size: 11px; font-weight: 500;
   }
   .tabs button svg { width: 26px; height: 26px; }
@@ -235,7 +270,7 @@
 
   /* Toast + modal */
   .toast {
-    position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 30;
+    position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom)); z-index: 60;
     transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
     background: var(--ink); color: var(--bg); border-radius: 14px; padding: 12px 16px;
     display: flex; gap: 16px; align-items: center; font-size: 15px; transition: .25s;
@@ -250,10 +285,34 @@
   .sheet {
     background: var(--card); width: 100%; max-width: 560px; border-radius: 22px 22px 0 0;
     padding: 24px 20px calc(20px + env(safe-area-inset-bottom));
+    max-height: 92vh; overflow-y: auto;
   }
   .sheet h3 { margin: 0 0 4px; font-size: 22px; }
   .sheet p { margin: 0 0 18px; color: var(--muted); }
   .sheet label.row:last-of-type { margin-bottom: 18px; }
+
+  /* PIN lock */
+  .lock {
+    position: fixed; inset: 0; z-index: 50; background: var(--bg);
+    display: grid; place-items: center; padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  }
+  .lockbox { text-align: center; width: 100%; max-width: 300px; }
+  .lockicon { font-size: 40px; }
+  .lockbox h3 { margin: 8px 0 18px; font-size: 20px; }
+  .dots { display: flex; justify-content: center; gap: 16px; margin-bottom: 30px; }
+  .dots i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--muted); }
+  .dots i.on { background: var(--ink); border-color: var(--ink); }
+  .dots.shake { animation: shake .35s; }
+  @keyframes shake { 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
+  .keypad { display: grid; grid-template-columns: repeat(3, 72px); gap: 16px 24px; justify-content: center; }
+  .keypad button {
+    width: 72px; height: 72px; border-radius: 50%; background: var(--card);
+    border: 1px solid var(--line); font-size: 28px; font-weight: 500;
+  }
+  .keypad button:active { background: var(--soft); }
+  .keypad button.blank { visibility: hidden; }
+  .keypad button.del { background: none; border: 0; font-size: 22px; }
+  .link { display: block; margin: 26px auto 0; color: var(--muted); font-size: 15px; }
 </style>
 </head>
 <body>
@@ -271,6 +330,8 @@
     </div>
     <div class="badges" id="badges"></div>
 
+    <div id="tripBanner"></div>
+    <div id="billBanner"></div>
     <div class="banner hidden" id="backupBanner">
       <span id="backupText"></span>
       <button class="go" id="backupNow">Back up</button>
@@ -327,6 +388,77 @@
     </div>
   </section>
 
+  <!-- TRIPS VIEW -->
+  <section id="view-trips" class="view">
+    <div id="tripsHome">
+      <div class="nav"><div class="navlabel" style="margin: 0 auto"><strong>Trips</strong></div></div>
+      <button class="primary wide" id="newTrip" style="margin-bottom: 14px">＋ New trip</button>
+      <div id="tripCards"></div>
+    </div>
+
+    <div id="tripDetail" class="hidden">
+      <div class="nav">
+        <button class="arrow" id="tripBack" aria-label="All trips">‹</button>
+        <div class="navlabel">
+          <strong id="tripTitle"></strong>
+          <small id="tripDates"></small>
+        </div>
+        <button class="navbtn" id="tripEdit">Edit</button>
+      </div>
+
+      <div class="card summary" id="tripSummary">
+        <div class="summary-row">
+          <div class="ring">
+            <svg viewBox="0 0 120 120">
+              <circle class="track" cx="60" cy="60" r="52" fill="none" stroke-width="12"/>
+              <circle class="bar" id="tripRingBar" cx="60" cy="60" r="52" fill="none" stroke-width="12"
+                      stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73"/>
+            </svg>
+            <div class="pct num" id="tripPct">0%</div>
+          </div>
+          <div>
+            <div class="left-label" id="tripLeftLabel">Left for the trip</div>
+            <div class="left-amount num" id="tripLeftAmount">0</div>
+            <div class="sub num" id="tripSpentOf"></div>
+          </div>
+        </div>
+        <div class="smart" id="tripSmart"></div>
+      </div>
+
+      <div class="card">
+        <div class="amountrow">
+          <span class="cur" data-cur></span>
+          <input id="tripAmt" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Amount">
+        </div>
+        <div class="hint"></div>
+        <div class="chips" id="tripCatChips"></div>
+        <div class="two" style="margin-bottom: 12px">
+          <input class="field" id="tripNote" type="text" placeholder="Note (optional)" maxlength="60" autocomplete="off">
+          <input class="field" id="tripDate" type="date" aria-label="Date" style="flex: 0 0 140px">
+        </div>
+        <div id="tripWho" class="hidden">
+          <span class="formlabel">Who paid?</span>
+          <div class="chips" id="tripPaid"></div>
+          <span class="formlabel">Shared between</span>
+          <div class="chips" id="tripSplitChips"></div>
+        </div>
+        <button class="primary wide" id="tripAdd">Add to trip</button>
+        <p class="note end">Trip spending is kept separate from your daily budget.</p>
+      </div>
+
+      <div id="tripSplitWrap" class="hidden">
+        <h2>Who owes who</h2>
+        <div class="card" id="tripSettle"></div>
+      </div>
+      <h2>By category</h2>
+      <div class="card" id="tripCatBreak"></div>
+      <h2 id="tripListHead">Expenses</h2>
+      <div class="card" style="padding: 4px 12px">
+        <ul class="list" id="tripList"></ul>
+      </div>
+    </div>
+  </section>
+
   <!-- HISTORY VIEW -->
   <section id="view-history" class="view">
     <div class="nav">
@@ -337,79 +469,155 @@
       </div>
       <button class="arrow" id="monNext" aria-label="Next month">›</button>
     </div>
-    <div class="card stats" id="stats"></div>
-    <div id="insightWrap" class="hidden">
-      <h2>Insights</h2>
-      <div class="card"><ul class="insights" id="insights"></ul></div>
+    <input class="field search" id="search" type="search" placeholder="🔍  Search all expenses" autocomplete="off">
+
+    <div id="searchWrap" class="hidden">
+      <h2 id="searchHead"></h2>
+      <div class="card" style="padding: 4px 12px"><ul class="list" id="searchList"></ul></div>
     </div>
-    <h2>Calendar</h2>
-    <div class="card">
-      <div class="cal" id="cal"></div>
-      <div class="legend">
-        <span><i style="background: color-mix(in srgb, var(--accent) 80%, var(--card))"></i>Spent nothing</span>
-        <span><i style="background: color-mix(in srgb, var(--accent) 26%, var(--card))"></i>Under</span>
-        <span><i style="background: color-mix(in srgb, var(--warn) 40%, var(--card))"></i>Close</span>
-        <span><i style="background: color-mix(in srgb, var(--over) 50%, var(--card))"></i>Over</span>
+
+    <div id="histMain">
+      <div class="card stats" id="stats"></div>
+      <div id="insightWrap" class="hidden">
+        <h2>Insights</h2>
+        <div class="card"><ul class="insights" id="insights"></ul></div>
       </div>
-    </div>
-    <h2>By category</h2>
-    <div class="card" id="catBreak"></div>
-    <h2>Days</h2>
-    <div class="card" style="padding: 4px 12px">
-      <ul class="list daylist" id="dayList"></ul>
+      <h2>Calendar</h2>
+      <div class="card">
+        <div class="cal" id="cal"></div>
+        <div class="legend">
+          <span><i style="background: color-mix(in srgb, var(--accent) 80%, var(--card))"></i>Spent nothing</span>
+          <span><i style="background: color-mix(in srgb, var(--accent) 26%, var(--card))"></i>Under</span>
+          <span><i style="background: color-mix(in srgb, var(--warn) 40%, var(--card))"></i>Close</span>
+          <span><i style="background: color-mix(in srgb, var(--over) 50%, var(--card))"></i>Over</span>
+        </div>
+      </div>
+      <h2>By category</h2>
+      <div class="card" id="catBreak"></div>
+      <h2>Days</h2>
+      <div class="card" style="padding: 4px 12px">
+        <ul class="list daylist" id="dayList"></ul>
+      </div>
     </div>
   </section>
 
-  <!-- SETTINGS VIEW -->
-  <section id="view-settings" class="view">
-    <div class="nav"><div class="navlabel" style="margin: 0 auto"><strong>Settings</strong></div></div>
-    <h2>Budget</h2>
-    <div class="card">
-      <label class="row"><span>Daily budget</span>
-        <input class="field num" id="setDaily" type="text" inputmode="decimal" autocomplete="off">
-      </label>
-      <p class="note">A new budget applies from today onward. Past days keep the budget they had.</p>
-      <label class="row"><span>Currency symbol</span>
-        <input class="field" id="setCur" type="text" maxlength="4" autocomplete="off">
-      </label>
-      <label class="row"><span>Money you don't spend…</span>
-        <select class="field" id="setMode">
-          <option value="jar">Goes into my savings jar</option>
-          <option value="rollover">Rolls over to the rest of the month</option>
-        </select>
-      </label>
+  <!-- MORE VIEW: bills, lend & borrow, settings -->
+  <section id="view-more" class="view">
+    <div class="nav"><div class="navlabel" style="margin: 0 auto"><strong>More</strong></div></div>
+    <div class="seg" id="moreSeg">
+      <button data-sec="bills" class="on">Bills</button>
+      <button data-sec="loans">Lend &amp; borrow</button>
+      <button data-sec="settings">Settings</button>
     </div>
 
-    <h2>Savings jar</h2>
-    <div class="card">
-      <label class="row"><span>Saving for</span>
-        <input class="field" id="setGoalName" type="text" maxlength="30" placeholder="e.g. New phone" autocomplete="off">
-      </label>
-      <label class="row"><span>Goal amount (leave empty for no jar)</span>
-        <input class="field num" id="setGoalAmt" type="text" inputmode="decimal" autocomplete="off">
-      </label>
+    <div id="sec-bills">
+      <div class="card stats" id="billStats"></div>
+      <div class="card" style="padding: 4px 12px"><ul class="list" id="billList"></ul></div>
+      <h2>Add a monthly bill</h2>
+      <div class="card">
+        <input class="field" id="billName" type="text" placeholder="Name, e.g. Internet" maxlength="30" autocomplete="off">
+        <div class="two" style="margin-top: 8px">
+          <input class="field num" id="billAmt" type="text" inputmode="decimal" placeholder="Amount" autocomplete="off">
+          <input class="field num" id="billDay" type="text" inputmode="numeric" placeholder="Due day (1–31)" autocomplete="off">
+        </div>
+        <button class="primary wide" id="billAdd" style="margin-top: 12px">Add bill</button>
+      </div>
+      <p class="note">You'll see a reminder on the Today screen 3 days before each bill is due. Tap a bill to mark it paid. Bills don't count toward your daily budget.</p>
     </div>
 
-    <h2>Price in work time</h2>
-    <div class="card">
-      <label class="row"><span>What you earn per hour (optional)</span>
-        <input class="field num" id="setHourly" type="text" inputmode="decimal" placeholder="e.g. 250" autocomplete="off">
-      </label>
-      <p class="note" style="margin-bottom:0">Shows how many hours of work each purchase costs you.</p>
+    <div id="sec-loans" class="hidden">
+      <div class="card stats">
+        <div class="stat"><small>Owed to you</small><b class="num good" id="owedToMe"></b></div>
+        <div class="stat"><small>You owe</small><b class="num bad" id="iOwe"></b></div>
+      </div>
+      <div class="card" style="padding: 4px 12px"><ul class="list" id="loanList"></ul></div>
+      <h2>Add</h2>
+      <div class="card">
+        <div class="seg" id="loanDir">
+          <button data-dir="lent" class="on">I lent money</button>
+          <button data-dir="borrowed">I borrowed money</button>
+        </div>
+        <div class="two">
+          <input class="field" id="loanPerson" type="text" placeholder="Who?" maxlength="30" autocomplete="off">
+          <input class="field num" id="loanAmt" type="text" inputmode="decimal" placeholder="Amount" autocomplete="off">
+        </div>
+        <input class="field" id="loanNote" type="text" placeholder="What for? (optional)" maxlength="60" autocomplete="off" style="margin-top: 8px">
+        <button class="primary wide" id="loanAdd" style="margin-top: 12px">Save</button>
+      </div>
+      <p class="note">Tap a record when the money is paid back. Lending and borrowing don't affect your budget.</p>
+      <div id="settledWrap" class="hidden">
+        <h2>Paid back</h2>
+        <div class="card" style="padding: 4px 12px"><ul class="list" id="settledList"></ul></div>
+      </div>
     </div>
 
-    <button class="primary" id="saveSettings" style="width:100%; margin-bottom: 6px">Save settings</button>
+    <div id="sec-settings" class="hidden">
+      <h2>Budget</h2>
+      <div class="card">
+        <label class="row"><span>Daily budget</span>
+          <input class="field num" id="setDaily" type="text" inputmode="decimal" autocomplete="off">
+        </label>
+        <p class="note">A new budget applies from today onward. Past days keep the budget they had.</p>
+        <label class="row"><span>Currency symbol</span>
+          <input class="field" id="setCur" type="text" maxlength="4" autocomplete="off">
+        </label>
+        <label class="row"><span>Money you don't spend…</span>
+          <select class="field" id="setMode">
+            <option value="jar">Goes into my savings jar</option>
+            <option value="rollover">Rolls over to the rest of the month</option>
+          </select>
+        </label>
+      </div>
 
-    <h2>Your data</h2>
-    <div class="card stack">
-      <button class="secondary" id="exportCsv">Export spreadsheet (CSV)</button>
-      <button class="secondary" id="backupJson">Save a backup</button>
-      <button class="secondary" id="restoreBtn">Restore from backup</button>
-      <input type="file" id="restoreFile" accept="application/json,.json" class="hidden">
-      <button class="danger" id="wipeBtn">Erase everything</button>
+      <h2>Savings jar</h2>
+      <div class="card">
+        <label class="row"><span>Saving for</span>
+          <input class="field" id="setGoalName" type="text" maxlength="30" placeholder="e.g. New phone" autocomplete="off">
+        </label>
+        <label class="row"><span>Goal amount (leave empty for no jar)</span>
+          <input class="field num" id="setGoalAmt" type="text" inputmode="decimal" autocomplete="off">
+        </label>
+      </div>
+
+      <h2>Price in work time</h2>
+      <div class="card">
+        <label class="row"><span>What you earn per hour (optional)</span>
+          <input class="field num" id="setHourly" type="text" inputmode="decimal" placeholder="e.g. 250" autocomplete="off">
+        </label>
+        <p class="note end">Shows how many hours of work each purchase costs you.</p>
+      </div>
+
+      <button class="primary wide" id="saveSettings" style="margin-bottom: 6px">Save settings</button>
+
+      <h2>Your categories</h2>
+      <div class="card">
+        <div class="chips" id="customCatList"></div>
+        <div class="two">
+          <input class="field" id="newCatEmoji" type="text" maxlength="4" placeholder="🏷️" autocomplete="off" style="flex: 0 0 64px; text-align: center">
+          <input class="field" id="newCatName" type="text" maxlength="16" placeholder="e.g. Gym, Gifts, Pets" autocomplete="off">
+        </div>
+        <button class="secondary wide" id="addCat" style="margin-top: 8px">Add category</button>
+        <p class="note end">Tap one of your categories to remove it.</p>
+      </div>
+
+      <h2>App lock</h2>
+      <div class="card">
+        <p class="note" id="pinState" style="margin: 0 4px 12px"></p>
+        <button class="secondary wide" id="pinSet">Set a PIN</button>
+        <button class="danger wide hidden" id="pinRemove" style="margin-top: 8px">Remove PIN</button>
+      </div>
+
+      <h2>Your data</h2>
+      <div class="card stack">
+        <button class="secondary" id="exportCsv">Export spreadsheet (CSV)</button>
+        <button class="secondary" id="backupJson">Save a backup</button>
+        <button class="secondary" id="restoreBtn">Restore from backup</button>
+        <input type="file" id="restoreFile" accept="application/json,.json" class="hidden">
+        <button class="danger" id="wipeBtn">Erase everything</button>
+      </div>
+      <p class="note">Everything is stored only on this phone and works without internet. Save a backup now and then, so you don't lose your records if the app is removed.</p>
+      <p class="note" id="storeInfo"></p>
     </div>
-    <p class="note">Everything is stored only on this phone and works without internet. Save a backup now and then, so you don't lose your records if the app is removed.</p>
-    <p class="note" id="storeInfo"></p>
   </section>
 </main>
 
@@ -418,13 +626,17 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M7.5 12h9"/></svg>
     Today
   </button>
+  <button data-tab="trips">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7.5" width="16" height="12" rx="2.5"/><path d="M9 7.5V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5v2M4 13h16"/></svg>
+    Trips
+  </button>
   <button data-tab="history">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>
     History
   </button>
-  <button data-tab="settings">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>
-    Settings
+  <button data-tab="more">
+    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></svg>
+    More
   </button>
 </nav>
 
@@ -440,14 +652,56 @@
     <label class="row"><span>Currency symbol</span>
       <input class="field" id="wCur" type="text" maxlength="4" value="৳" autocomplete="off">
     </label>
-    <button class="primary" id="wGo" style="width:100%">Start</button>
+    <button class="primary wide" id="wGo">Start</button>
+  </div>
+</div>
+
+<div class="modal hidden" id="tripSheet">
+  <div class="sheet">
+    <h3 id="tsTitle">New trip</h3>
+    <p>Set one budget for the whole trip.</p>
+    <label class="row"><span>Where to?</span>
+      <input class="field" id="tsName" type="text" maxlength="30" placeholder="e.g. Cox's Bazar" autocomplete="off">
+    </label>
+    <label class="row"><span>Total trip budget</span>
+      <input class="field num" id="tsBudget" type="text" inputmode="decimal" placeholder="e.g. 15000" autocomplete="off">
+    </label>
+    <div class="two" style="margin-bottom: 14px">
+      <label class="row" style="margin: 0"><span>From</span><input class="field" id="tsStart" type="date"></label>
+      <label class="row" style="margin: 0"><span>To</span><input class="field" id="tsEnd" type="date"></label>
+    </div>
+    <label class="row"><span>Travelling with (optional, to split costs)</span>
+      <input class="field" id="tsPeople" type="text" placeholder="e.g. Rahim, Karim" autocomplete="off">
+    </label>
+    <div class="btnrow" style="margin-top: 0">
+      <button class="danger hidden" id="tsDelete">Delete</button>
+      <button class="secondary" id="tsCancel">Cancel</button>
+      <button class="primary" id="tsSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="lock hidden" id="lock">
+  <div class="lockbox">
+    <div class="lockicon">🔒</div>
+    <h3 id="lockTitle">Enter your PIN</h3>
+    <div class="dots" id="pinDots"><i></i><i></i><i></i><i></i></div>
+    <div class="keypad" id="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="blank" aria-hidden="true"></button><button data-k="0">0</button>
+      <button class="del" data-k="del" aria-label="Delete">⌫</button>
+    </div>
+    <button class="link" id="pinForgot">Forgot PIN?</button>
+    <button class="link hidden" id="pinCancel">Cancel</button>
   </div>
 </div>
 
 <script>
 (() => {
   const STORE = 'dailyBudget.v1';
-  const CATS = [
+  const BASE_CATS = [
     { id: 'food',      emoji: '🍔', name: 'Food' },
     { id: 'transport', emoji: '🚌', name: 'Transport' },
     { id: 'groceries', emoji: '🛒', name: 'Groceries' },
@@ -455,9 +709,12 @@
     { id: 'bills',     emoji: '💡', name: 'Bills' },
     { id: 'fun',       emoji: '🎉', name: 'Fun' },
     { id: 'health',    emoji: '💊', name: 'Health' },
-    { id: 'other',     emoji: '📦', name: 'Other' },
   ];
-  const catById = Object.fromEntries(CATS.map(c => [c.id, c]));
+  const TRIP_EXTRA = [
+    { id: 'stay',    emoji: '🏨', name: 'Stay' },
+    { id: 'tickets', emoji: '🎟️', name: 'Tickets' },
+  ];
+  const OTHER = { id: 'other', emoji: '📦', name: 'Other' };
   const $ = id => document.getElementById(id);
   const DAY = 864e5;
 
@@ -467,17 +724,28 @@
   const dateOf = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
   const todayKey = () => keyOf(new Date());
   const addDays = (k, n) => { const d = dateOf(k); d.setDate(d.getDate() + n); return keyOf(d); };
+  const dayDiff = (a, b) => Math.round((dateOf(b) - dateOf(a)) / DAY);
   const daysIn = m => { const [y, mo] = m.split('-').map(Number); return new Date(y, mo, 0).getDate(); };
+  const shiftMonth = (m, n) => { const [y, mo] = m.split('-').map(Number); return keyOf(new Date(y, mo - 1 + n, 1)).slice(0, 7); };
+  const short = k => dateOf(k).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
   // ---------- storage ----------
   let db = load();
   let spendCache = null;
+  function normalize(d) {
+    for (const k of ['budgets', 'entries', 'trips', 'bills', 'loans', 'customCats']) if (!Array.isArray(d[k])) d[k] = [];
+    d.currency = d.currency || '৳';
+    d.mode = d.mode || 'jar';
+    d.start = d.start || todayKey();
+    return d;
+  }
   function load() {
     try {
       const raw = JSON.parse(localStorage.getItem(STORE));
-      if (raw && Array.isArray(raw.entries)) return raw;
+      if (raw && Array.isArray(raw.entries)) return normalize(raw);
     } catch (e) {}
-    return { currency: '৳', budgets: [], entries: [], start: todayKey(), mode: 'jar' };
+    return normalize({});
   }
   function save() {
     spendCache = null;
@@ -495,15 +763,27 @@
     db.budgets = db.budgets.filter(b => b.from < from);
     db.budgets.push({ from, amount });
   }
+  // Trip spending and bill payments live outside the daily budget.
+  const isDaily = e => !e.trip && !e.bill;
   function spentOn(k) {
     if (!spendCache) {
       spendCache = {};
-      for (const e of db.entries) spendCache[e.date] = (spendCache[e.date] || 0) + e.amount;
+      for (const e of db.entries) if (isDaily(e)) spendCache[e.date] = (spendCache[e.date] || 0) + e.amount;
     }
     return spendCache[k] || 0;
   }
   // First day that counts: when the app was set up, or the earliest entry if older.
-  const firstDay = () => db.entries.reduce((m, e) => e.date < m ? e.date : m, db.start || todayKey());
+  const firstDay = () => db.entries.reduce((m, e) => isDaily(e) && e.date < m ? e.date : m, db.start || todayKey());
+
+  // ---------- categories ----------
+  const dailyCats = () => [...BASE_CATS, ...db.customCats, OTHER];
+  const tripCats = () => [...['food', 'transport'].map(catOf), ...TRIP_EXTRA, ...['shopping', 'fun'].map(catOf), ...db.customCats, OTHER];
+  function catOf(id) {
+    return BASE_CATS.find(c => c.id === id) || TRIP_EXTRA.find(c => c.id === id)
+      || db.customCats.find(c => c.id === id) || OTHER;
+  }
+  const chipHtml = (list, isOn, attr) => list.map(c =>
+    `<button class="chip${isOn(c.id) ? ' on' : ''}" ${attr}="${c.id}">${c.emoji} ${esc(c.name)}</button>`).join('');
 
   // ---------- formatting ----------
   const fmt = n => {
@@ -515,12 +795,28 @@
     return isFinite(v) && v > 0 ? Math.round(v * 100) / 100 : 0;
   };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
   const workTime = amount => {
     const h = amount / db.hourly;
     if (h < 1) return `${Math.max(1, Math.round(h * 60))} min`;
     return `${h < 10 ? Math.round(h * 10) / 10 : Math.round(h)} h`;
   };
-  const dayEntries = k => db.entries.filter(e => e.date === k).sort((a, b) => b.t - a.t);
+  const dayEntries = k => db.entries.filter(e => e.date === k && isDaily(e)).sort((a, b) => b.t - a.t);
+  const timeOn = k => { const n = new Date(); return dateOf(k).getTime() + (n.getHours() * 60 + n.getMinutes()) * 6e4; };
+  function catBreakHtml(entries) {
+    const total = entries.reduce((s, e) => s + e.amount, 0);
+    const by = {};
+    entries.forEach(e => by[e.cat] = (by[e.cat] || 0) + e.amount);
+    const rows = Object.entries(by).sort((a, b) => b[1] - a[1]);
+    if (!rows.length) return '<div class="empty">No spending yet.</div>';
+    const max = rows[0][1];
+    return rows.map(([id, v]) => {
+      const c = catOf(id);
+      return `<div class="catrow"><span>${c.emoji}</span><span class="name">${esc(c.name)}
+        <span class="muted">· ${Math.round(v / total * 100)}%</span></span>
+        <span class="val num">${fmt(v)}</span><div class="meter"><i style="width:${v / max * 100}%"></i></div></div>`;
+    }).join('');
+  }
 
   // ---------- smart numbers ----------
   // Consecutive finished days (ending yesterday) spent within budget.
@@ -565,9 +861,7 @@
   let editingId = null;
 
   function renderCats() {
-    $('cats').innerHTML = CATS.map(c =>
-      `<button class="chip${c.id === curCat ? ' on' : ''}" data-cat="${c.id}">${c.emoji} ${c.name}</button>`
-    ).join('');
+    $('cats').innerHTML = chipHtml(dailyCats(), id => id === curCat, 'data-cat');
   }
   $('cats').addEventListener('click', e => {
     const b = e.target.closest('[data-cat]');
@@ -580,7 +874,7 @@
     const t = todayKey();
     const d = dateOf(curDay);
     const isToday = curDay === t;
-    const diff = Math.round((dateOf(t) - d) / DAY);
+    const diff = dayDiff(curDay, t);
     $('dayTitle').textContent = diff === 0 ? 'Today' : diff === 1 ? 'Yesterday'
       : d.toLocaleDateString(undefined, { weekday: 'long' });
     $('daySub').textContent = d.toLocaleDateString(undefined,
@@ -595,8 +889,7 @@
     const spent = spentOn(curDay);
     const left = budget - spent;
     const ratio = budget > 0 ? spent / budget : (spent > 0 ? 1 : 0);
-    const C = 326.73;
-    $('ringBar').style.strokeDashoffset = C * (1 - Math.min(ratio, 1));
+    $('ringBar').style.strokeDashoffset = 326.73 * (1 - Math.min(ratio, 1));
     $('ringPct').textContent = budget > 0 ? Math.round(ratio * 100) + '%' : '—';
     $('summary').className = 'card summary' + (left < 0 ? ' state-over' : ratio >= .8 ? ' state-warn' : '');
     $('leftLabel').textContent = left < 0 ? 'Over budget by'
@@ -617,9 +910,11 @@
 
     const s = streak();
     $('badges').innerHTML = isToday && s >= 1
-      ? `<span class="badge">🔥 ${s} day${s === 1 ? '' : 's'} in a row under budget</span>` : '';
+      ? `<span class="badge">🔥 ${plural(s, 'day')} in a row under budget</span>` : '';
 
     renderJar(isToday);
+    renderTripBanner(isToday);
+    renderBillBanner(isToday);
     renderBackupBanner(isToday);
     renderQuick();
     renderHint();
@@ -627,13 +922,13 @@
     const items = dayEntries(curDay);
     $('listHead').textContent = items.length ? `${items.length} ${items.length === 1 ? 'entry' : 'entries'}` : 'Entries';
     $('list').innerHTML = items.length ? items.map(e => {
-      const c = catById[e.cat] || catById.other;
+      const c = catOf(e.cat);
       const time = new Date(e.t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
       const work = db.hourly ? ` · ${workTime(e.amount)} of work` : '';
       return `<li data-id="${e.id}" class="${e.id === editingId ? 'editing' : ''}">
         <div class="emoji">${c.emoji}</div>
         <div class="info"><div class="title">${esc(e.note || c.name)}</div>
-          <div class="meta">${e.note ? c.name + ' · ' : ''}${time}${work}</div></div>
+          <div class="meta">${e.note ? esc(c.name) + ' · ' : ''}${time}${work}</div></div>
         <div class="amt num">${fmt(e.amount)}</div></li>`;
     }).join('') : `<li class="empty" style="display:block">Nothing recorded${diff === 0 ? ' yet today' : ' for this day'}.</li>`;
     document.querySelectorAll('[data-cur]').forEach(el => el.textContent = db.currency);
@@ -652,13 +947,35 @@
     let sub;
     if (saved >= target) sub = '🎉 Goal reached! You can set a new one in Settings.';
     else if (days >= 3 && saved > 0) {
-      const perDay = saved / days;
-      const need = Math.ceil((target - saved) / perDay);
+      const need = Math.ceil((target - saved) / (saved / days));
       const when = dateOf(addDays(todayKey(), need)).toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
-      sub = `${Math.floor(pct)}% there. At your pace you'll reach it in about ${need} day${need === 1 ? '' : 's'} (${when}).`;
+      sub = `${Math.floor(pct)}% there. At your pace you'll reach it in about ${plural(need, 'day')} (${when}).`;
     } else sub = 'Fills up every night with whatever you didn\'t spend that day.';
     $('jarSub').textContent = sub;
   }
+
+  function renderTripBanner(isToday) {
+    const active = isToday ? db.trips.filter(tr => tripInfo(tr).status === 'active') : [];
+    $('tripBanner').innerHTML = active.map(tr => {
+      const i = tripInfo(tr);
+      const state = i.left < 0 ? `${fmt(-i.left)} over budget` : `${fmt(i.perDay)} a day left`;
+      return `<button class="banner info" data-open-trip="${tr.id}"><span>✈️ <b>${esc(tr.name)}</b> · ${state}</span><span class="go">Open ›</span></button>`;
+    }).join('');
+  }
+  $('tripBanner').addEventListener('click', e => {
+    const b = e.target.closest('[data-open-trip]');
+    if (b) { showTab('trips'); openTrip(b.dataset.openTrip); }
+  });
+
+  function renderBillBanner(isToday) {
+    const due = isToday ? db.bills.map(b => ({ b, ...billDue(b) })).filter(x => !x.paid && x.days <= 3).sort((a, b) => a.days - b.days) : [];
+    $('billBanner').innerHTML = due.map(x =>
+      `<div class="banner${x.days < 0 ? '' : ' info'}"><span>💡 <b>${esc(x.b.name)}</b> ${fmt(x.b.amount)} ${dueText(x.days)}</span><button class="go" data-pay="${x.b.id}">Mark paid</button></div>`).join('');
+  }
+  $('billBanner').addEventListener('click', e => {
+    const b = e.target.closest('[data-pay]');
+    if (b) payBill(b.dataset.pay);
+  });
 
   function renderBackupBanner(isToday) {
     const since = Math.max(db.lastBackup || 0, db.backupSnooze || 0, dateOf(db.start || todayKey()).getTime());
@@ -681,7 +998,7 @@
     const since = addDays(todayKey(), -60);
     const groups = {};
     for (const e of db.entries) {
-      if (e.date < since) continue;
+      if (e.date < since || !isDaily(e)) continue;
       const key = `${e.cat}|${(e.note || '').toLowerCase()}|${e.amount}`;
       const g = groups[key] || (groups[key] = { e, n: 0 });
       g.n++;
@@ -694,7 +1011,7 @@
     quickItems = editingId ? [] : frequent();
     $('quick').classList.toggle('hidden', !quickItems.length);
     $('quickChips').innerHTML = quickItems.map((e, i) => {
-      const c = catById[e.cat] || catById.other;
+      const c = catOf(e.cat);
       return `<button class="chip" data-q="${i}">${c.emoji} ${esc(e.note || c.name)} · ${fmt(e.amount)}</button>`;
     }).join('');
   }
@@ -703,7 +1020,7 @@
     if (!b) return;
     const q = quickItems[b.dataset.q];
     const e = addEntry(q.amount, q.cat, q.note);
-    toast(`Added ${esc(q.note || catById[q.cat].name)} ${fmt(q.amount)}`, () => {
+    toast(`Added ${q.note || catOf(q.cat).name} ${fmt(q.amount)}`, () => {
       db.entries = db.entries.filter(x => x.id !== e.id); save(); renderDay();
     });
   });
@@ -721,12 +1038,8 @@
   $('amt').addEventListener('input', renderHint);
 
   function addEntry(amount, cat, note) {
-    const now = new Date();
-    // Entries for past days get a time on that day so they sort sensibly.
-    const t = curDay === todayKey() ? now.getTime()
-      : dateOf(curDay).getTime() + (now.getHours() * 60 + now.getMinutes()) * 6e4;
-    const e = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-                date: curDay, amount, cat, note, t };
+    const t = curDay === todayKey() ? Date.now() : timeOn(curDay);
+    const e = { id: uid(), date: curDay, amount, cat, note, t };
     db.entries.push(e);
     save(); renderDay();
     return e;
@@ -789,11 +1102,387 @@
   $('dayNext').addEventListener('click', () => goDay(addDays(curDay, 1)));
   $('dayPick').addEventListener('change', e => { if (e.target.value) goDay(e.target.value); });
 
+  // ---------- trips ----------
+  let curTrip = null, tripCat = 'food', tripPaidBy = 'You', tripSplit = new Set(), editingTrip = null;
+  const tripById = id => db.trips.find(tr => tr.id === id);
+  const tripEntries = id => db.entries.filter(e => e.trip === id).sort((a, b) => b.t - a.t);
+  // "You" plus everyone named on the trip (and anyone who paid, if later removed from it).
+  function tripPeople(tr) {
+    const people = ['You', ...tr.people];
+    for (const e of tripEntries(tr.id)) if (e.paidBy && !people.includes(e.paidBy)) people.push(e.paidBy);
+    return people;
+  }
+  function tripInfo(tr) {
+    const t = todayKey();
+    const spent = tripEntries(tr.id).reduce((s, e) => s + e.amount, 0);
+    const total = dayDiff(tr.start, tr.end) + 1;
+    const status = t < tr.start ? 'upcoming' : t > tr.end ? 'ended' : 'active';
+    const daysLeft = status === 'upcoming' ? total : status === 'ended' ? 0 : dayDiff(t, tr.end) + 1;
+    const left = tr.budget - spent;
+    return { spent, total, status, daysLeft, left, perDay: daysLeft ? Math.max(0, left) / daysLeft : 0 };
+  }
+  const tripRange = tr => tr.start === tr.end ? short(tr.start) : `${short(tr.start)} – ${short(tr.end)}`;
+
+  // Who paid what, each person's fair share, and the fewest payments that settle it.
+  function settleUp(tr) {
+    const people = tripPeople(tr);
+    const bal = Object.fromEntries(people.map(p => [p, { paid: 0, share: 0 }]));
+    for (const e of tripEntries(tr.id)) {
+      bal[e.paidBy || 'You'].paid += e.amount;
+      const among = (e.split || []).filter(p => bal[p]);
+      const group = among.length ? among : people;
+      for (const p of group) bal[p].share += e.amount / group.length;
+    }
+    const net = people.map(p => ({ p, v: bal[p].paid - bal[p].share }));
+    const owed = net.filter(x => x.v > .5).sort((a, b) => b.v - a.v);
+    const owing = net.filter(x => x.v < -.5).sort((a, b) => a.v - b.v);
+    const pays = [];
+    for (let i = 0, j = 0; i < owing.length && j < owed.length;) {
+      const amt = Math.min(-owing[i].v, owed[j].v);
+      pays.push({ from: owing[i].p, to: owed[j].p, amt });
+      owing[i].v += amt; owed[j].v -= amt;
+      if (-owing[i].v < .5) i++;
+      if (owed[j].v < .5) j++;
+    }
+    return { bal, pays };
+  }
+
+  function renderTrips() {
+    const tr = curTrip && tripById(curTrip);
+    if (!tr) curTrip = null;
+    $('tripsHome').classList.toggle('hidden', !!tr);
+    $('tripDetail').classList.toggle('hidden', !tr);
+    if (tr) renderTripDetail(tr); else renderTripCards();
+  }
+  function renderTripCards() {
+    const order = { active: 0, upcoming: 1, ended: 2 };
+    const list = db.trips.map(tr => ({ tr, ...tripInfo(tr) }))
+      .sort((a, b) => order[a.status] - order[b.status] || b.tr.start.localeCompare(a.tr.start));
+    $('tripCards').innerHTML = list.length ? list.map(({ tr, spent, status, left }) => {
+      const r = tr.budget ? spent / tr.budget : 0;
+      const cls = spent > tr.budget ? 'over' : r >= .8 ? 'warn' : '';
+      const label = { active: 'On now', upcoming: 'Upcoming', ended: 'Ended' }[status];
+      return `<button class="card tripcard" data-trip="${tr.id}">
+        <div class="top"><b>✈️ ${esc(tr.name)}</b><span class="pill ${status}">${label}</span></div>
+        <div class="sub">${tripRange(tr)}${tr.people.length ? ` · ${tr.people.length + 1} people` : ''}</div>
+        <div class="meter"><i class="${cls}" style="width:${Math.min(r, 1) * 100}%"></i></div>
+        <div class="sub num">${fmt(spent)} of ${fmt(tr.budget)} · ${left < 0 ? fmt(-left) + ' over' : fmt(left) + ' left'}</div>
+      </button>`;
+    }).join('') : '<div class="card empty">Going somewhere? Give the trip one total budget, see how much you can spend each day, and split costs with friends.</div>';
+  }
+  $('tripCards').addEventListener('click', e => {
+    const b = e.target.closest('[data-trip]');
+    if (b) openTrip(b.dataset.trip);
+  });
+
+  function openTrip(id) {
+    const tr = tripById(id);
+    if (!tr) return;
+    curTrip = id;
+    tripCat = 'food';
+    tripPaidBy = 'You';
+    tripSplit = new Set(tripPeople(tr));
+    $('tripAmt').value = '';
+    $('tripNote').value = '';
+    const t = todayKey();
+    $('tripDate').value = t < tr.start ? t : t > tr.end ? tr.end : t;
+    renderTrips();
+    window.scrollTo(0, 0);
+  }
+
+  function renderTripDetail(tr) {
+    const info = tripInfo(tr);
+    const people = tripPeople(tr);
+    const multi = people.length > 1;
+    $('tripTitle').textContent = tr.name;
+    $('tripDates').textContent = `${tripRange(tr)} · ${plural(info.total, 'day')}`;
+    const ratio = tr.budget ? info.spent / tr.budget : 0;
+    $('tripRingBar').style.strokeDashoffset = 326.73 * (1 - Math.min(ratio, 1));
+    $('tripPct').textContent = Math.round(ratio * 100) + '%';
+    $('tripSummary').className = 'card summary' + (info.left < 0 ? ' state-over' : ratio >= .8 ? ' state-warn' : '');
+    $('tripLeftLabel').textContent = info.left < 0 ? 'Over budget by' : 'Left for the trip';
+    $('tripLeftAmount').textContent = fmt(info.left);
+    $('tripSpentOf').textContent = `Spent ${fmt(info.spent)} of ${fmt(tr.budget)}`;
+    $('tripSmart').textContent =
+      info.status === 'active' ? (info.left > 0
+        ? `📅 You can spend about ${fmt(info.perDay)} a day for the ${plural(info.daysLeft, 'day')} left.`
+        : '📅 The trip budget is used up.')
+      : info.status === 'upcoming'
+        ? `⏳ Starts in ${plural(dayDiff(todayKey(), tr.start), 'day')}. That's about ${fmt(info.perDay)} a day.`
+        : info.left >= 0 ? `🏁 Trip over. You stayed ${fmt(info.left)} under budget.`
+        : `🏁 Trip over. You went ${fmt(-info.left)} over budget.`;
+
+    $('tripCatChips').innerHTML = chipHtml(tripCats(), id => id === tripCat, 'data-tcat');
+    $('tripWho').classList.toggle('hidden', !multi);
+    if (multi) {
+      $('tripPaid').innerHTML = people.map(p =>
+        `<button class="chip${p === tripPaidBy ? ' on' : ''}" data-paid="${esc(p)}">${esc(p)}</button>`).join('');
+      $('tripSplitChips').innerHTML = people.map(p =>
+        `<button class="chip${tripSplit.has(p) ? ' on' : ''}" data-split="${esc(p)}">${esc(p)}</button>`).join('');
+    }
+
+    const es = tripEntries(tr.id);
+    $('tripSplitWrap').classList.toggle('hidden', !multi || !es.length);
+    if (multi && es.length) {
+      const { bal, pays } = settleUp(tr);
+      const name = p => p === 'You' ? 'You' : esc(p);
+      $('tripSettle').innerHTML = people.map(p =>
+        `<div class="prow"><span>${name(p)}</span><span class="muted num">paid ${fmt(bal[p].paid)} · share ${fmt(bal[p].share)}</span></div>`).join('')
+        + '<div class="settle">' + (pays.length ? pays.map(x =>
+          `<div>➡️ <b>${name(x.from)}</b> ${x.from === 'You' ? 'pay' : 'pays'} <b>${x.to === 'You' ? 'you' : esc(x.to)}</b> <b class="num">${fmt(x.amt)}</b></div>`).join('')
+          : '<div>✅ Everyone is even.</div>') + '</div>';
+    }
+    $('tripCatBreak').innerHTML = catBreakHtml(es);
+    $('tripListHead').textContent = es.length ? plural(es.length, 'expense') : 'Expenses';
+    $('tripList').innerHTML = es.length ? es.map(e => {
+      const c = catOf(e.cat);
+      let who = '';
+      if (multi) {
+        who = ` · ${e.paidBy && e.paidBy !== 'You' ? esc(e.paidBy) + ' paid' : 'You paid'}`;
+        if (e.split && e.split.length < people.length) who += ` · split ${e.split.length} ways`;
+      }
+      return `<li data-te="${e.id}"><div class="emoji">${c.emoji}</div>
+        <div class="info"><div class="title">${esc(e.note || c.name)}</div>
+          <div class="meta">${short(e.date)}${who}</div></div>
+        <div class="amt num">${fmt(e.amount)}</div></li>`;
+    }).join('') : '<li class="empty" style="display:block">Nothing spent on this trip yet.</li>';
+    document.querySelectorAll('[data-cur]').forEach(el => el.textContent = db.currency);
+  }
+
+  $('tripCatChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-tcat]');
+    if (b) { tripCat = b.dataset.tcat; renderTrips(); }
+  });
+  $('tripPaid').addEventListener('click', e => {
+    const b = e.target.closest('[data-paid]');
+    if (b) { tripPaidBy = b.dataset.paid; renderTrips(); }
+  });
+  $('tripSplitChips').addEventListener('click', e => {
+    const b = e.target.closest('[data-split]');
+    if (!b) return;
+    const p = b.dataset.split;
+    if (tripSplit.has(p)) tripSplit.delete(p); else tripSplit.add(p);
+    renderTrips();
+  });
+  $('tripAdd').addEventListener('click', () => {
+    const tr = tripById(curTrip);
+    if (!tr) return;
+    const amount = parseAmt($('tripAmt').value);
+    if (!amount) { $('tripAmt').focus(); toast('Enter an amount first'); return; }
+    const people = tripPeople(tr);
+    const date = $('tripDate').value || todayKey();
+    const e = { id: uid(), date, amount, cat: tripCat, note: $('tripNote').value.trim(),
+                t: date === todayKey() ? Date.now() : timeOn(date), trip: tr.id };
+    if (people.length > 1) {
+      const split = people.filter(p => tripSplit.has(p));
+      if (!split.length) { toast('Pick who shares this cost'); return; }
+      e.paidBy = tripPaidBy;
+      if (split.length < people.length) e.split = split;
+    }
+    db.entries.push(e);
+    save();
+    $('tripAmt').value = ''; $('tripNote').value = '';
+    $('tripAmt').blur(); $('tripNote').blur();
+    renderTrips();
+    toast(`Added ${fmt(amount)} to ${tr.name}`);
+  });
+  $('tripList').addEventListener('click', ev => {
+    const li = ev.target.closest('[data-te]');
+    if (!li) return;
+    const e = db.entries.find(x => x.id === li.dataset.te);
+    if (!e || !confirm(`Delete ${e.note || catOf(e.cat).name} (${fmt(e.amount)})?`)) return;
+    db.entries = db.entries.filter(x => x.id !== e.id);
+    save(); renderTrips();
+    toast(`Deleted ${fmt(e.amount)}`, () => { db.entries.push(e); save(); renderTrips(); });
+  });
+  $('tripBack').addEventListener('click', () => { curTrip = null; renderTrips(); });
+
+  function tripSheet(tr) {
+    editingTrip = tr ? tr.id : null;
+    $('tsTitle').textContent = tr ? 'Edit trip' : 'New trip';
+    $('tsName').value = tr ? tr.name : '';
+    $('tsBudget').value = tr ? tr.budget : '';
+    $('tsStart').value = tr ? tr.start : todayKey();
+    $('tsEnd').value = tr ? tr.end : addDays(todayKey(), 2);
+    $('tsPeople').value = tr ? tr.people.join(', ') : '';
+    $('tsDelete').classList.toggle('hidden', !tr);
+    $('tripSheet').classList.remove('hidden');
+  }
+  const closeSheet = () => $('tripSheet').classList.add('hidden');
+  $('newTrip').addEventListener('click', () => tripSheet(null));
+  $('tripEdit').addEventListener('click', () => tripSheet(tripById(curTrip)));
+  $('tsCancel').addEventListener('click', closeSheet);
+  $('tripSheet').addEventListener('click', e => { if (e.target.id === 'tripSheet') closeSheet(); });
+  $('tsSave').addEventListener('click', () => {
+    const name = $('tsName').value.trim();
+    const budget = parseAmt($('tsBudget').value);
+    let start = $('tsStart').value, end = $('tsEnd').value || start;
+    if (!name) { $('tsName').focus(); return; }
+    if (!budget) { $('tsBudget').focus(); return; }
+    if (!start) { $('tsStart').focus(); return; }
+    if (end < start) [start, end] = [end, start];
+    const people = [];
+    for (const p of $('tsPeople').value.split(',').map(s => s.trim()).filter(Boolean)) {
+      if (p.toLowerCase() !== 'you' && !people.some(x => x.toLowerCase() === p.toLowerCase())) people.push(p);
+    }
+    const existing = tripById(editingTrip);
+    if (existing) Object.assign(existing, { name, budget, start, end, people });
+    else db.trips.push({ id: uid(), name, budget, start, end, people });
+    save();
+    closeSheet();
+    openTrip(existing ? existing.id : db.trips[db.trips.length - 1].id);
+    renderDay();
+    toast(existing ? 'Trip saved' : 'Trip created');
+  });
+  $('tsDelete').addEventListener('click', () => {
+    const tr = tripById(editingTrip);
+    if (!tr) return;
+    const n = tripEntries(tr.id).length;
+    if (!confirm(`Delete “${tr.name}”${n ? ` and its ${plural(n, 'expense')}` : ''}? This cannot be undone.`)) return;
+    db.trips = db.trips.filter(x => x.id !== tr.id);
+    db.entries = db.entries.filter(e => e.trip !== tr.id);
+    save(); closeSheet();
+    curTrip = null;
+    renderTrips(); renderDay();
+  });
+
+  // ---------- bills ----------
+  // This month's due date (or next month's, if the bill was added after this month's date passed).
+  function billDue(b) {
+    const t = todayKey();
+    const dueIn = m => `${m}-${pad(Math.min(b.day, daysIn(m)))}`;
+    let month = t.slice(0, 7);
+    let due = dueIn(month);
+    const find = m => { const id = (b.paid || {})[m]; return id && db.entries.find(e => e.id === id); };
+    let paid = find(month);
+    if (!paid && due < (b.created || '')) { month = shiftMonth(month, 1); due = dueIn(month); paid = find(month); }
+    return { due, month, paid, days: dayDiff(t, due) };
+  }
+  const dueText = d => d < 0 ? `was due ${plural(-d, 'day')} ago` : d === 0 ? 'is due today'
+    : d === 1 ? 'is due tomorrow' : `is due in ${d} days`;
+  function payBill(id) {
+    const b = db.bills.find(x => x.id === id);
+    if (!b) return;
+    const { month } = billDue(b);
+    const e = { id: uid(), date: todayKey(), amount: b.amount, cat: 'bills', note: b.name, t: Date.now(), bill: b.id };
+    db.entries.push(e);
+    b.paid = b.paid || {};
+    b.paid[month] = e.id;
+    save(); renderDay(); renderBills();
+    toast(`${b.name} marked paid`, () => {
+      db.entries = db.entries.filter(x => x.id !== e.id);
+      delete b.paid[month];
+      save(); renderDay(); renderBills();
+    });
+  }
+  function renderBills() {
+    const rows = db.bills.map(b => ({ b, ...billDue(b) })).sort((x, y) => (!!x.paid - !!y.paid) || x.days - y.days);
+    const total = db.bills.reduce((s, b) => s + b.amount, 0);
+    $('billStats').innerHTML = `
+      <div class="stat"><small>Bills every month</small><b class="num">${fmt(total)}</b></div>
+      <div class="stat"><small>Paid this month</small><b class="num">${rows.filter(r => r.paid).length} of ${rows.length}</b></div>`;
+    $('billList').innerHTML = rows.length ? rows.map(r => {
+      const when = r.paid ? `Paid ${short(r.paid.date)}`
+        : `Due ${short(r.due)} · ${r.days < 0 ? `${plural(-r.days, 'day')} late` : r.days === 0 ? 'today' : r.days === 1 ? 'tomorrow' : `in ${r.days} days`}`;
+      return `<li data-bill="${r.b.id}"><div class="emoji">${r.paid ? '✅' : r.days < 0 ? '⚠️' : '💡'}</div>
+        <div class="info"><div class="title">${esc(r.b.name)}</div><div class="meta">${when}</div></div>
+        <div class="amt num">${fmt(r.b.amount)}</div>
+        <button class="x" data-delbill="${r.b.id}" aria-label="Delete bill">×</button></li>`;
+    }).join('') : '<li class="empty" style="display:block">No bills yet. Add rent, internet, phone, subscriptions…</li>';
+  }
+  $('billList').addEventListener('click', ev => {
+    const del = ev.target.closest('[data-delbill]');
+    if (del) {
+      const b = db.bills.find(x => x.id === del.dataset.delbill);
+      if (b && confirm(`Stop tracking ${b.name}? Past payments stay in your records.`)) {
+        db.bills = db.bills.filter(x => x !== b); save(); renderBills(); renderDay();
+      }
+      return;
+    }
+    const li = ev.target.closest('[data-bill]');
+    if (!li) return;
+    const b = db.bills.find(x => x.id === li.dataset.bill);
+    const st = b && billDue(b);
+    if (!st) return;
+    if (st.paid) {
+      if (!confirm(`Mark ${b.name} as not paid this month?`)) return;
+      db.entries = db.entries.filter(e => e.id !== st.paid.id);
+      delete b.paid[st.month];
+      save(); renderBills(); renderDay();
+    } else payBill(b.id);
+  });
+  $('billAdd').addEventListener('click', () => {
+    const name = $('billName').value.trim();
+    const amount = parseAmt($('billAmt').value);
+    const day = parseInt($('billDay').value, 10);
+    if (!name) { $('billName').focus(); return; }
+    if (!amount) { $('billAmt').focus(); return; }
+    if (!(day >= 1 && day <= 31)) { $('billDay').focus(); toast('Due day must be 1–31'); return; }
+    db.bills.push({ id: uid(), name, amount, day, created: todayKey(), paid: {} });
+    save();
+    $('billName').value = $('billAmt').value = $('billDay').value = '';
+    renderBills(); renderDay();
+    toast(`${name} added`);
+  });
+
+  // ---------- lend & borrow ----------
+  let loanDir = 'lent';
+  const ago = k => { const d = dayDiff(k, todayKey()); return d === 0 ? 'Today' : d === 1 ? 'Yesterday' : `${d} days ago`; };
+  function renderLoans() {
+    const open = db.loans.filter(l => !l.settled).sort((a, b) => a.date.localeCompare(b.date));
+    const done = db.loans.filter(l => l.settled).sort((a, b) => (b.settledOn || '').localeCompare(a.settledOn || '')).slice(0, 20);
+    const sum = dir => open.filter(l => l.dir === dir).reduce((s, l) => s + l.amount, 0);
+    $('owedToMe').textContent = fmt(sum('lent'));
+    $('iOwe').textContent = fmt(sum('borrowed'));
+    const row = l => `<li data-loan="${l.id}"><div class="emoji">${l.dir === 'lent' ? '🤝' : '🙏'}</div>
+      <div class="info"><div class="title">${l.dir === 'lent' ? `${esc(l.person)} owes you` : `You owe ${esc(l.person)}`}</div>
+        <div class="meta">${l.note ? esc(l.note) + ' · ' : ''}${l.settled ? 'Paid back ' + short(l.settledOn) : ago(l.date)}</div></div>
+      <div class="amt num">${fmt(l.amount)}</div></li>`;
+    $('loanList').innerHTML = open.length ? open.map(row).join('') : '<li class="empty" style="display:block">Nobody owes anybody. 🎉</li>';
+    $('settledWrap').classList.toggle('hidden', !done.length);
+    $('settledList').innerHTML = done.map(row).join('');
+  }
+  $('loanDir').addEventListener('click', e => {
+    const b = e.target.closest('[data-dir]');
+    if (!b) return;
+    loanDir = b.dataset.dir;
+    $('loanDir').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+  });
+  $('loanAdd').addEventListener('click', () => {
+    const person = $('loanPerson').value.trim();
+    const amount = parseAmt($('loanAmt').value);
+    if (!person) { $('loanPerson').focus(); return; }
+    if (!amount) { $('loanAmt').focus(); return; }
+    db.loans.push({ id: uid(), person, amount, dir: loanDir, note: $('loanNote').value.trim(), date: todayKey() });
+    save();
+    $('loanPerson').value = $('loanAmt').value = $('loanNote').value = '';
+    renderLoans();
+    toast('Saved');
+  });
+  const onLoanTap = ev => {
+    const li = ev.target.closest('[data-loan]');
+    const l = li && db.loans.find(x => x.id === li.dataset.loan);
+    if (!l) return;
+    if (l.settled) {
+      if (!confirm('Delete this record?')) return;
+      db.loans = db.loans.filter(x => x !== l);
+      save(); renderLoans();
+      return;
+    }
+    const who = l.dir === 'lent' ? `${l.person} paid you back` : `you paid ${l.person} back`;
+    if (!confirm(`Mark that ${who} ${fmt(l.amount)}?`)) return;
+    l.settled = true; l.settledOn = todayKey();
+    save(); renderLoans();
+    toast('Marked as paid back', () => { l.settled = false; delete l.settledOn; save(); renderLoans(); });
+  };
+  $('loanList').addEventListener('click', onLoanTap);
+  $('settledList').addEventListener('click', onLoanTap);
+
   // ---------- history view ----------
   let curMonth = todayKey().slice(0, 7);
-  const shiftMonth = (m, n) => { const [y, mo] = m.split('-').map(Number); return keyOf(new Date(y, mo - 1 + n, 1)).slice(0, 7); };
 
   function renderHistory() {
+    renderSearch();
     const t = todayKey();
     const f = firstDay();
     const [y, mo] = curMonth.split('-').map(Number);
@@ -808,12 +1497,13 @@
       const k = `${curMonth}-${pad(d)}`;
       if (k <= t && k >= f) days.push(k);
     }
-    const monthEntries = db.entries.filter(e => e.date.startsWith(curMonth));
+    const inMonth = db.entries.filter(e => e.date.startsWith(curMonth));
+    const monthEntries = inMonth.filter(isDaily);
     const spent = monthEntries.reduce((s, e) => s + e.amount, 0);
     const budget = days.reduce((s, k) => s + budgetFor(k), 0);
     const within = days.filter(k => spentOn(k) <= budgetFor(k)).length;
     const saved = budget - spent;
-    $('monSub').textContent = days.length ? `${days.length} day${days.length === 1 ? '' : 's'} tracked` : 'No days tracked';
+    $('monSub').textContent = days.length ? `${plural(days.length, 'day')} tracked` : 'No days tracked';
 
     $('stats').innerHTML = `
       <div class="stat"><small>Spent</small><b class="num">${fmt(spent)}</b></div>
@@ -846,8 +1536,7 @@
     }
     if (monthEntries.length) {
       const big = monthEntries.reduce((a, b) => b.amount > a.amount ? b : a);
-      const c = catById[big.cat] || catById.other;
-      ins.push(['💥', `Biggest expense: <b>${esc(big.note || c.name)}</b>, ${fmt(big.amount)} on ${dateOf(big.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}.`]);
+      ins.push(['💥', `Biggest expense: <b>${esc(big.note || catOf(big.cat).name)}</b>, ${fmt(big.amount)} on ${short(big.date)}.`]);
     }
     const allDays = [];
     for (let k = f; k < t; k = addDays(k, 1)) allDays.push(k);
@@ -861,6 +1550,10 @@
       }
     }
     if (db.hourly && spent) ins.push(['⏱️', `This month's spending cost you about <b>${workTime(spent)}</b> of work.`]);
+    const billsPaid = inMonth.filter(e => e.bill).reduce((s, e) => s + e.amount, 0);
+    if (billsPaid) ins.push(['💡', `Bills paid this month: <b>${fmt(billsPaid)}</b>, on top of daily spending.`]);
+    const tripSpent = inMonth.filter(e => e.trip).reduce((s, e) => s + e.amount, 0);
+    if (tripSpent) ins.push(['✈️', `Trip spending this month: <b>${fmt(tripSpent)}</b>, kept apart from your daily budget.`]);
     $('insightWrap').classList.toggle('hidden', !ins.length);
     $('insights').innerHTML = ins.map(([i, s]) => `<li><span>${i}</span><span>${s}</span></li>`).join('');
 
@@ -878,17 +1571,7 @@
       cal += `<button class="d ${cls}${k === t ? ' today' : ''}" data-day="${k}"${cls === 'off' ? ' disabled' : ''}>${d}</button>`;
     }
     $('cal').innerHTML = cal;
-
-    const byCat = {};
-    monthEntries.forEach(e => byCat[e.cat] = (byCat[e.cat] || 0) + e.amount);
-    const rows = Object.entries(byCat).sort((a, b) => b[1] - a[1]);
-    const max = rows.length ? rows[0][1] : 1;
-    $('catBreak').innerHTML = rows.length ? rows.map(([id, v]) => {
-      const c = catById[id] || catById.other;
-      return `<div class="catrow"><span>${c.emoji}</span><span class="name">${c.name}
-        <span class="muted">· ${Math.round(v / spent * 100)}%</span></span>
-        <span class="val num">${fmt(v)}</span><div class="meter"><i style="width:${v / max * 100}%"></i></div></div>`;
-    }).join('') : '<div class="empty">No spending this month.</div>';
+    $('catBreak').innerHTML = catBreakHtml(monthEntries);
 
     $('dayList').innerHTML = days.length ? days.map(k => {
       const s = spentOn(k), b = budgetFor(k);
@@ -913,6 +1596,38 @@
   $('dayList').addEventListener('click', openDay);
   $('cal').addEventListener('click', openDay);
 
+  // Search everything: daily spending, trips and bills.
+  function renderSearch() {
+    const q = $('search').value.trim().toLowerCase();
+    $('histMain').classList.toggle('hidden', !!q);
+    $('searchWrap').classList.toggle('hidden', !q);
+    if (!q) return;
+    const tripName = id => (tripById(id) || {}).name || 'Trip';
+    const hits = db.entries.filter(e =>
+      (e.note || '').toLowerCase().includes(q) || catOf(e.cat).name.toLowerCase().includes(q)
+      || String(e.amount) === q || (e.trip && tripName(e.trip).toLowerCase().includes(q))
+    ).sort((a, b) => b.t - a.t);
+    const total = hits.reduce((s, e) => s + e.amount, 0);
+    $('searchHead').textContent = `${plural(hits.length, 'result')} · ${fmt(total)}`;
+    $('searchList').innerHTML = hits.length ? hits.slice(0, 200).map(e => {
+      const c = catOf(e.cat);
+      const tag = e.trip ? `✈️ ${esc(tripName(e.trip))} · ` : e.bill ? '💡 Bill · ' : '';
+      return `<li data-hit="${e.id}"><div class="emoji">${c.emoji}</div>
+        <div class="info"><div class="title">${esc(e.note || c.name)}</div>
+          <div class="meta">${tag}${dateOf(e.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</div></div>
+        <div class="amt num">${fmt(e.amount)}</div></li>`;
+    }).join('') : '<li class="empty" style="display:block">Nothing found.</li>';
+  }
+  $('search').addEventListener('input', renderSearch);
+  $('searchList').addEventListener('click', ev => {
+    const li = ev.target.closest('[data-hit]');
+    const e = li && db.entries.find(x => x.id === li.dataset.hit);
+    if (!e) return;
+    if (e.trip) { showTab('trips'); openTrip(e.trip); }
+    else if (e.bill) showTab('more');
+    else { goDay(e.date); showTab('day'); }
+  });
+
   // ---------- settings ----------
   function renderSettings() {
     $('setDaily').value = budgetFor(todayKey()) || '';
@@ -921,6 +1636,12 @@
     $('setGoalName').value = db.goal ? db.goal.name : '';
     $('setGoalAmt').value = db.goal ? db.goal.target : '';
     $('setHourly').value = db.hourly || '';
+    $('customCatList').innerHTML = db.customCats.length
+      ? db.customCats.map(c => `<button class="chip" data-rmcat="${c.id}">${c.emoji} ${esc(c.name)} ✕</button>`).join('')
+      : '<span class="muted" style="font-size: 14px">No categories of your own yet.</span>';
+    $('pinState').textContent = db.pin ? '🔒 The app asks for your PIN when you open it.' : 'Lock the app with a 4-digit PIN so others can\'t see your spending.';
+    $('pinSet').textContent = db.pin ? 'Change PIN' : 'Set a PIN';
+    $('pinRemove').classList.toggle('hidden', !db.pin);
     const n = db.entries.length;
     $('storeInfo').textContent = `${n} entr${n === 1 ? 'y' : 'ies'} saved on this device.`
       + (db.lastBackup ? ` Last backup: ${new Date(db.lastBackup).toLocaleDateString()}.` : '');
@@ -941,6 +1662,24 @@
     save(); renderSettings(); renderDay();
     toast('Settings saved');
   });
+  $('addCat').addEventListener('click', () => {
+    const name = $('newCatName').value.trim();
+    if (!name) { $('newCatName').focus(); return; }
+    db.customCats.push({ id: 'c' + uid(), emoji: $('newCatEmoji').value.trim() || '🏷️', name });
+    save();
+    $('newCatName').value = $('newCatEmoji').value = '';
+    renderSettings(); renderCats();
+    toast(`${name} added`);
+  });
+  $('customCatList').addEventListener('click', e => {
+    const b = e.target.closest('[data-rmcat]');
+    const c = b && db.customCats.find(x => x.id === b.dataset.rmcat);
+    if (!c || !confirm(`Remove ${c.name}? Expenses in it will show as Other.`)) return;
+    db.customCats = db.customCats.filter(x => x !== c);
+    if (curCat === c.id) curCat = 'food';
+    if (tripCat === c.id) tripCat = 'food';
+    save(); renderSettings(); renderCats();
+  });
 
   async function shareFile(name, text, type) {
     const file = new File([text], name, { type });
@@ -955,10 +1694,11 @@
   }
   $('exportCsv').addEventListener('click', () => {
     const q = s => `"${String(s).replace(/"/g, '""')}"`;
-    const rows = [['Date', 'Time', 'Category', 'Note', 'Amount', 'Daily budget']];
+    const rows = [['Date', 'Time', 'Type', 'Trip', 'Category', 'Note', 'Amount', 'Paid by', 'Daily budget']];
     [...db.entries].sort((a, b) => a.t - b.t).forEach(e => rows.push([
-      e.date, new Date(e.t).toTimeString().slice(0, 5), (catById[e.cat] || catById.other).name,
-      e.note || '', e.amount, budgetFor(e.date)]));
+      e.date, new Date(e.t).toTimeString().slice(0, 5), e.trip ? 'Trip' : e.bill ? 'Bill' : 'Daily',
+      e.trip ? (tripById(e.trip) || {}).name || '' : '', catOf(e.cat).name, e.note || '', e.amount,
+      e.trip ? e.paidBy || 'You' : '', isDaily(e) ? budgetFor(e.date) : '']));
     shareFile(`budget-${todayKey()}.csv`, rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv');
   });
   $('backupJson').addEventListener('click', () => { backup(); renderSettings(); });
@@ -971,28 +1711,113 @@
       const data = JSON.parse(await f.text());
       if (!Array.isArray(data.entries) || !Array.isArray(data.budgets)) throw new Error();
       if (!confirm(`Replace what's on this phone with the backup (${data.entries.length} entries)?`)) return;
-      db = data; save();
+      db = normalize(data); save();
+      curTrip = null;
       renderAll(); toast('Backup restored');
     } catch (err) { toast("That file isn't a budget backup"); }
   });
-  $('wipeBtn').addEventListener('click', () => {
-    if (!confirm('Erase all entries and settings on this phone? This cannot be undone.')) return;
+  function wipe() {
     localStorage.removeItem(STORE);
-    db = load(); renderAll(); welcome();
+    db = load(); curTrip = null; renderAll(); welcome();
+  }
+  $('wipeBtn').addEventListener('click', () => {
+    if (confirm('Erase all entries, trips, bills and settings on this phone? This cannot be undone.')) wipe();
   });
 
-  // ---------- tabs, toast, welcome ----------
+  // ---------- PIN lock ----------
+  let pinMode = null, pinBuf = '', pinFirst = '', hiddenAt = 0;
+  async function hashPin(p) {
+    const data = new TextEncoder().encode('daily-budget:' + p);
+    if (crypto.subtle) {
+      const buf = await crypto.subtle.digest('SHA-256', data);
+      return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+    let h = 2166136261;
+    for (const b of data) h = Math.imul(h ^ b, 16777619) >>> 0;
+    return 'f' + h.toString(16);
+  }
+  function showLock(mode) {
+    pinMode = mode; pinBuf = '';
+    $('lockTitle').textContent = { unlock: 'Enter your PIN', set1: 'Choose a 4-digit PIN', set2: 'Enter it again' }[mode];
+    $('pinForgot').classList.toggle('hidden', mode !== 'unlock');
+    $('pinCancel').classList.toggle('hidden', mode === 'unlock');
+    $('lock').classList.remove('hidden');
+    drawDots();
+  }
+  const hideLock = () => { $('lock').classList.add('hidden'); pinMode = null; };
+  const drawDots = () => [...$('pinDots').children].forEach((d, i) => d.classList.toggle('on', i < pinBuf.length));
+  function shake() {
+    const d = $('pinDots');
+    d.classList.remove('shake'); void d.offsetWidth; d.classList.add('shake');
+    pinBuf = '';
+    setTimeout(drawDots, 300);
+  }
+  $('keypad').addEventListener('click', async e => {
+    const b = e.target.closest('[data-k]');
+    if (!b || !pinMode) return;
+    if (b.dataset.k === 'del') { pinBuf = pinBuf.slice(0, -1); drawDots(); return; }
+    if (pinBuf.length >= 4) return;
+    pinBuf += b.dataset.k;
+    drawDots();
+    if (pinBuf.length < 4) return;
+    const entered = pinBuf;
+    if (pinMode === 'unlock') {
+      if (await hashPin(entered) === db.pin) hideLock(); else shake();
+    } else if (pinMode === 'set1') {
+      pinFirst = entered;
+      setTimeout(() => showLock('set2'), 150);
+    } else if (pinMode === 'set2') {
+      if (entered === pinFirst) {
+        db.pin = await hashPin(entered);
+        save(); hideLock(); renderSettings();
+        toast('PIN set');
+      } else {
+        shake(); toast("PINs didn't match. Try again.");
+        setTimeout(() => showLock('set1'), 400);
+      }
+    }
+  });
+  $('pinSet').addEventListener('click', () => showLock('set1'));
+  $('pinCancel').addEventListener('click', hideLock);
+  $('pinRemove').addEventListener('click', () => {
+    if (!confirm('Remove the PIN? Anyone with your phone will be able to open the app.')) return;
+    delete db.pin; save(); renderSettings(); toast('PIN removed');
+  });
+  $('pinForgot').addEventListener('click', () => {
+    if (!confirm('There is no way to recover a forgotten PIN. Erase all data on this phone and start over?')) return;
+    if (!confirm('Really erase everything? Only do this if you have a backup or don\'t need your records.')) return;
+    hideLock(); wipe();
+  });
+
+  // ---------- tabs, More sections, toast, welcome ----------
+  let moreSec = 'bills';
+  function showSec(s) {
+    moreSec = s;
+    $('moreSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.sec === s));
+    for (const x of ['bills', 'loans', 'settings']) $('sec-' + x).classList.toggle('hidden', x !== s);
+    if (s === 'bills') renderBills();
+    if (s === 'loans') renderLoans();
+    if (s === 'settings') renderSettings();
+  }
+  $('moreSeg').addEventListener('click', e => {
+    const b = e.target.closest('[data-sec]');
+    if (b) showSec(b.dataset.sec);
+  });
+
   function showTab(name) {
     document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + name));
-    if (name === 'history') renderHistory();
-    if (name === 'settings') renderSettings();
     if (name === 'day') renderDay();
+    if (name === 'trips') renderTrips();
+    if (name === 'history') renderHistory();
+    if (name === 'more') showSec(moreSec);
     window.scrollTo(0, 0);
   }
   document.querySelector('.tabs').addEventListener('click', e => {
     const b = e.target.closest('[data-tab]');
-    if (b) showTab(b.dataset.tab);
+    if (!b) return;
+    if (b.dataset.tab === 'trips') curTrip = null;
+    showTab(b.dataset.tab);
   });
 
   let toastTimer, toastUndo;
@@ -1025,18 +1850,24 @@
     renderAll();
   });
 
-  function renderAll() { spendCache = null; renderCats(); renderDay(); renderHistory(); renderSettings(); }
+  function renderAll() {
+    spendCache = null;
+    renderCats(); renderDay(); renderTrips(); renderHistory();
+    renderBills(); renderLoans(); renderSettings();
+  }
 
-  // Jump back to today if the app is reopened on a new day.
+  // Jump back to today if reopened on a new day; ask for the PIN after 30s away.
   let lastSeen = todayKey();
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState !== 'visible') return;
+    if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); return; }
+    if (db.pin && !pinMode && Date.now() - hiddenAt > 30000) showLock('unlock');
     const t = todayKey();
     if (t !== lastSeen) { if (curDay === lastSeen) curDay = t; lastSeen = t; renderAll(); }
   });
 
   renderAll();
-  if (!db.budgets.length) welcome();
+  if (db.pin) showLock('unlock');
+  else if (!db.budgets.length) welcome();
 
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator) {

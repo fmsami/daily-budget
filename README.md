@@ -18,6 +18,12 @@ A small offline app for recording what I spend each day against a daily budget. 
 - **Calendar:** each day colored by spent nothing / under / close / over
 - **Insights:** month-end forecast, small habits projected over a year, biggest expense, the weekday you spend most
 - Weekly reminder to save a backup
+- **Trips:** one total budget per trip with dates, a per-day allowance for the days left, and its own categories (Stay, Tickets…). Add travel companions to record who paid and who shares each cost; the app works out who owes who with the fewest payments. Trip spending is kept out of the daily budget.
+- **Bills:** monthly bills with a due day; reminders on the Today screen 3 days before, one tap to mark paid. Kept out of the daily budget.
+- **Lend & borrow:** track who owes you and who you owe; tap when paid back
+- **Search** across all expenses, trips and bills
+- **Your own categories** with any emoji
+- **PIN lock:** asks for a 4-digit PIN on open and after 30 seconds away
 
 ## Install on iPhone
 
