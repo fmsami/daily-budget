@@ -25,6 +25,8 @@ A small offline app for recording what I spend each day against a daily budget. 
 - **Your own categories** with any emoji
 - **PIN lock:** asks for a 4-digit PIN on open and after 30 seconds away
 - **Wallets & income:** Cash, bKash, Bank… with live balances; record money in, move money between wallets, correct a balance
+- **Regular money in:** e.g. pocket money every 2 days — added to your wallet automatically on the day it's due, and can set your daily budget (amount ÷ days)
+- **Funds:** regular money for one thing only (e.g. refuel money every 10 days → ⛽ Fuel fund); spending in that category comes out of the fund, not the daily budget
 - **Monthly category limits** with warnings on the Today screen
 - **Charts:** last 30 days (with the budget line) and last 12 months
 - **Type to add:** "tea 20" or "uber 250" — the category is guessed from past entries and keywords

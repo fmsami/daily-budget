@@ -517,6 +517,14 @@
   .list .amt.bad { color: var(--over); }
   .list .amt.good { color: var(--accent); }
   #moreHome > *, [id^="sec-"] > * { animation: rise .55s cubic-bezier(.2,.8,.2,1) backwards; }
+  .recrow { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .recrow:first-child { padding-top: 0; }
+  .recrow:last-child { border-bottom: 0; padding-bottom: 0; }
+  .recrow .rtop { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 15px; }
+  .recrow .meter { margin: 8px 0 6px; }
+  .recrow .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .num.good { color: var(--accent); }
+  .num.bad { color: var(--over); }
 </style>
 </head>
 <body>
@@ -577,6 +585,11 @@
       <div class="jar-top"><b id="jarName"></b><span class="num" id="jarAmt"></span></div>
       <div class="meter"><i id="jarBar"></i></div>
       <div class="sub" id="jarSub"></div>
+    </div>
+
+    <div class="card tilt hidden" id="recCard">
+      <span class="formlabel">Regular money</span>
+      <div id="recRows"></div>
     </div>
 
     <div class="card">
@@ -768,6 +781,24 @@
         <input class="field" id="incNote" type="text" placeholder="From where? e.g. Salary, gift" maxlength="40" autocomplete="off" style="margin: 8px 0 12px">
         <div class="chips hidden" id="incWallets"></div>
         <button class="primary wide" id="incAdd">Add money in</button>
+      </div>
+      <h2>Regular money in</h2>
+      <div class="card hidden" id="recListCard" style="padding: 4px 12px"><ul class="list" id="recList"></ul></div>
+      <div class="card">
+        <input class="field" id="recName" type="text" maxlength="30" placeholder="Name, e.g. Pocket money" autocomplete="off">
+        <div class="two" style="margin-top: 8px">
+          <input class="field num" id="recAmt" type="text" inputmode="decimal" placeholder="Amount" autocomplete="off">
+          <input class="field num" id="recEvery" type="text" inputmode="numeric" placeholder="Every … days" autocomplete="off">
+        </div>
+        <label class="row" style="margin: 12px 0 0"><span>Next one arrives on</span>
+          <input class="field" id="recNext" type="date">
+        </label>
+        <label class="row" style="margin: 12px 0"><span>Use it for</span>
+          <select class="field" id="recFund"></select>
+        </label>
+        <div class="chips hidden" id="recWallets"></div>
+        <button class="primary wide" id="recAdd">Add regular money</button>
+        <p class="note end">The app adds it to your wallet on the day it's due. Pick today if you got it today. Money for one thing only, like fuel, becomes a fund: spending in that category comes out of the fund, not your daily budget.</p>
       </div>
       <div id="moveWrap">
         <h2>Move money</h2>
@@ -1036,6 +1067,7 @@
   const BASE_CATS = [
     { id: 'food',      emoji: '🍔', name: 'Food' },
     { id: 'transport', emoji: '🚌', name: 'Transport' },
+    { id: 'fuel',      emoji: '⛽', name: 'Fuel' },
     { id: 'groceries', emoji: '🛒', name: 'Groceries' },
     { id: 'shopping',  emoji: '🛍️', name: 'Shopping' },
     { id: 'bills',     emoji: '💡', name: 'Bills' },
@@ -1051,8 +1083,9 @@
   const KEYWORDS = {
     food: ['tea', 'cha', 'coffee', 'lunch', 'dinner', 'breakfast', 'snack', 'restaurant', 'pizza', 'burger',
            'biryani', 'kacchi', 'fuchka', 'juice', 'cake', 'sweets', 'ice cream', 'food', 'meal', 'khabar'],
-    transport: ['uber', 'pathao', 'rickshaw', 'cng', 'bus', 'taxi', 'train', 'metro', 'fuel', 'petrol',
-                'octane', 'diesel', 'parking', 'toll', 'ride', 'fare', 'launch', 'flight'],
+    transport: ['uber', 'pathao', 'rickshaw', 'cng', 'bus', 'taxi', 'train', 'metro',
+                'parking', 'toll', 'ride', 'fare', 'launch', 'flight'],
+    fuel: ['fuel', 'refuel', 'petrol', 'octane', 'diesel', 'pump', 'tank'],
     groceries: ['grocery', 'groceries', 'bazar', 'rice', 'vegetable', 'fish', 'meat', 'chicken', 'beef', 'milk',
                 'egg', 'oil', 'dal', 'onion', 'potato', 'fruit', 'bread', 'shwapno', 'meena'],
     shopping: ['clothes', 'shirt', 'pant', 'shoe', 'dress', 'saree', 'panjabi', 'bag', 'watch', 'daraz',
@@ -1089,7 +1122,7 @@
   let spendCache = null;
   function normalize(d) {
     for (const k of ['budgets', 'entries', 'trips', 'bills', 'loans', 'customCats',
-                     'wallets', 'incomes', 'transfers', 'wishes', 'badges']) if (!Array.isArray(d[k])) d[k] = [];
+                     'wallets', 'incomes', 'transfers', 'wishes', 'badges', 'recurring']) if (!Array.isArray(d[k])) d[k] = [];
     for (const k of ['limits', 'moods']) if (!d[k] || typeof d[k] !== 'object') d[k] = {};
     if (!d.wallets.length) d.wallets.push({ id: 'cash', emoji: '💵', name: 'Cash', opening: 0 });
     d.currency = d.currency || '৳';
@@ -1123,7 +1156,8 @@
     db.budgets.push({ from, amount });
   }
   // Trip spending and bill payments live outside the daily budget.
-  const isDaily = e => !e.trip && !e.bill;
+  const fundFor = e => db.recurring.find(r => r.fund && r.fund === e.cat && e.date >= r.start);
+  const isDaily = e => !e.trip && !e.bill && !fundFor(e);
   function spentOn(k) {
     if (!spendCache) {
       spendCache = {};
@@ -1338,6 +1372,7 @@
     $('badges').innerHTML = badges.join('');
 
     renderJar(isToday);
+    renderRecCard(isToday);
     renderNudges(isToday);
     renderBackupBanner(isToday);
     renderQuick();
@@ -1347,14 +1382,15 @@
     $('moods').innerHTML = MOODS.map((m, i) =>
       `<button class="${db.moods[curDay] === i + 1 ? 'on' : ''}" data-mood="${i + 1}" aria-label="Mood ${i + 1} of 5">${m}</button>`).join('');
 
-    const items = dayEntries(curDay);
+    const items = db.entries.filter(e => e.date === curDay && !e.trip && !e.bill).sort((a, b) => b.t - a.t);
     const multiWallet = db.wallets.length > 1;
     $('listHead').textContent = items.length ? `${items.length} ${items.length === 1 ? 'entry' : 'entries'}` : 'Entries';
     $('list').innerHTML = items.length ? items.map(e => {
       const c = catOf(e.cat);
       const time = new Date(e.t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
       const w = multiWallet && walletById(e.wallet);
-      const extra = (w ? ` · ${w.emoji} ${esc(w.name)}` : '') + (db.hourly ? ` · ${workTime(e.amount)} of work` : '');
+      const fund = fundFor(e);
+      const extra = (fund ? ` · from ${esc(fund.name)}` : '') + (w ? ` · ${w.emoji} ${esc(w.name)}` : '') + (db.hourly ? ` · ${workTime(e.amount)} of work` : '');
       return `<li data-id="${e.id}" class="${e.id === editingId ? 'editing' : ''}">
         <div class="emoji">${c.emoji}</div>
         <div class="info"><div class="title">${esc(e.note || c.name)}</div>
@@ -1978,6 +2014,7 @@
   const incWallet = () => walletById(incW) ? incW : defWallet();
   function renderWallets() {
     countTo($('walletTotal'), totalBalance());
+    renderRecList();
     $('walletSub').textContent = `Across ${plural(db.wallets.length, 'wallet')}`;
     $('walletList').innerHTML = db.wallets.map(w => {
       const b = balanceOf(w);
@@ -2075,6 +2112,102 @@
     if (kind === 'in') db.incomes = db.incomes.filter(x => x.id !== id);
     else db.transfers = db.transfers.filter(x => x.id !== id);
     save(); renderWallets();
+  });
+
+  // ---------- regular money in ----------
+  let recW = null;
+  const recWallet = () => walletById(recW) ? recW : defWallet();
+  const whenText = k => { const d = dayDiff(todayKey(), k); return d <= 0 ? 'today' : d === 1 ? 'tomorrow' : `in ${d} days (${short(k)})`; };
+  // Money left in a fund: everything it received minus what was spent in its category since it started.
+  function fundLeft(r) {
+    const got = db.incomes.filter(i => i.rec === r.id).reduce((s, i) => s + i.amount, 0);
+    const used = db.entries.filter(e => !e.trip && !e.bill && e.cat === r.fund && e.date >= r.start).reduce((s, e) => s + e.amount, 0);
+    return got - used;
+  }
+  // Credit every payment that has come due since the app was last opened.
+  function processRecurring() {
+    const t = todayKey(), arrived = [];
+    for (const r of db.recurring) {
+      while (r.next <= t) {
+        db.incomes.push({ id: uid(), date: r.next, amount: r.amount, note: r.name, wallet: r.wallet,
+                          t: dateOf(r.next).getTime() + 9 * 36e5, rec: r.id });
+        arrived.push(r);
+        r.next = addDays(r.next, r.every);
+      }
+    }
+    if (!arrived.length) return;
+    save();
+    const sum = arrived.reduce((s, r) => s + r.amount, 0);
+    setTimeout(() => toast(arrived.length === 1 ? `💸 ${arrived[0].name}: +${fmt(sum)} arrived` : `💸 +${fmt(sum)} arrived (${arrived.length} payments)`), 600);
+  }
+  function renderRecCard(isToday) {
+    const show = isToday && db.recurring.length;
+    $('recCard').classList.toggle('hidden', !show);
+    if (!show) return;
+    $('recRows').innerHTML = [...db.recurring].sort((a, b) => a.next.localeCompare(b.next)).map(r => {
+      if (!r.fund) {
+        return `<div class="recrow"><div class="rtop"><span>💸 <b>${esc(r.name)}</b></span><span class="num good">+${fmt(r.amount)}</span></div>
+          <div class="sub">Every ${plural(r.every, 'day')} · next ${whenText(r.next)}</div></div>`;
+      }
+      const c = catOf(r.fund), left = fundLeft(r), ratio = Math.max(0, left) / r.amount;
+      return `<div class="recrow"><div class="rtop"><span>${c.emoji} <b>${esc(r.name)}</b></span><span class="num${left < 0 ? ' bad' : ''}">${signed(left)} left</span></div>
+        <div class="meter"><i class="${left < 0 ? 'over' : ratio < .2 ? 'warn' : ''}" style="width:${Math.min(1, ratio) * 100}%"></i></div>
+        <div class="sub">${fmt(r.amount)} every ${plural(r.every, 'day')} for ${esc(c.name)} · next ${whenText(r.next)}</div></div>`;
+    }).join('');
+  }
+  function renderRecList() {
+    $('recListCard').classList.toggle('hidden', !db.recurring.length);
+    $('recList').innerHTML = db.recurring.map(r => {
+      const w = walletById(r.wallet);
+      const what = r.fund ? `for ${esc(catOf(r.fund).name)} · ${signed(fundLeft(r))} left` : 'everyday money';
+      return `<li data-rec="${r.id}"><div class="emoji">${r.fund ? catOf(r.fund).emoji : '💸'}</div>
+        <div class="info"><div class="title">${esc(r.name)}</div>
+          <div class="meta">Every ${plural(r.every, 'day')} · ${what} · next ${whenText(r.next)}${w && db.wallets.length > 1 ? ` · into ${w.emoji} ${esc(w.name)}` : ''}</div></div>
+        <div class="amt num good">+${fmt(r.amount)}</div></li>`;
+    }).join('');
+    const keep = $('recFund').value;
+    $('recFund').innerHTML = '<option value="">Everyday spending</option>'
+      + dailyCats().map(c => `<option value="${c.id}">Only ${c.emoji} ${esc(c.name)}</option>`).join('');
+    $('recFund').value = keep;
+    if (!$('recNext').value) $('recNext').value = todayKey();
+    $('recWallets').classList.toggle('hidden', db.wallets.length < 2);
+    $('recWallets').innerHTML = walletChipsHtml(recWallet(), 'data-rw');
+  }
+  $('recWallets').addEventListener('click', e => {
+    const b = e.target.closest('[data-rw]');
+    if (b) { recW = b.dataset.rw; renderRecList(); }
+  });
+  $('recName').addEventListener('input', () => {
+    // Typing "fuel"/"refuel" suggests the matching fund.
+    const g = guessCat($('recName').value.trim());
+    if (g === 'fuel' && !$('recFund').value) $('recFund').value = 'fuel';
+  });
+  $('recAdd').addEventListener('click', () => {
+    const name = $('recName').value.trim();
+    const amount = parseAmt($('recAmt').value);
+    const every = parseInt($('recEvery').value, 10);
+    const next = $('recNext').value || todayKey();
+    const fund = $('recFund').value || null;
+    if (!name) { $('recName').focus(); return; }
+    if (!amount) { $('recAmt').focus(); return; }
+    if (!(every >= 1 && every <= 366)) { $('recEvery').focus(); toast('How many days between payments?'); return; }
+    const r = { id: uid(), name, amount, every, next, start: next < todayKey() ? next : todayKey(), wallet: recWallet(), fund };
+    db.recurring.push(r);
+    $('recName').value = $('recAmt').value = $('recEvery').value = '';
+    $('recFund').value = '';
+    const perDay = Math.round(amount / every * 100) / 100;
+    if (!fund && perDay !== budgetFor(todayKey())
+        && confirm(`${name} gives you ${fmt(perDay)} a day. Make that your daily budget?`)) setBudget(perDay);
+    save();
+    renderAll();
+    toast(`${name} added`);
+  });
+  $('recList').addEventListener('click', ev => {
+    const li = ev.target.closest('[data-rec]');
+    const r = li && db.recurring.find(x => x.id === li.dataset.rec);
+    if (!r || !confirm(`Stop ${r.name}? Money already received stays in your wallet.`)) return;
+    db.recurring = db.recurring.filter(x => x !== r);
+    save(); renderAll();
   });
 
   // ---------- wishlist ----------
@@ -2291,6 +2424,11 @@
     if (billsPaid) ins.push(['💡', `Bills paid this month: <b>${fmt(billsPaid)}</b>, on top of daily spending.`]);
     const tripSpent = inMonth.filter(e => e.trip).reduce((s, e) => s + e.amount, 0);
     if (tripSpent) ins.push(['✈️', `Trip spending this month: <b>${fmt(tripSpent)}</b>, kept apart from your daily budget.`]);
+    for (const r of db.recurring.filter(x => x.fund)) {
+      const used = inMonth.filter(e => !e.trip && !e.bill && e.cat === r.fund && e.date >= r.start).reduce((s, e) => s + e.amount, 0);
+      const got = db.incomes.filter(i => i.rec === r.id && i.date.startsWith(curMonth)).reduce((s, i) => s + i.amount, 0);
+      if (used || got) ins.push([catOf(r.fund).emoji, `${esc(r.name)}: received <b>${fmt(got)}</b>, spent <b>${fmt(used)}</b> this month.`]);
+    }
     const income = db.incomes.filter(i => i.date.startsWith(curMonth)).reduce((s, i) => s + i.amount, 0);
     if (income) {
       const out = inMonth.filter(e => e.wallet).reduce((s, e) => s + e.amount, 0);
@@ -2655,7 +2793,8 @@
   const SECTIONS = ['wallets', 'bills', 'loans', 'wishes', 'badges', 'settings'];
   let moreSec = null;
   function renderMoreHome() {
-    $('tileWallets').textContent = signed(totalBalance());
+    const nextRec = [...db.recurring].sort((a, b) => a.next.localeCompare(b.next))[0];
+    $('tileWallets').textContent = signed(totalBalance()) + (nextRec ? ` · +${fmt(nextRec.amount)} ${dayDiff(todayKey(), nextRec.next) === 1 ? 'tomorrow' : 'in ' + plural(dayDiff(todayKey(), nextRec.next), 'day')}` : '');
     const due = db.bills.filter(b => { const s = billDue(b); return !s.paid && s.days <= 3; }).length;
     $('tileBills').textContent = due ? `${due} due soon` : db.bills.length ? 'All caught up' : 'Rent, internet, phone…';
     const owed = db.loans.filter(l => !l.settled && l.dir === 'lent').reduce((s, l) => s + l.amount, 0);
@@ -2730,6 +2869,7 @@
   });
 
   function renderAll() {
+    processRecurring();
     spendCache = null;
     renderCats(); renderDay(); renderTrips(); renderHistory();
     renderMoreHome(); renderWallets(); renderBills(); renderLoans(); renderWishes(); renderBadges(); renderSettings();
