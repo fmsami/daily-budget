@@ -525,6 +525,11 @@
   .recrow .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
   .num.good { color: var(--accent); }
   .num.bad { color: var(--over); }
+  .payline { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .payline .go { flex: none; font-weight: 800; font-size: 13px; color: var(--accent-ink); background: var(--grad);
+                 padding: 6px 12px; border-radius: 10px; box-shadow: 0 0 12px -4px var(--glow); }
+  .payline .go:active { transform: scale(.94); }
+  .chip .muted { font-size: 13px; }
 </style>
 </head>
 <body>
@@ -821,7 +826,7 @@
         <button class="secondary wide" id="wlAdd" style="margin-top: 12px">Add wallet</button>
       </div>
       <div id="moneyLogWrap" class="hidden">
-        <h2>Recent money in &amp; moves</h2>
+        <h2>Recent money in &amp; out</h2>
         <div class="card" style="padding: 4px 12px"><ul class="list" id="moneyLog"></ul></div>
       </div>
       <p class="note">Pick a wallet when you add an expense and its balance updates by itself. Tap a wallet to correct its balance.</p>
@@ -861,9 +866,13 @@
           <input class="field num" id="loanAmt" type="text" inputmode="decimal" placeholder="Amount" autocomplete="off">
         </div>
         <input class="field" id="loanNote" type="text" placeholder="What for? (optional)" maxlength="60" autocomplete="off" style="margin-top: 8px">
+        <div id="loanWalletWrap" class="hidden" style="margin-top: 12px">
+          <span class="formlabel" id="loanWalletHint">Taken out of</span>
+          <div class="chips" id="loanWallets" style="margin-bottom: 0"></div>
+        </div>
         <button class="primary wide" id="loanAdd" style="margin-top: 12px">Save</button>
       </div>
-      <p class="note">Tap a record when the money is paid back. Lending and borrowing don't affect your budget.</p>
+      <p class="note">Borrowed money goes into your wallet, and comes out again when you pay it back. Lending is the other way round. Tap a record when money is paid back, in full or in part. None of this counts as spending.</p>
       <div id="settledWrap" class="hidden">
         <h2>Paid back</h2>
         <div class="card" style="padding: 4px 12px"><ul class="list" id="settledList"></ul></div>
@@ -1125,6 +1134,14 @@
                      'wallets', 'incomes', 'transfers', 'wishes', 'badges', 'recurring']) if (!Array.isArray(d[k])) d[k] = [];
     for (const k of ['limits', 'moods']) if (!d[k] || typeof d[k] !== 'object') d[k] = {};
     if (!d.wallets.length) d.wallets.push({ id: 'cash', emoji: '💵', name: 'Cash', opening: 0 });
+    if (!d.loansLinked) {
+      const wid = (d.wallets.find(w => w.id === d.lastWallet) || d.wallets[0]).id;
+      for (const l of d.loans) {
+        if (!l.wallet) l.wallet = wid;
+        if (l.settled && !l.payments) l.payments = [{ amount: l.amount, date: l.settledOn || l.date, wallet: l.wallet }];
+      }
+      d.loansLinked = true;
+    }
     d.currency = d.currency || '৳';
     d.mode = d.mode || 'jar';
     d.theme = THEMES[d.theme] ? d.theme : 'cyan';
@@ -1143,6 +1160,14 @@
     try { localStorage.setItem(STORE, JSON.stringify(db)); }
     catch (e) { toast('Could not save — storage is full or blocked'); }
     queueBadges();
+    scheduleRefresh();
+  }
+  // After any change, redraw every screen so wallets, totals and lists always agree.
+  let refreshQueued = false;
+  function scheduleRefresh() {
+    if (refreshQueued) return;
+    refreshQueued = true;
+    setTimeout(() => { refreshQueued = false; refreshAll(); }, 0);
   }
   // Budget in effect on a given day: the latest change made on or before it.
   function budgetFor(k) {
@@ -1176,11 +1201,31 @@
     for (const i of db.incomes) if (i.wallet === w.id) b += i.amount;
     for (const x of db.transfers) { if (x.to === w.id) b += x.amount; if (x.from === w.id) b -= x.amount; }
     for (const e of db.entries) if (e.wallet === w.id) b -= e.amount;
+    // Borrowing brings money in and repaying takes it out; lending is the reverse.
+    for (const l of db.loans) {
+      const sign = l.dir === 'borrowed' ? 1 : -1;
+      if (l.wallet === w.id) b += sign * l.amount;
+      for (const pay of l.payments || []) if (pay.wallet === w.id) b -= sign * pay.amount;
+    }
+    for (const tr of db.trips) for (const s of tr.settlements || []) {
+      if (s.wallet !== w.id) continue;
+      if (s.to === 'You') b += s.amount;
+      if (s.from === 'You') b -= s.amount;
+    }
     return b;
   }
   const totalBalance = () => db.wallets.reduce((s, w) => s + balanceOf(w), 0);
+  // A wallet is "tracked" once it has a starting balance or money coming into it.
+  const tracked = w => !!w.opening || db.incomes.some(i => i.wallet === w.id) || db.transfers.some(x => x.to === w.id)
+    || db.recurring.some(r => r.wallet === w.id) || db.loans.some(l => l.dir === 'borrowed' && l.wallet === w.id);
   const walletChipsHtml = (sel, attr) => db.wallets.map(w =>
-    `<button class="chip${w.id === sel ? ' on' : ''}" ${attr}="${w.id}">${w.emoji} ${esc(w.name)}</button>`).join('');
+    `<button class="chip${w.id === sel ? ' on' : ''}" ${attr}="${w.id}">${w.emoji} ${esc(w.name)}${tracked(w) ? ` <span class="muted num">${signed(balanceOf(w))}</span>` : ''}</button>`).join('');
+  const lowNote = id => {
+    const w = walletById(id);
+    if (!w || !tracked(w)) return '';
+    const b = balanceOf(w);
+    return b < 0 ? ` · ⚠️ ${w.name} is at −${fmt(-b)}` : '';
+  };
 
   // ---------- categories ----------
   const dailyCats = () => [...BASE_CATS, ...db.customCats, OTHER];
@@ -1366,7 +1411,7 @@
     const s = streak();
     const badges = [];
     if (isToday && s >= 1) badges.push(`<span class="badge">🔥 ${plural(s, 'day')} in a row under budget</span>`);
-    if (isToday && (db.wallets.length > 1 || db.incomes.length)) {
+    if (isToday && (db.wallets.length > 1 || db.wallets.some(tracked))) {
       badges.push(`<button class="badge cool" data-goto="wallets">👛 ${signed(totalBalance())}</button>`);
     }
     $('badges').innerHTML = badges.join('');
@@ -1542,7 +1587,7 @@
     $('magic').value = '';
     $('magic').blur();
     const e = addEntry(amount, cat, note);
-    toast(`Added ${note || catOf(cat).name} ${fmt(amount)} · ${catOf(cat).emoji} ${catOf(cat).name}`, () => {
+    toast(`Added ${note || catOf(cat).name} ${fmt(amount)} · ${catOf(cat).emoji} ${catOf(cat).name}${lowNote(e.wallet)}`, () => {
       db.entries = db.entries.filter(x => x.id !== e.id); save(); renderDay();
     });
   }
@@ -1595,7 +1640,7 @@
       const wallet = formWallet();
       resetForm();
       addEntry(amount, curCat, note, curDay, wallet);
-      toast(`Added ${fmt(amount)}`);
+      toast(`Added ${fmt(amount)}${lowNote(wallet)}`);
     }
   });
   $('note').addEventListener('keydown', e => { if (e.key === 'Enter') $('addBtn').click(); });
@@ -1663,6 +1708,12 @@
       for (const p of group) bal[p].share += e.amount / group.length;
     }
     const net = people.map(p => ({ p, v: bal[p].paid - bal[p].share }));
+    // Paybacks already made between people reduce what's still owed.
+    for (const s of tr.settlements || []) {
+      const from = net.find(x => x.p === s.from), to = net.find(x => x.p === s.to);
+      if (from) from.v += s.amount;
+      if (to) to.v -= s.amount;
+    }
     const owed = net.filter(x => x.v > .5).sort((a, b) => b.v - a.v);
     const owing = net.filter(x => x.v < -.5).sort((a, b) => a.v - b.v);
     const pays = [];
@@ -1757,9 +1808,12 @@
       const name = p => p === 'You' ? 'You' : esc(p);
       $('tripSettle').innerHTML = people.map(p =>
         `<div class="prow"><span>${name(p)}</span><span class="muted num">paid ${fmt(bal[p].paid)} · share ${fmt(bal[p].share)}</span></div>`).join('')
-        + '<div class="settle">' + (pays.length ? pays.map(x =>
-          `<div>➡️ <b>${name(x.from)}</b> ${x.from === 'You' ? 'pay' : 'pays'} <b>${x.to === 'You' ? 'you' : esc(x.to)}</b> <b class="num">${fmt(x.amt)}</b></div>`).join('')
-          : '<div>✅ Everyone is even.</div>') + '</div>';
+        + '<div class="settle">' + (pays.length ? pays.map((x, i) =>
+          `<div class="payline"><span>➡️ <b>${name(x.from)}</b> ${x.from === 'You' ? 'pay' : 'pays'} <b>${x.to === 'You' ? 'you' : esc(x.to)}</b> <b class="num">${fmt(x.amt)}</b></span><button class="go" data-settle="${i}">Settled</button></div>`).join('')
+          : '<div>✅ Everyone is even.</div>') + '</div>'
+        + (tr.settlements || []).map(s =>
+          `<div class="prow muted"><span>✓ ${name(s.from)} paid ${s.to === 'You' ? 'you' : esc(s.to)} · ${short(s.date)}</span><span class="num">${fmt(s.amount)}</span></div>`).join('');
+      lastPays = pays;
     }
     $('tripCatBreak').innerHTML = catBreakHtml(es);
     $('tripListHead').textContent = es.length ? plural(es.length, 'expense') : 'Expenses';
@@ -1778,6 +1832,20 @@
     document.querySelectorAll('[data-cur]').forEach(el => el.textContent = db.currency);
   }
 
+  let lastPays = [];
+  $('tripSettle').addEventListener('click', e => {
+    const b = e.target.closest('[data-settle]');
+    const tr = tripById(curTrip);
+    const x = b && tr && lastPays[+b.dataset.settle];
+    if (!x) return;
+    const s = { from: x.from, to: x.to, amount: Math.round(x.amt * 100) / 100, date: todayKey(), t: Date.now(), wallet: defWallet() };
+    tr.settlements = tr.settlements || [];
+    tr.settlements.push(s);
+    save();
+    const w = walletById(s.wallet);
+    const move = s.to === 'You' ? ` · +${fmt(s.amount)} into ${w.name}` : s.from === 'You' ? ` · −${fmt(s.amount)} from ${w.name}${lowNote(w.id)}` : '';
+    toast(`Settled${move}`, () => { tr.settlements = tr.settlements.filter(y => y !== s); save(); });
+  });
   $('tripCatChips').addEventListener('click', e => {
     const b = e.target.closest('[data-tcat]');
     if (b) { tripCat = b.dataset.tcat; renderTrips(); }
@@ -1815,7 +1883,7 @@
     $('tripAmt').value = ''; $('tripNote').value = '';
     $('tripAmt').blur(); $('tripNote').blur();
     renderTrips();
-    toast(`Added ${fmt(amount)} to ${tr.name}`);
+    toast(`Added ${fmt(amount)} to ${tr.name}${e.wallet ? lowNote(e.wallet) : ''}`);
   });
   $('tripList').addEventListener('click', ev => {
     const li = ev.target.closest('[data-te]');
@@ -1900,7 +1968,7 @@
     b.paid = b.paid || {};
     b.paid[month] = e.id;
     save(); renderDay(); renderBills();
-    toast(`${b.name} marked paid`, () => {
+    toast(`${b.name} marked paid${lowNote(e.wallet)}`, () => {
       db.entries = db.entries.filter(x => x.id !== e.id);
       delete b.paid[month];
       save(); renderDay(); renderBills();
@@ -1957,54 +2025,96 @@
   });
 
   // ---------- lend & borrow ----------
-  let loanDir = 'lent';
+  let loanDir = 'lent', loanW = null;
+  const loanWallet = () => walletById(loanW) ? loanW : defWallet();
+  const paidOf = l => (l.payments || []).reduce((s, x) => s + x.amount, 0);
+  const leftOf = l => Math.max(0, l.amount - paidOf(l));
   const ago = k => { const d = dayDiff(k, todayKey()); return d === 0 ? 'Today' : d === 1 ? 'Yesterday' : `${d} days ago`; };
   function renderLoans() {
     const open = db.loans.filter(l => !l.settled).sort((a, b) => a.date.localeCompare(b.date));
     const done = db.loans.filter(l => l.settled).sort((a, b) => (b.settledOn || '').localeCompare(a.settledOn || '')).slice(0, 20);
-    const sum = dir => open.filter(l => l.dir === dir).reduce((s, l) => s + l.amount, 0);
+    const sum = dir => open.filter(l => l.dir === dir).reduce((s, l) => s + leftOf(l), 0);
     $('owedToMe').textContent = fmt(sum('lent'));
     $('iOwe').textContent = fmt(sum('borrowed'));
-    const row = l => `<li data-loan="${l.id}"><div class="emoji">${l.dir === 'lent' ? '🤝' : '🙏'}</div>
-      <div class="info"><div class="title">${l.dir === 'lent' ? `${esc(l.person)} owes you` : `You owe ${esc(l.person)}`}</div>
-        <div class="meta">${l.note ? esc(l.note) + ' · ' : ''}${l.settled ? 'Paid back ' + short(l.settledOn) : ago(l.date)}</div></div>
-      <div class="amt num">${fmt(l.amount)}</div></li>`;
+    const multi = db.wallets.length > 1;
+    const row = l => {
+      const w = walletById(l.wallet), paid = paidOf(l);
+      const meta = [
+        l.note ? esc(l.note) : '',
+        l.settled ? 'Paid back ' + short(l.settledOn) : paid ? `${fmt(paid)} of ${fmt(l.amount)} paid back` : ago(l.date),
+        multi && w ? `${w.emoji} ${esc(w.name)}` : '',
+      ].filter(Boolean).join(' · ');
+      return `<li data-loan="${l.id}"><div class="emoji">${l.dir === 'lent' ? '🤝' : '🙏'}</div>
+        <div class="info"><div class="title">${l.dir === 'lent' ? `${esc(l.person)} owes you` : `You owe ${esc(l.person)}`}</div>
+          <div class="meta">${meta}</div></div>
+        <div class="amt num">${fmt(l.settled ? l.amount : leftOf(l))}</div>
+        <button class="x" data-delloan="${l.id}" aria-label="Delete record">×</button></li>`;
+    };
     $('loanList').innerHTML = open.length ? open.map(row).join('') : '<li class="empty" style="display:block">Nobody owes anybody. 🎉</li>';
     $('settledWrap').classList.toggle('hidden', !done.length);
     $('settledList').innerHTML = done.map(row).join('');
+    $('loanWalletWrap').classList.toggle('hidden', !multi);
+    $('loanWalletHint').textContent = loanDir === 'lent' ? 'Taken out of' : 'Put into';
+    $('loanWallets').innerHTML = walletChipsHtml(loanWallet(), 'data-lw');
   }
   $('loanDir').addEventListener('click', e => {
     const b = e.target.closest('[data-dir]');
     if (!b) return;
     loanDir = b.dataset.dir;
     $('loanDir').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    renderLoans();
+  });
+  $('loanWallets').addEventListener('click', e => {
+    const b = e.target.closest('[data-lw]');
+    if (b) { loanW = b.dataset.lw; renderLoans(); }
   });
   $('loanAdd').addEventListener('click', () => {
     const person = $('loanPerson').value.trim();
     const amount = parseAmt($('loanAmt').value);
     if (!person) { $('loanPerson').focus(); return; }
     if (!amount) { $('loanAmt').focus(); return; }
-    db.loans.push({ id: uid(), person, amount, dir: loanDir, note: $('loanNote').value.trim(), date: todayKey() });
+    const l = { id: uid(), person, amount, dir: loanDir, note: $('loanNote').value.trim(), date: todayKey(),
+                t: Date.now(), wallet: loanWallet(), payments: [] };
+    db.loans.push(l);
     save();
     $('loanPerson').value = $('loanAmt').value = $('loanNote').value = '';
-    renderLoans();
-    toast('Saved');
+    $('loanPerson').blur(); $('loanAmt').blur(); $('loanNote').blur();
+    const w = walletById(l.wallet);
+    toast(l.dir === 'borrowed' ? `+${fmt(amount)} into ${w.name}` : `−${fmt(amount)} from ${w.name}${lowNote(l.wallet)}`,
+          () => { db.loans = db.loans.filter(x => x !== l); save(); });
   });
   const onLoanTap = ev => {
-    const li = ev.target.closest('[data-loan]');
-    const l = li && db.loans.find(x => x.id === li.dataset.loan);
-    if (!l) return;
-    if (l.settled) {
-      if (!confirm('Delete this record?')) return;
-      db.loans = db.loans.filter(x => x !== l);
-      save(); renderLoans();
+    const del = ev.target.closest('[data-delloan]');
+    if (del) {
+      const l = db.loans.find(x => x.id === del.dataset.delloan);
+      if (l && confirm('Delete this record? The money it moved in and out of your wallet is undone too.')) {
+        db.loans = db.loans.filter(x => x !== l);
+        save();
+      }
       return;
     }
-    const who = l.dir === 'lent' ? `${l.person} paid you back` : `you paid ${l.person} back`;
-    if (!confirm(`Mark that ${who} ${fmt(l.amount)}?`)) return;
-    l.settled = true; l.settledOn = todayKey();
-    save(); renderLoans();
-    toast('Marked as paid back', () => { l.settled = false; delete l.settledOn; save(); renderLoans(); });
+    const li = ev.target.closest('[data-loan]');
+    const l = li && db.loans.find(x => x.id === li.dataset.loan);
+    if (!l || l.settled) return;
+    const rem = leftOf(l);
+    const q = l.dir === 'lent' ? `How much did ${l.person} pay you back?` : `How much did you pay ${l.person} back?`;
+    const v = prompt(`${q}\n${fmtRaw(rem)} is left.`, String(rem));
+    if (v === null) return;
+    const amt = Math.min(rem, parseAmt(v));
+    if (!amt) return;
+    const pay = { amount: amt, date: todayKey(), t: Date.now(), wallet: l.wallet };
+    l.payments = l.payments || [];
+    l.payments.push(pay);
+    const full = leftOf(l) < .005;
+    if (full) { l.settled = true; l.settledOn = todayKey(); }
+    save();
+    const w = walletById(l.wallet);
+    const move = w ? ` · ${l.dir === 'lent' ? '+' : '−'}${fmt(amt)} ${l.dir === 'lent' ? 'into' : 'from'} ${w.name}` : '';
+    toast((full ? 'Paid back in full' : `${fmt(leftOf(l))} still left`) + move, () => {
+      l.payments = l.payments.filter(x => x !== pay);
+      l.settled = false; delete l.settledOn;
+      save();
+    });
   };
   $('loanList').addEventListener('click', onLoanTap);
   $('settledList').addEventListener('click', onLoanTap);
@@ -2032,10 +2142,25 @@
     $('trFrom').innerHTML = opts; $('trTo').innerHTML = opts;
     $('trFrom').value = walletById(keepFrom) ? keepFrom : db.wallets[0].id;
     $('trTo').value = walletById(keepTo) ? keepTo : (db.wallets[1] || db.wallets[0]).id;
-    const log = [...db.incomes.map(i => ({ ...i, kind: 'in' })), ...db.transfers.map(x => ({ ...x, kind: 'move' }))]
+    const loanLog = [];
+    for (const l of db.loans) {
+      loanLog.push({ kind: 'loan', id: l.id, t: l.t || dateOf(l.date).getTime(), date: l.date, amount: l.amount, wallet: l.wallet,
+                     inflow: l.dir === 'borrowed', label: l.dir === 'borrowed' ? `Borrowed from ${l.person}` : `Lent to ${l.person}` });
+      for (const x of l.payments || []) {
+        loanLog.push({ kind: 'loan', id: l.id, t: x.t || dateOf(x.date).getTime() + 1, date: x.date, amount: x.amount, wallet: x.wallet,
+                       inflow: l.dir === 'lent', label: l.dir === 'borrowed' ? `Paid ${l.person} back` : `${l.person} paid you back` });
+      }
+    }
+    const log = [...db.incomes.map(i => ({ ...i, kind: 'in' })), ...db.transfers.map(x => ({ ...x, kind: 'move' })), ...loanLog]
       .sort((a, b) => b.t - a.t).slice(0, 30);
     $('moneyLogWrap').classList.toggle('hidden', !log.length);
     $('moneyLog').innerHTML = log.map(x => {
+      if (x.kind === 'loan') {
+        const w = walletById(x.wallet);
+        return `<li data-log="loan:${x.id}"><div class="emoji">${x.inflow ? '📥' : '📤'}</div><div class="info"><div class="title">${esc(x.label)}</div>
+          <div class="meta">${short(x.date)}${w ? ` · ${x.inflow ? 'into' : 'from'} ${w.emoji} ${esc(w.name)}` : ''}</div></div>
+          <div class="amt num ${x.inflow ? 'good' : 'bad'}">${x.inflow ? '+' : '−'}${fmt(x.amount)}</div></li>`;
+      }
       if (x.kind === 'in') {
         const w = walletById(x.wallet);
         return `<li data-log="in:${x.id}"><div class="emoji">💰</div><div class="info"><div class="title">${esc(x.note)}</div>
@@ -2050,7 +2175,13 @@
     const del = ev.target.closest('[data-delwl]');
     if (del) {
       const w = walletById(del.dataset.delwl);
-      if (w && confirm(`Remove ${w.name}? Expenses paid from it stay in your records.`)) {
+      if (!w) return;
+      const left = balanceOf(w), other = db.wallets.find(x => x !== w);
+      const ask = Math.abs(left) >= .01
+        ? `${w.name} still has ${signed(left)}. Move it to ${other.name} and remove ${w.name}?`
+        : `Remove ${w.name}? Expenses paid from it stay in your records.`;
+      if (confirm(ask)) {
+        if (Math.abs(left) >= .01) db.transfers.push({ id: uid(), date: todayKey(), amount: left, from: w.id, to: other.id, t: Date.now() });
         db.wallets = db.wallets.filter(x => x !== w);
         if (db.lastWallet === w.id) delete db.lastWallet;
         save(); renderWallets(); renderCats();
@@ -2092,7 +2223,7 @@
     save();
     $('trAmt').value = '';
     renderWallets();
-    toast(`Moved ${fmt(amount)}`);
+    toast(`Moved ${fmt(amount)}${lowNote(from)}`);
   });
   $('wlAdd').addEventListener('click', () => {
     const name = $('wlName').value.trim();
@@ -2108,6 +2239,7 @@
     const li = ev.target.closest('[data-log]');
     if (!li) return;
     const [kind, id] = li.dataset.log.split(':');
+    if (kind === 'loan') { showSec('loans'); return; }
     if (!confirm('Delete this record?')) return;
     if (kind === 'in') db.incomes = db.incomes.filter(x => x.id !== id);
     else db.transfers = db.transfers.filter(x => x.id !== id);
@@ -2682,6 +2814,11 @@
       e.trip ? (tripById(e.trip) || {}).name || '' : '', catOf(e.cat).name, e.note || '', -e.amount,
       wname(e.wallet), e.trip ? e.paidBy || 'You' : '', isDaily(e) ? budgetFor(e.date) : '']));
     db.incomes.forEach(i => rows.push([i.date, new Date(i.t).toTimeString().slice(0, 5), 'Income', '', '', i.note, i.amount, wname(i.wallet), '', '']));
+    db.loans.forEach(l => {
+      const sign = l.dir === 'borrowed' ? 1 : -1;
+      rows.push([l.date, '', l.dir === 'borrowed' ? 'Borrowed' : 'Lent', '', '', `${l.person}${l.note ? ' – ' + l.note : ''}`, sign * l.amount, wname(l.wallet), '', '']);
+      (l.payments || []).forEach(x => rows.push([x.date, '', 'Paid back', '', '', l.person, -sign * x.amount, wname(x.wallet), '', '']));
+    });
     shareFile(`budget-${todayKey()}.csv`, rows.map(r => r.map(q).join(',')).join('\n'), 'text/csv');
   });
   $('backupJson').addEventListener('click', () => { backup(); renderSettings(); });
@@ -2868,6 +3005,13 @@
     renderAll();
   });
 
+  function refreshAll() {
+    spendCache = null;
+    renderCats(); renderDay(); renderTrips(); renderHistory();
+    renderMoreHome(); renderWallets(); renderBills(); renderLoans(); renderWishes(); renderBadges();
+    if (moreSec !== 'settings') renderSettings();
+  }
+
   function renderAll() {
     processRecurring();
     spendCache = null;
@@ -2882,6 +3026,11 @@
     if (db.pin && !pinMode && Date.now() - hiddenAt > 30000) showLock('unlock');
     const t = todayKey();
     if (t !== lastSeen) { if (curDay === lastSeen) curDay = t; lastSeen = t; renderAll(); }
+  });
+
+  window.addEventListener('storage', e => {
+    if (e.key !== STORE) return;
+    db = load(); applyTheme(); refreshAll();
   });
 
   applyTheme();
