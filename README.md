@@ -1,5 +1,7 @@
 # Daily Budget
 
+Built in my house style — see [App Style Kit](https://github.com/fmsami/app-style-kit).
+
 A small offline app for recording what I spend each day against a daily budget. Built for iPhone as a home-screen web app — no account, no internet needed, data stays on the phone.
 
 ## Features
