@@ -35,7 +35,9 @@ A small offline app for recording what I spend each day against a daily budget. 
 - **Achievements:** 18 badges for streaks, saving, trips, bills and more
 - **Wishlist** with a one-week cooling-off period and "days of saving" for each item
 - **Hide amounts** privacy mode, **5 neon color themes**, shareable month summary, evening reminder when nothing is logged
-- Futuristic 3D look: aurora background, glass cards that tilt under your finger, glowing ring
+- Premium look: dark navy header on a blueprint grid with a white content sheet, italic serif headings, black selected pills, blue buttons, floating white tab bar
+- Opening animation (the logo draws itself), intro screen with a collage, and a welcome/setup screen for first-time users
+- 5 accent colors (blue, violet, green, orange, pink)
 
 ## Install on iPhone
 
