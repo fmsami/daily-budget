@@ -509,6 +509,9 @@
     *, *::before, *::after { animation: none !important; transition: none !important; }
     .splash { display: none; }
   }
+  .loanright { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex: none; }
+  .loanbtn { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--pill-on); color: var(--pill-on-ink); }
+  .list .info .meter { height: 6px; margin-top: 7px; }
 </style>
 </head>
 <body>
@@ -908,7 +911,7 @@
         </div>
         <button class="primary wide" id="loanAdd" style="margin-top: 12px">Save</button>
       </div>
-      <p class="note">Borrowed money goes into your wallet, and comes out again when you pay it back. Lending is the other way round. Tap a record when money is paid back, in full or in part. None of this counts as spending.</p>
+      <p class="note">Borrowed money goes into your wallet, and comes out again when you pay it back. Lending is the other way round. Tap Pay back whenever money is returned, all at once or a bit at a time. None of this counts as spending.</p>
       <div id="settledWrap" class="hidden">
         <h2>Paid back</h2>
         <div class="card" style="padding: 4px 12px"><ul class="list" id="settledList"></ul></div>
@@ -1089,6 +1092,35 @@
       <button class="danger hidden" id="tsDelete">Delete</button>
       <button class="secondary" id="tsCancel">Cancel</button>
       <button class="primary" id="tsSave">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="paySheet">
+  <div class="sheet">
+    <h3 id="payTitle">Pay back</h3>
+    <p id="paySub"></p>
+    <div class="meter" style="margin: -6px 0 20px"><i id="payBar"></i></div>
+    <div id="payForm">
+      <div class="amountrow">
+        <span class="cur" data-cur></span>
+        <input id="payAmt" type="text" inputmode="decimal" placeholder="0" autocomplete="off" aria-label="Amount paid back">
+      </div>
+      <div class="hint" id="payHint"></div>
+      <div class="chips" id="payQuick"></div>
+      <div id="payWalletWrap" class="hidden">
+        <span class="formlabel" id="payWalletHint">Paid from</span>
+        <div class="chips" id="payWallets"></div>
+      </div>
+      <button class="primary wide" id="paySave">Save payment</button>
+    </div>
+    <div id="payHistWrap" class="hidden">
+      <h2>Payments so far</h2>
+      <ul class="list" id="payHist"></ul>
+    </div>
+    <div class="btnrow">
+      <button class="secondary" id="payClose">Close</button>
+      <button class="danger" id="payDelete">Delete record</button>
     </div>
   </div>
 </div>
@@ -2107,11 +2139,12 @@
         l.settled ? 'Paid back ' + short(l.settledOn) : paid ? `${fmt(paid)} of ${fmt(l.amount)} paid back` : ago(l.date),
         multi && w ? `${w.emoji} ${esc(w.name)}` : '',
       ].filter(Boolean).join(' · ');
+      const bar = !l.settled && paid ? `<div class="meter"><i style="width:${Math.min(100, paid / l.amount * 100)}%"></i></div>` : '';
       return `<li data-loan="${l.id}"><div class="emoji">${l.dir === 'lent' ? '🤝' : '🙏'}</div>
         <div class="info"><div class="title">${l.dir === 'lent' ? `${esc(l.person)} owes you` : `You owe ${esc(l.person)}`}</div>
-          <div class="meta">${meta}</div></div>
-        <div class="amt num">${fmt(l.settled ? l.amount : leftOf(l))}</div>
-        <button class="x" data-delloan="${l.id}" aria-label="Delete record">×</button></li>`;
+          <div class="meta">${meta}</div>${bar}</div>
+        <div class="loanright"><div class="amt num">${fmt(l.settled ? l.amount : leftOf(l))}</div>
+          ${l.settled ? '<span class="meta">✓ Done</span>' : `<span class="loanbtn">${l.dir === 'lent' ? 'Got paid' : 'Pay back'}</span>`}</div></li>`;
     };
     $('loanList').innerHTML = open.length ? open.map(row).join('') : '<li class="empty" style="display:block">Nobody owes anybody. 🎉</li>';
     $('settledWrap').classList.toggle('hidden', !done.length);
@@ -2119,6 +2152,7 @@
     $('loanWalletWrap').classList.toggle('hidden', !multi);
     $('loanWalletHint').textContent = loanDir === 'lent' ? 'Taken out of' : 'Put into';
     $('loanWallets').innerHTML = walletChipsHtml(loanWallet(), 'data-lw');
+    if (payLoan) { if (db.loans.includes(payLoan)) renderPay(); else closePay(); }
   }
   $('loanDir').addEventListener('click', e => {
     const b = e.target.closest('[data-dir]');
@@ -2146,41 +2180,110 @@
     toast(l.dir === 'borrowed' ? `+${fmt(amount)} into ${w.name}` : `−${fmt(amount)} from ${w.name}${lowNote(l.wallet)}`,
           () => { db.loans = db.loans.filter(x => x !== l); save(); });
   });
+  // Pay-back sheet: record repayments in full or in parts, see each payment, fix mistakes.
+  let payLoan = null, payW = null;
+  function openPay(l) {
+    payLoan = l;
+    payW = walletById(l.wallet) ? l.wallet : defWallet();
+    $('payAmt').value = '';
+    renderPay();
+    $('paySheet').classList.remove('hidden');
+  }
+  function closePay() { $('paySheet').classList.add('hidden'); payLoan = null; }
+  function renderPay() {
+    const l = payLoan;
+    if (!l) return;
+    const rem = leftOf(l), paid = paidOf(l), lent = l.dir === 'lent';
+    $('payTitle').textContent = l.settled ? (lent ? `${l.person} paid you back` : `You paid ${l.person} back`)
+      : lent ? `${l.person} pays you back` : `Pay ${l.person} back`;
+    $('paySub').textContent = (l.settled ? `All ${fmt(l.amount)} is paid back.`
+      : `${fmt(rem)} left of ${fmt(l.amount)}${paid ? ` · ${fmt(paid)} paid so far` : ''}.`) + (l.note ? ` ${l.note}.` : '');
+    $('payBar').style.width = Math.min(100, paid / l.amount * 100) + '%';
+    $('payForm').classList.toggle('hidden', !!l.settled);
+    const typed = parseAmt($('payAmt').value);
+    const half = Math.round(rem / 2 * 100) / 100;
+    const quick = [[rem, `All · ${fmt(rem)}`]];
+    if (rem >= 2) quick.push([half, `Half · ${fmt(half)}`]);
+    for (const q of [100, 500, 1000]) if (q < rem && q !== half && quick.length < 4) quick.push([q, fmt(q)]);
+    $('payQuick').innerHTML = quick.map(([v, label]) =>
+      `<button class="chip${typed === v ? ' on' : ''}" data-pv="${v}">${label}</button>`).join('');
+    $('payWalletWrap').classList.toggle('hidden', db.wallets.length < 2);
+    $('payWalletHint').textContent = lent ? 'Put into' : 'Paid from';
+    $('payWallets').innerHTML = walletChipsHtml(payW, 'data-pw');
+    $('payHint').textContent = !typed ? 'Type how much, or tap an amount below.'
+      : typed > rem + .004 ? `That's more than the ${fmt(rem)} left. Only ${fmt(rem)} will be recorded.`
+      : typed >= rem - .004 ? 'This pays it off completely. 🎉'
+      : `${fmt(rem - typed)} will still be left after this.`;
+    const multi = db.wallets.length > 1;
+    const hist = (l.payments || []).map((x, i) => ({ x, i })).sort((a, b) => (b.x.t || 0) - (a.x.t || 0));
+    $('payHistWrap').classList.toggle('hidden', !hist.length);
+    $('payHist').innerHTML = hist.map(({ x, i }) => {
+      const w = walletById(x.wallet);
+      return `<li><div class="emoji">${lent ? '📥' : '📤'}</div>
+        <div class="info"><div class="title num">${fmt(x.amount)}</div>
+          <div class="meta">${dateOf(x.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}${multi && w ? ` · ${w.emoji} ${esc(w.name)}` : ''}</div></div>
+        <button class="x" data-delpay="${i}" aria-label="Remove this payment">×</button></li>`;
+    }).join('');
+    document.querySelectorAll('[data-cur]').forEach(el => el.textContent = db.currency);
+  }
   const onLoanTap = ev => {
-    const del = ev.target.closest('[data-delloan]');
-    if (del) {
-      const l = db.loans.find(x => x.id === del.dataset.delloan);
-      if (l && confirm('Delete this record? The money it moved in and out of your wallet is undone too.')) {
-        db.loans = db.loans.filter(x => x !== l);
-        save();
-      }
-      return;
-    }
     const li = ev.target.closest('[data-loan]');
     const l = li && db.loans.find(x => x.id === li.dataset.loan);
-    if (!l || l.settled) return;
-    const rem = leftOf(l);
-    const q = l.dir === 'lent' ? `How much did ${l.person} pay you back?` : `How much did you pay ${l.person} back?`;
-    const v = prompt(`${q}\n${fmtRaw(rem)} is left.`, String(rem));
-    if (v === null) return;
-    const amt = Math.min(rem, parseAmt(v));
-    if (!amt) return;
-    const pay = { amount: amt, date: todayKey(), t: Date.now(), wallet: l.wallet };
+    if (l) openPay(l);
+  };
+  $('loanList').addEventListener('click', onLoanTap);
+  $('settledList').addEventListener('click', onLoanTap);
+  $('payAmt').addEventListener('input', renderPay);
+  $('payAmt').addEventListener('keydown', e => { if (e.key === 'Enter') $('paySave').click(); });
+  $('payQuick').addEventListener('click', e => {
+    const b = e.target.closest('[data-pv]');
+    if (b) { $('payAmt').value = b.dataset.pv; renderPay(); }
+  });
+  $('payWallets').addEventListener('click', e => {
+    const b = e.target.closest('[data-pw]');
+    if (b) { payW = b.dataset.pw; renderPay(); }
+  });
+  $('paySave').addEventListener('click', () => {
+    const l = payLoan;
+    if (!l) return;
+    const typed = parseAmt($('payAmt').value);
+    if (!typed) { $('payAmt').focus(); toast('Enter how much was paid back'); return; }
+    const amt = Math.min(leftOf(l), typed);
+    const pay = { amount: amt, date: todayKey(), t: Date.now(), wallet: payW };
     l.payments = l.payments || [];
     l.payments.push(pay);
     const full = leftOf(l) < .005;
     if (full) { l.settled = true; l.settledOn = todayKey(); }
+    $('payAmt').blur();
+    closePay();
     save();
-    const w = walletById(l.wallet);
+    const w = walletById(pay.wallet);
     const move = w ? ` · ${l.dir === 'lent' ? '+' : '−'}${fmt(amt)} ${l.dir === 'lent' ? 'into' : 'from'} ${w.name}` : '';
-    toast((full ? 'Paid back in full' : `${fmt(leftOf(l))} still left`) + move, () => {
+    toast((full ? 'Paid back in full 🎉' : `${fmt(leftOf(l))} still left`) + move + (l.dir === 'borrowed' ? lowNote(pay.wallet) : ''), () => {
       l.payments = l.payments.filter(x => x !== pay);
       l.settled = false; delete l.settledOn;
       save();
     });
-  };
-  $('loanList').addEventListener('click', onLoanTap);
-  $('settledList').addEventListener('click', onLoanTap);
+  });
+  $('payHist').addEventListener('click', e => {
+    const b = e.target.closest('[data-delpay]');
+    const l = payLoan;
+    if (!b || !l || !confirm('Remove this payment? Its money goes back the way it came.')) return;
+    l.payments.splice(+b.dataset.delpay, 1);
+    if (leftOf(l) > .004) { l.settled = false; delete l.settledOn; }
+    save();
+    renderPay();
+  });
+  $('payDelete').addEventListener('click', () => {
+    const l = payLoan;
+    if (!l || !confirm('Delete this record? The money it moved in and out of your wallets is undone too.')) return;
+    db.loans = db.loans.filter(x => x !== l);
+    closePay();
+    save();
+    toast('Record deleted');
+  });
+  $('payClose').addEventListener('click', closePay);
+  $('paySheet').addEventListener('click', e => { if (e.target.id === 'paySheet') closePay(); });
 
   // ---------- wallets section ----------
   let incW = null;

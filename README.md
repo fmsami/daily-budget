@@ -22,7 +22,7 @@ A small offline app for recording what I spend each day against a daily budget. 
 - Weekly reminder to save a backup
 - **Trips:** one total budget per trip with dates, a per-day allowance for the days left, and its own categories (Stay, Tickets…). Add travel companions to record who paid and who shares each cost; the app works out who owes who with the fewest payments. Trip spending is kept out of the daily budget.
 - **Bills:** monthly bills with a due day; reminders on the Today screen 3 days before, one tap to mark paid. Kept out of the daily budget.
-- **Lend & borrow:** borrowed money goes into a wallet and comes out when repaid (lending is the reverse); part payments supported
+- **Lend & borrow:** borrowed money goes into a wallet and comes out when repaid (lending is the reverse); a Pay back sheet records part or full repayments (quick All/Half amounts, choice of wallet, payment history you can correct)
 - **Everything stays in sync:** every change redraws every screen, trip pay-backs move real money, removing a wallet moves its balance, and you're warned when a wallet goes below zero
 - **Search** across all expenses, trips and bills
 - **Your own categories** with any emoji
