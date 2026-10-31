@@ -398,7 +398,7 @@
     background: #111317; color: #fff; border-radius: 16px; padding: 12px 16px;
     box-shadow: 0 16px 30px -12px rgba(0,0,0,.6);
     display: flex; gap: 16px; align-items: center; font-size: 15px; font-weight: 600; transition: .3s cubic-bezier(.2,.8,.2,1);
-    max-width: calc(100% - 32px); white-space: nowrap;
+    width: max-content; max-width: calc(100% - 32px); line-height: 1.35;
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
   .toast button { color: var(--accent3); font-weight: 800; }
@@ -516,6 +516,16 @@
   .loanright { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; flex: none; }
   .loanbtn { font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--pill-on); color: var(--pill-on-ink); }
   .list .info .meter { height: 6px; margin-top: 7px; }
+  .switchrow { display: flex; align-items: center; gap: 12px; padding: 12px 14px; margin-bottom: 14px; border-radius: 16px; background: var(--soft); }
+  .switchrow span { flex: 1; min-width: 0; }
+  .switchrow b { display: block; font-size: 15px; }
+  .switchrow small { color: var(--muted); font-size: 13px; }
+  .switch { -webkit-appearance: none; appearance: none; flex: none; width: 50px; height: 30px; margin: 0; border-radius: 99px;
+            background: #d3d7e0; position: relative; cursor: pointer; transition: background .2s; }
+  .switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%;
+                   background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); transition: transform .2s; }
+  .switch:checked { background: var(--accent); }
+  .switch:checked::after { transform: translateX(20px); }
 </style>
 </head>
 <body>
@@ -1117,6 +1127,10 @@
         <span class="formlabel" id="payWalletHint">Paid from</span>
         <div class="chips" id="payWallets"></div>
       </div>
+      <label class="switchrow" id="payCountRow">
+        <span><b>Add to that day's expenses</b><small>Shows in the day's list and counts in your daily budget</small></span>
+        <input type="checkbox" class="switch" id="payCount" checked>
+      </label>
       <button class="primary wide" id="paySave">Save payment</button>
     </div>
     <div id="payHistWrap" class="hidden">
@@ -1177,6 +1191,7 @@
     { id: 'tickets', emoji: '🎟️', name: 'Tickets' },
   ];
   const OTHER = { id: 'other', emoji: '📦', name: 'Other' };
+  const PAYBACK = { id: 'payback', emoji: '🙏', name: 'Loan pay-back' };
   // Words that hint at a category when typing "tea 20" into quick add.
   const KEYWORDS = {
     food: ['tea', 'cha', 'coffee', 'lunch', 'dinner', 'breakfast', 'snack', 'restaurant', 'pizza', 'burger',
@@ -1321,6 +1336,7 @@
   const dailyCats = () => [...BASE_CATS, ...db.customCats, OTHER];
   const tripCats = () => [...['food', 'transport'].map(catOf), ...TRIP_EXTRA, ...['shopping', 'fun'].map(catOf), ...db.customCats, OTHER];
   function catOf(id) {
+    if (id === 'payback') return PAYBACK;
     return BASE_CATS.find(c => c.id === id) || TRIP_EXTRA.find(c => c.id === id)
       || db.customCats.find(c => c.id === id) || OTHER;
   }
@@ -1530,7 +1546,7 @@
       const time = new Date(e.t).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
       const w = multiWallet && walletById(e.wallet);
       const fund = fundFor(e);
-      const extra = (fund ? ` · from ${esc(fund.name)}` : '') + (w ? ` · ${w.emoji} ${esc(w.name)}` : '') + (db.hourly ? ` · ${workTime(e.amount)} of work` : '');
+      const extra = (e.loan ? ' · Lend & borrow' : '') + (fund ? ` · from ${esc(fund.name)}` : '') + (w ? ` · ${w.emoji} ${esc(w.name)}` : '') + (db.hourly ? ` · ${workTime(e.amount)} of work` : '');
       return `<li data-id="${e.id}" class="${e.id === editingId ? 'editing' : ''}">
         <div class="emoji">${c.emoji}</div>
         <div class="info"><div class="title">${esc(e.note || c.name)}</div>
@@ -1634,7 +1650,7 @@
     const since = addDays(todayKey(), -60);
     const groups = {};
     for (const e of db.entries) {
-      if (e.date < since || !isDaily(e)) continue;
+      if (e.date < since || !isDaily(e) || e.loan) continue;
       const key = `${e.cat}|${(e.note || '').toLowerCase()}|${e.amount}`;
       const g = groups[key] || (groups[key] = { e, n: 0 });
       g.n++;
@@ -1751,6 +1767,12 @@
     if (!li) return;
     const e = db.entries.find(x => x.id === li.dataset.id);
     if (!e) return;
+    if (e.loan) {
+      const l = db.loans.find(x => x.id === e.loan);
+      if (l) { showTab('more'); showSec('loans'); openPay(l); }
+      else toast('The loan for this pay-back was deleted');
+      return;
+    }
     editingId = e.id;
     curCat = e.cat;
     curWallet = e.wallet || null;
@@ -2191,6 +2213,7 @@
     payLoan = l;
     payW = walletById(l.wallet) ? l.wallet : defWallet();
     $('payAmt').value = '';
+    $('payCount').checked = db.payToSpending !== false;
     renderPay();
     $('paySheet').classList.remove('hidden');
   }
@@ -2214,6 +2237,7 @@
       `<button class="chip${typed === v ? ' on' : ''}" data-pv="${v}">${label}</button>`).join('');
     $('payWalletWrap').classList.toggle('hidden', db.wallets.length < 2);
     $('payWalletHint').textContent = lent ? 'Put into' : 'Paid from';
+    $('payCountRow').classList.toggle('hidden', lent);
     $('payWallets').innerHTML = walletChipsHtml(payW, 'data-pw');
     $('payHint').textContent = !typed ? 'Type how much, or tap an amount below.'
       : typed > rem + .004 ? `That's more than the ${fmt(rem)} left. Only ${fmt(rem)} will be recorded.`
@@ -2257,6 +2281,12 @@
     const pay = { amount: amt, date: todayKey(), t: Date.now(), wallet: payW };
     l.payments = l.payments || [];
     l.payments.push(pay);
+    let spent = null;
+    if (l.dir === 'borrowed' && $('payCount').checked) {
+      spent = { id: uid(), date: pay.date, amount: amt, cat: 'payback', note: `Paid back ${l.person}`, t: pay.t, loan: l.id };
+      db.entries.push(spent);
+      pay.entry = spent.id;
+    }
     const full = leftOf(l) < .005;
     if (full) { l.settled = true; l.settledOn = todayKey(); }
     $('payAmt').blur();
@@ -2264,8 +2294,10 @@
     save();
     const w = walletById(pay.wallet);
     const move = w ? ` · ${l.dir === 'lent' ? '+' : '−'}${fmt(amt)} ${l.dir === 'lent' ? 'into' : 'from'} ${w.name}` : '';
-    toast((full ? 'Paid back in full 🎉' : `${fmt(leftOf(l))} still left`) + move + (l.dir === 'borrowed' ? lowNote(pay.wallet) : ''), () => {
+    toast((full ? 'Paid back in full 🎉' : `${fmt(leftOf(l))} still left`) + move + (spent ? ' · in today\'s expenses' : '')
+          + (l.dir === 'borrowed' ? lowNote(pay.wallet) : ''), () => {
       l.payments = l.payments.filter(x => x !== pay);
+      if (spent) db.entries = db.entries.filter(x => x !== spent);
       l.settled = false; delete l.settledOn;
       save();
     });
@@ -2274,7 +2306,8 @@
     const b = e.target.closest('[data-delpay]');
     const l = payLoan;
     if (!b || !l || !confirm('Remove this payment? Its money goes back the way it came.')) return;
-    l.payments.splice(+b.dataset.delpay, 1);
+    const [gone] = l.payments.splice(+b.dataset.delpay, 1);
+    if (gone && gone.entry) db.entries = db.entries.filter(x => x.id !== gone.entry);
     if (leftOf(l) > .004) { l.settled = false; delete l.settledOn; }
     save();
     renderPay();
@@ -2283,10 +2316,12 @@
     const l = payLoan;
     if (!l || !confirm('Delete this record? The money it moved in and out of your wallets is undone too.')) return;
     db.loans = db.loans.filter(x => x !== l);
+    db.entries = db.entries.filter(x => x.loan !== l.id);
     closePay();
     save();
     toast('Record deleted');
   });
+  $('payCount').addEventListener('change', () => { db.payToSpending = $('payCount').checked; save(); });
   $('payClose').addEventListener('click', closePay);
   $('paySheet').addEventListener('click', e => { if (e.target.id === 'paySheet') closePay(); });
 
@@ -2983,7 +3018,7 @@
     const wname = id => (walletById(id) || {}).name || '';
     const rows = [['Date', 'Time', 'Type', 'Trip', 'Category', 'Note', 'Amount', 'Wallet', 'Paid by', 'Daily budget']];
     [...db.entries].sort((a, b) => a.t - b.t).forEach(e => rows.push([
-      e.date, new Date(e.t).toTimeString().slice(0, 5), e.trip ? 'Trip' : e.bill ? 'Bill' : 'Daily',
+      e.date, new Date(e.t).toTimeString().slice(0, 5), e.trip ? 'Trip' : e.bill ? 'Bill' : e.loan ? 'Daily (loan pay-back)' : 'Daily',
       e.trip ? (tripById(e.trip) || {}).name || '' : '', catOf(e.cat).name, e.note || '', -e.amount,
       wname(e.wallet), e.trip ? e.paidBy || 'You' : '', isDaily(e) ? budgetFor(e.date) : '']));
     db.incomes.forEach(i => rows.push([i.date, new Date(i.t).toTimeString().slice(0, 5), 'Income', '', '', i.note, i.amount, wname(i.wallet), '', '']));
