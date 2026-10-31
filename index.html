@@ -66,12 +66,46 @@
   .bgfx {
     position: fixed; inset: 0; z-index: -1; pointer-events: none;
     background:
-      radial-gradient(90% 50% at 50% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 70%),
+      radial-gradient(120% 62% at 50% 0%, var(--sky, color-mix(in srgb, var(--accent) 16%, transparent)), transparent 72%),
       linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 28px 28px,
       linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px) 0 0 / 28px 28px,
       var(--bg);
   }
   .bgfx .orb, .bgfx .grid { display: none; }
+  /* The header light follows the time of day; faint stars come out at night. */
+  :root[data-daypart="morning"] { --sky: rgba(255,170,105,.36); --sky2: rgba(255,214,140,.22); }
+  :root[data-daypart="day"]     { --sky: rgba(90,168,255,.36); --sky2: rgba(130,220,255,.2); }
+  :root[data-daypart="evening"] { --sky: rgba(255,112,84,.36); --sky2: rgba(160,92,255,.32); }
+  :root[data-daypart="night"]   { --sky: rgba(86,104,255,.18); --sky2: rgba(60,70,180,.14); }
+  .bgfx::before { content: ''; position: absolute; inset: 0; transition: background 1.2s;
+                  background: radial-gradient(70% 40% at 95% 0%, var(--sky2, transparent), transparent 70%); }
+  .bgfx::after {
+    content: ''; position: absolute; inset: 0 0 55% 0; opacity: 0; transition: opacity 1.2s;
+    background-image:
+      radial-gradient(1.2px 1.2px at 12% 18%, #fff, transparent), radial-gradient(1px 1px at 27% 7%, #fff, transparent),
+      radial-gradient(1.4px 1.4px at 45% 21%, #fff, transparent), radial-gradient(1px 1px at 61% 11%, #fff, transparent),
+      radial-gradient(1.2px 1.2px at 77% 27%, #fff, transparent), radial-gradient(1px 1px at 90% 8%, #fff, transparent),
+      radial-gradient(1px 1px at 36% 33%, #fff, transparent), radial-gradient(1.3px 1.3px at 7% 37%, #fff, transparent),
+      radial-gradient(1px 1px at 69% 39%, #fff, transparent), radial-gradient(1.1px 1.1px at 53% 4%, #fff, transparent);
+    -webkit-mask-image: linear-gradient(#000, transparent); mask-image: linear-gradient(#000, transparent);
+  }
+  :root[data-daypart="night"] .bgfx::after { opacity: .75; animation: twinkle 4s ease-in-out infinite alternate; }
+  @keyframes twinkle { to { opacity: .35; } }
+
+  /* Hold to confirm (idea from Why Zero's "hold to proceed"): a bar fills while the button is held. */
+  .hold {
+    -webkit-touch-callout: none;
+    background-image: linear-gradient(color-mix(in srgb, var(--over) 30%, transparent), color-mix(in srgb, var(--over) 30%, transparent));
+    background-repeat: no-repeat; background-size: 0% 100%; transition: background-size .25s ease, transform .12s;
+  }
+  .hold.holding { background-size: 100% 100%; transform: scale(.98); transition: background-size var(--hold, .9s) linear, transform .12s; }
+
+  /* Screen change (idea from Oryzo AI's reveal transitions): the new screen opens in a circle from the tapped tab. */
+  .view.reveal { animation: reveal .6s cubic-bezier(.65,0,.35,1) both; }
+  @keyframes reveal {
+    from { clip-path: circle(0 at var(--rx, 50%) var(--ry, 100%)); }
+    to { clip-path: circle(150% at var(--rx, 50%) var(--ry, 100%)); }
+  }
 
   .view { display: none; }
   .view.active { display: block; }
@@ -1036,7 +1070,7 @@
         <button class="secondary" id="backupJson">Save a backup</button>
         <button class="secondary" id="restoreBtn">Restore from backup</button>
         <input type="file" id="restoreFile" accept="application/json,.json" class="hidden">
-        <button class="danger" id="wipeBtn">Erase everything</button>
+        <button class="danger" id="wipeBtn">Hold to erase everything</button>
       </div>
       <p class="note">Everything is stored only on this phone and works without internet. Save a backup now and then, so you don't lose your records if the app is removed.</p>
       <p class="note" id="storeInfo"></p>
@@ -1104,7 +1138,7 @@
       <input class="field" id="tsPeople" type="text" placeholder="e.g. Rahim, Karim" autocomplete="off">
     </label>
     <div class="btnrow" style="margin-top: 0">
-      <button class="danger hidden" id="tsDelete">Delete</button>
+      <button class="danger hidden" id="tsDelete">Hold to delete</button>
       <button class="secondary" id="tsCancel">Cancel</button>
       <button class="primary" id="tsSave">Save</button>
     </div>
@@ -1139,7 +1173,7 @@
     </div>
     <div class="btnrow">
       <button class="secondary" id="payClose">Close</button>
-      <button class="danger" id="payDelete">Delete record</button>
+      <button class="danger" id="payDelete">Hold to delete</button>
     </div>
   </div>
 </div>
@@ -1490,7 +1524,8 @@
     $('hideBtn').classList.toggle('on', !!db.hide);
     const hr = new Date().getHours();
     $('greetName').textContent = db.name ? `Hi, ${db.name}` : 'Daily Budget';
-    $('greetSub').textContent = hr < 5 ? 'Up late?' : hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+    $('greetSub').textContent = hr < 5 ? '🌙 Up late?' : hr < 12 ? '🌅 Good morning' : hr < 17 ? '☀️ Good afternoon' : hr < 20 ? '🌇 Good evening' : '🌙 Good evening';
+    document.documentElement.dataset.daypart = hr >= 5 && hr < 11 ? 'morning' : hr >= 11 && hr < 17 ? 'day' : hr >= 17 && hr < 20 ? 'evening' : 'night';
     $('avatar').textContent = db.name ? db.name.trim().charAt(0).toUpperCase() : db.currency;
 
     const rollover = isToday && db.mode === 'rollover';
@@ -2055,11 +2090,10 @@
     renderDay();
     toast(existing ? 'Trip saved' : 'Trip created');
   });
-  $('tsDelete').addEventListener('click', () => {
+  holdToConfirm($('tsDelete'), () => {
     const tr = tripById(editingTrip);
     if (!tr) return;
-    const n = tripEntries(tr.id).length;
-    if (!confirm(`Delete “${tr.name}”${n ? ` and its ${plural(n, 'expense')}` : ''}? This cannot be undone.`)) return;
+    toast(`${tr.name} deleted`);
     db.trips = db.trips.filter(x => x.id !== tr.id);
     db.entries = db.entries.filter(e => e.trip !== tr.id);
     save(); closeSheet();
@@ -2312,9 +2346,9 @@
     save();
     renderPay();
   });
-  $('payDelete').addEventListener('click', () => {
+  holdToConfirm($('payDelete'), () => {
     const l = payLoan;
-    if (!l || !confirm('Delete this record? The money it moved in and out of your wallets is undone too.')) return;
+    if (!l) return;
     db.loans = db.loans.filter(x => x !== l);
     db.entries = db.entries.filter(x => x.loan !== l.id);
     closePay();
@@ -3048,9 +3082,7 @@
     localStorage.removeItem(STORE);
     db = load(); curTrip = null; applyTheme(); renderAll(); welcome();
   }
-  $('wipeBtn').addEventListener('click', () => {
-    if (confirm('Erase all entries, trips, bills, wallets and settings on this phone? This cannot be undone.')) wipe();
-  });
+  holdToConfirm($('wipeBtn'), wipe, 1800);
 
   // ---------- PIN lock ----------
   let pinMode = null, pinBuf = '', pinFirst = '', hiddenAt = 0;
@@ -3180,8 +3212,41 @@
     if (!b) return;
     if (b.dataset.tab === 'trips') curTrip = null;
     if (b.dataset.tab === 'more') moreSec = null;
+    const was = document.querySelector('.view.active');
     showTab(b.dataset.tab);
+    const v = $('view-' + b.dataset.tab);
+    if (calm() || v === was) return;
+    const r = b.getBoundingClientRect(), top = v.getBoundingClientRect().top;
+    v.style.setProperty('--rx', `${r.left + r.width / 2}px`);
+    v.style.setProperty('--ry', `${r.top + r.height / 2 - top}px`);
+    v.classList.remove('reveal'); void v.offsetWidth; v.classList.add('reveal');
+    const done = e => { if (e.target === v) { v.classList.remove('reveal'); v.removeEventListener('animationend', done); } };
+    v.addEventListener('animationend', done);
   });
+
+  // Hold to confirm: keep pressing until the bar fills. Letting go early cancels.
+  function holdToConfirm(btn, onDone, ms = 900) {
+    let timer = 0;
+    btn.classList.add('hold');
+    btn.style.setProperty('--hold', ms + 'ms');
+    const finish = () => { timer = 0; btn.classList.remove('holding'); if (navigator.vibrate) navigator.vibrate(15); onDone(); };
+    btn.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      clearTimeout(timer);
+      btn.classList.add('holding');
+      timer = setTimeout(finish, ms);
+    });
+    const cancel = () => {
+      if (!timer) return;
+      clearTimeout(timer); timer = 0;
+      btn.classList.remove('holding');
+      toast('Keep holding to confirm');
+    };
+    for (const ev of ['pointerup', 'pointerleave', 'pointercancel']) btn.addEventListener(ev, cancel);
+    btn.addEventListener('contextmenu', e => e.preventDefault());
+    // Keyboard users get a normal confirmation instead.
+    btn.addEventListener('click', e => { if (e.detail === 0 && confirm(`${btn.textContent.replace('Hold to ', '').trim()}?`)) onDone(); });
+  }
 
   let toastTimer, toastUndo;
   function toast(msg, undo) {
