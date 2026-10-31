@@ -1,5 +1,5 @@
 // Offline support: serve the app from the cache, refresh the cache in the background.
-const CACHE = 'daily-budget-v12';
+const CACHE = 'daily-budget-v13';
 const ASSETS = [
   './',
   './index.html',

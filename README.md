@@ -1,6 +1,6 @@
 # Daily Budget
 
-Built in my house style — see [App Style Kit](https://github.com/fmsami/app-style-kit).
+Built on my [App Style Kit](https://github.com/fmsami/app-style-kit), with its own **Fresh green** look: bright white, bold green (#01C654), round shapes and big friendly numbers, inspired by the Awwwards Site of the Day *Why Zero*. Other apps keep the house style.
 
 A small offline app for recording what I spend each day against a daily budget. Built for iPhone as a home-screen web app — no account, no internet needed, data stays on the phone.
 

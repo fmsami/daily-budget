@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Budget">
-<meta name="theme-color" content="#0e121c">
+<meta name="theme-color" content="#ffffff">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -560,6 +560,141 @@
                    background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25); transition: transform .2s; }
   .switch:checked { background: var(--accent); }
   .switch:checked::after { transform: translateX(20px); }
+/* ===================================================================
+     FRESH GREEN — Daily Budget's own look (the other apps keep the house style).
+     Bright white, bold green, round shapes, big friendly numbers.
+     Inspired by Why Zero (Awwwards Site of the Day): white + #01C654, playful interactive UI.
+     =================================================================== */
+  :root, .panel, .sheet, .tabs, .light {
+    color-scheme: light;
+    --bg: #ffffff;
+    --ink: #0d1b12;
+    --muted: #6b7a70;
+    --line: #e7eee9;
+    --soft: #f1f6f2;
+    --field: #f1f6f2;
+    --card: #ffffff;
+    --pill-on: var(--accent);
+    --pill-on-ink: #ffffff;
+    --good: #00a043;
+    --serif: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  html { background: #fff; }
+  h2, .navlabel strong, .summary .left-amount, .tile b, .tripcard b, .jar-top b, .sheet h3, .obtext h1,
+  #welcome .whead h1, .sword, .lockbox h3, .avatar, .mock .mbig, .serif, .tile b {
+    font-style: normal !important; letter-spacing: -.02em;
+  }
+  h2 { font-size: 21px; }
+
+  /* Plain white page with a soft tint at the top that follows the time of day */
+  .bgfx { background: radial-gradient(120% 40% at 50% 0%, var(--sky, color-mix(in srgb, var(--accent) 10%, transparent)), transparent 72%), #fff; }
+  :root[data-daypart="morning"] { --sky: rgba(255,196,110,.22); --sky2: rgba(255,226,160,.18); }
+  :root[data-daypart="day"]     { --sky: color-mix(in srgb, var(--accent) 13%, transparent); --sky2: rgba(160,235,255,.18); }
+  :root[data-daypart="evening"] { --sky: rgba(255,150,120,.2); --sky2: rgba(190,150,255,.18); }
+  :root[data-daypart="night"]   { --sky: rgba(120,135,255,.14); --sky2: rgba(150,160,255,.12); }
+  .bgfx::after { display: none; }
+
+  /* No dark header any more: the content simply continues on white */
+  .panel { background: transparent; margin: 4px -16px 0; padding-top: 8px; border-radius: 0; box-shadow: none; min-height: 0; }
+  .card { border: 1px solid var(--line); border-radius: 26px; box-shadow: 0 1px 2px rgba(13,27,18,.04), 0 12px 28px -18px rgba(13,27,18,.22); }
+
+  /* Header pieces on white */
+  .iconbtn, .nav button.arrow { background: var(--soft); border: 0; color: var(--ink); }
+  .dot { box-shadow: 0 0 0 2px #fff; }
+  .avatar { box-shadow: 0 8px 18px -8px var(--accent); }
+  .badge { background: var(--soft); border: 0; }
+  .badge.cool { color: var(--accent2); }
+  .nav .navbtn { color: var(--accent2); }
+  .navlabel strong { font-size: 30px; font-weight: 800; }
+
+  /* The big green hero card with white text and floating bubbles */
+  .summary {
+    color: #fff; border: 0; border-radius: 30px;
+    background: linear-gradient(150deg, var(--accent3) -10%, var(--accent) 45%, var(--accent2) 110%);
+    box-shadow: 0 22px 34px -20px var(--accent), inset 0 1px 0 rgba(255,255,255,.3);
+  }
+  .summary::before, .summary::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; background: rgba(255,255,255,.13); }
+  .summary::before { width: 180px; height: 180px; right: -60px; top: -70px; animation: bob 7s ease-in-out infinite alternate; }
+  .summary::after { width: 90px; height: 90px; right: 70px; bottom: -45px; background: rgba(255,255,255,.1); animation: bob 9s ease-in-out infinite alternate-reverse; }
+  @keyframes bob { to { transform: translate(-10px, 12px) scale(1.05); } }
+  .summary > * { position: relative; z-index: 1; }
+  .summary .left-label, .summary .sub, .summary .smart, .summary .left-label { color: rgba(255,255,255,.86); }
+  .summary .left-amount { color: #fff; font-size: 46px; font-weight: 800; }
+  .summary .smart { border-top-color: rgba(255,255,255,.25); }
+  .ring svg { filter: none; }
+  .ring .track { stroke: rgba(255,255,255,.25); }
+  .ring .bar, .state-warn .bar, .state-over .bar { stroke: #fff; }
+  .ring .pct { background: rgba(255,255,255,.16); color: #fff; font-weight: 800; }
+  .state-warn.summary { background: linear-gradient(150deg, #ffcf5c -10%, #f5a524 50%, #e08a00 110%); box-shadow: 0 22px 34px -20px #f5a524; }
+  .state-over.summary { background: linear-gradient(150deg, #ff8a8d -10%, #e5484d 50%, #c4282e 110%); box-shadow: 0 22px 34px -20px #e5484d; }
+  .state-warn .ring svg, .state-over .ring svg { filter: none; }
+  .state-over .left-amount { color: #fff; }
+
+  /* Round, friendly controls */
+  .chip { background: #fff; border: 1.5px solid var(--line); }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 8px 16px -10px var(--accent); }
+  .quick .chip { background: color-mix(in srgb, var(--accent) 10%, #fff); border-color: transparent; color: var(--accent2); }
+  .seg { background: var(--soft); border-radius: 999px; }
+  .seg button { border-radius: 999px; }
+  .seg button.on { background: var(--accent); color: #fff; box-shadow: 0 8px 16px -10px var(--accent); }
+  .primary, .secondary, .danger, .magic button { border-radius: 999px; }
+  .primary { background: var(--grad); box-shadow: 0 14px 24px -14px var(--accent), inset 0 1px 0 rgba(255,255,255,.3); }
+  .field { border-radius: 18px; }
+  .list .emoji { border-radius: 50%; background: color-mix(in srgb, var(--accent) 9%, #fff); }
+  .tile .ti { border-radius: 50%; background: color-mix(in srgb, var(--accent) 10%, #fff); }
+  .meter i { background: linear-gradient(90deg, var(--accent3), var(--accent)); }
+  .cal .d { border-radius: 50%; }
+  .cal .d.ok { background: color-mix(in srgb, var(--accent) 16%, #fff); color: var(--accent2); }
+  .cal .d.today { box-shadow: inset 0 0 0 2px var(--ink); }
+  .legend i { border-radius: 50%; }
+  .legend i.ok { background: color-mix(in srgb, var(--accent) 25%, #fff); }
+  .banner.info { background: color-mix(in srgb, var(--accent) 8%, #fff); border-color: color-mix(in srgb, var(--accent) 22%, #fff); }
+  .banner.info .go { color: var(--accent2); }
+  .settle > div { background: color-mix(in srgb, var(--accent) 8%, #fff); }
+  .bdg.on { border-color: color-mix(in srgb, var(--accent) 40%, #fff); background: color-mix(in srgb, var(--accent) 8%, #fff); }
+  .moods button { border-radius: 50%; }
+  .moods button.on { box-shadow: 0 0 0 2.5px var(--accent), 0 10px 18px -10px var(--accent); }
+  .tabs { box-shadow: 0 14px 34px -14px rgba(13,27,18,.35), 0 0 0 1px var(--line); }
+  .tabs button { border-radius: 999px; }
+  .tabs button.on { color: var(--accent2); background: color-mix(in srgb, var(--accent) 12%, #fff); }
+  .toast { background: var(--ink); }
+  .toast button { color: #6ff0a5; }
+  .modal { background: rgba(13,27,18,.32); }
+  .sheet { border-radius: 30px 30px 0 0; }
+
+  /* Splash, intro, welcome and lock on white */
+  .splash { background: #fff; }
+  .slogo .guides { stroke: color-mix(in srgb, var(--accent) 55%, #fff); }
+  .slogo .spark { fill: var(--accent); }
+  .slogo .tile { fill: var(--accent); stroke: var(--accent); }
+  .slogo .rtrack { stroke: rgba(255,255,255,.35); }
+  .slogo .rarc { stroke: #fff; }
+  .sword { color: var(--ink); }
+  .onboard { background: #fff; }
+  .collage::after { background: linear-gradient(to bottom, rgba(255,255,255,0) 25%, #fff 94%); }
+  .mock { border: 1px solid var(--line); box-shadow: 0 16px 30px -16px rgba(13,27,18,.3); }
+  .mock.dark { background: var(--accent); border: 0; }
+  .mock.dark .mbig { color: #fff; }
+  .mock.dark i { background: rgba(255,255,255,.3); }
+  .mock.dark i.b { background: #fff; }
+  .mock.dark .mbars span { background: #fff; }
+  .mock .mpill { background: var(--accent); }
+  .mock .mring { background: conic-gradient(var(--accent) 0 68%, #e6efe9 0); }
+  .mock.dark .mring { background: conic-gradient(#fff 0 42%, rgba(255,255,255,.3) 0); }
+  .obtext h1 { color: var(--ink); }
+  #welcome { background: #fff; }
+  #welcome .whead { background: none; }
+  #welcome .whead h1 { color: var(--ink); }
+  #welcome .logo rect { fill: var(--accent); }
+  #welcome .logo circle:nth-of-type(1) { stroke: rgba(255,255,255,.4); }
+  #welcome .logo circle:nth-of-type(2) { stroke: #fff !important; }
+  #welcome .sheet { background: var(--soft); box-shadow: none; }
+  .lock { background: #fff; }
+  .lockbox h3 { color: var(--ink); }
+  .keypad button { background: var(--soft); border: 0; color: var(--ink); }
+  .keypad button:active { background: color-mix(in srgb, var(--accent) 25%, #fff); }
+  .dots i { border-color: #c5d2c9; }
+  .dots i.on { background: var(--accent); border-color: var(--accent); }
 </style>
 </head>
 <body>
@@ -1243,9 +1378,9 @@
   };
   // [main, light, deep]
   const THEMES = {
+    green:  ['#01c654', '#4fe08f', '#00a043'],
     blue:   ['#4c8ef7', '#7aa9ff', '#2f6fe0'],
     violet: ['#7c5cff', '#a48bff', '#5b3fe0'],
-    green:  ['#1fa971', '#4fd39a', '#16855a'],
     orange: ['#f97316', '#ffa45c', '#d65a06'],
     pink:   ['#ec4899', '#f681b8', '#c42a77'],
   };
@@ -1283,7 +1418,9 @@
     }
     d.currency = d.currency || '৳';
     d.mode = d.mode || 'jar';
-    d.theme = THEMES[d.theme] ? d.theme : 'blue';
+    // Fresh green redesign: everyone starts on the new green once.
+    if (!d.freshGreen) { d.theme = 'green'; d.freshGreen = true; }
+    d.theme = THEMES[d.theme] ? d.theme : 'green';
     d.start = d.start || todayKey();
     return d;
   }
@@ -2963,7 +3100,7 @@
 
   // ---------- settings ----------
   function applyTheme() {
-    const [a, b, c] = THEMES[db.theme] || THEMES.blue;
+    const [a, b, c] = THEMES[db.theme] || THEMES.green;
     const r = document.documentElement.style;
     r.setProperty('--accent', a);
     r.setProperty('--accent3', b);
