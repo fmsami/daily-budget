@@ -695,6 +695,9 @@
   .keypad button:active { background: color-mix(in srgb, var(--accent) 25%, #fff); }
   .dots i { border-color: #c5d2c9; }
   .dots i.on { background: var(--accent); border-color: var(--accent); }
+  .recrow[data-recid] { cursor: pointer; }
+  #rsShift { margin-bottom: 6px; }
+  #rsShift .chip { padding: 7px 12px; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -1022,7 +1025,7 @@
         </label>
         <div class="chips hidden" id="recWallets"></div>
         <button class="primary wide" id="recAdd">Add regular money</button>
-        <p class="note end">The app adds it to your wallet on the day it's due. Pick today if you got it today. Money for one thing only, like fuel, becomes a fund: spending in that category comes out of the fund, not your daily budget.</p>
+        <p class="note end">The app adds it to your wallet on the day it's due. Pick today if you got it today. Money for one thing only, like fuel, becomes a fund: spending in that category comes out of the fund, not your daily budget. Tap a regular payment to change its date, amount or interval.</p>
       </div>
       <div id="moveWrap">
         <h2>Move money</h2>
@@ -1309,6 +1312,37 @@
     <div class="btnrow">
       <button class="secondary" id="payClose">Close</button>
       <button class="danger" id="payDelete">Hold to delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal hidden" id="recSheet">
+  <div class="sheet">
+    <h3 id="rsTitle">Edit regular money</h3>
+    <p id="rsSub">Change the date, amount or how often it comes.</p>
+    <label class="row"><span>Name</span><input class="field" id="rsName" type="text" maxlength="30" autocomplete="off"></label>
+    <div class="two" style="margin-bottom: 14px">
+      <label class="row" style="margin: 0"><span>Amount</span><input class="field num" id="rsAmt" type="text" inputmode="decimal" autocomplete="off"></label>
+      <label class="row" style="margin: 0"><span>Every … days</span><input class="field num" id="rsEvery" type="text" inputmode="numeric" autocomplete="off"></label>
+    </div>
+    <div id="rsLastWrap">
+      <label class="row" style="margin-bottom: 6px"><span>Last one arrived on</span><input class="field" id="rsLast" type="date"></label>
+      <p class="note" style="margin: 0 4px 14px">Fix this if it actually came on a different day.</p>
+    </div>
+    <label class="row" style="margin-bottom: 8px"><span>Next one arrives on</span><input class="field" id="rsNext" type="date"></label>
+    <div class="chips" id="rsShift">
+      <button class="chip" data-shift="-1">− 1 day</button><button class="chip" data-shift="1">+ 1 day</button>
+      <button class="chip" data-shift="today">Today</button><button class="chip" data-shift="tomorrow">Tomorrow</button>
+    </div>
+    <div class="hint" id="rsHint"></div>
+    <label class="row"><span>Use it for</span><select class="field" id="rsFund"></select></label>
+    <div id="rsWalletWrap" class="hidden">
+      <span class="formlabel">Goes into</span>
+      <div class="chips" id="rsWallets"></div>
+    </div>
+    <div class="btnrow">
+      <button class="danger" id="rsStop">Hold to stop</button>
+      <button class="primary" id="rsSave">Save</button>
     </div>
   </div>
 </div>
@@ -2655,11 +2689,11 @@
     if (!show) return;
     $('recRows').innerHTML = [...db.recurring].sort((a, b) => a.next.localeCompare(b.next)).map(r => {
       if (!r.fund) {
-        return `<div class="recrow"><div class="rtop"><span>💸 <b>${esc(r.name)}</b></span><span class="num good">+${fmt(r.amount)}</span></div>
+        return `<div class="recrow" data-recid="${r.id}"><div class="rtop"><span>💸 <b>${esc(r.name)}</b></span><span class="num good">+${fmt(r.amount)}</span></div>
           <div class="sub">Every ${plural(r.every, 'day')} · next ${whenText(r.next)}</div></div>`;
       }
       const c = catOf(r.fund), left = fundLeft(r), ratio = Math.max(0, left) / r.amount;
-      return `<div class="recrow"><div class="rtop"><span>${c.emoji} <b>${esc(r.name)}</b></span><span class="num${left < 0 ? ' bad' : ''}">${signed(left)} left</span></div>
+      return `<div class="recrow" data-recid="${r.id}"><div class="rtop"><span>${c.emoji} <b>${esc(r.name)}</b></span><span class="num${left < 0 ? ' bad' : ''}">${signed(left)} left</span></div>
         <div class="meter"><i class="${left < 0 ? 'over' : ratio < .2 ? 'warn' : ''}" style="width:${Math.min(1, ratio) * 100}%"></i></div>
         <div class="sub">${fmt(r.amount)} every ${plural(r.every, 'day')} for ${esc(c.name)} · next ${whenText(r.next)}</div></div>`;
     }).join('');
@@ -2714,10 +2748,105 @@
   $('recList').addEventListener('click', ev => {
     const li = ev.target.closest('[data-rec]');
     const r = li && db.recurring.find(x => x.id === li.dataset.rec);
-    if (!r || !confirm(`Stop ${r.name}? Money already received stays in your wallet.`)) return;
-    db.recurring = db.recurring.filter(x => x !== r);
-    save(); renderAll();
+    if (r) openRecEdit(r);
   });
+  $('recRows').addEventListener('click', ev => {
+    const row = ev.target.closest('[data-recid]');
+    const r = row && db.recurring.find(x => x.id === row.dataset.recid);
+    if (r) openRecEdit(r);
+  });
+
+  // Edit regular money: fix the date (and so the whole cycle), amount, interval, fund or wallet.
+  let recEdit = null, rsW = null, rsNextTouched = false;
+  const lastIncomeOf = r => db.incomes.filter(i => i.rec === r.id).sort((a, b) => b.date.localeCompare(a.date) || b.t - a.t)[0];
+  function openRecEdit(r) {
+    recEdit = r;
+    rsW = r.wallet;
+    rsNextTouched = false;
+    $('rsTitle').textContent = r.name;
+    $('rsName').value = r.name;
+    $('rsAmt').value = r.amount;
+    $('rsEvery').value = r.every;
+    $('rsNext').value = r.next;
+    const last = lastIncomeOf(r);
+    $('rsLastWrap').classList.toggle('hidden', !last);
+    $('rsLast').value = last ? last.date : '';
+    $('rsLast').max = todayKey();
+    $('rsFund').innerHTML = '<option value="">Everyday spending</option>'
+      + dailyCats().map(c => `<option value="${c.id}">Only ${c.emoji} ${esc(c.name)}</option>`).join('');
+    $('rsFund').value = r.fund || '';
+    renderRecEdit();
+    $('recSheet').classList.remove('hidden');
+  }
+  function closeRecEdit() { $('recSheet').classList.add('hidden'); recEdit = null; }
+  function renderRecEdit() {
+    const every = parseInt($('rsEvery').value, 10);
+    const next = $('rsNext').value;
+    const t = todayKey();
+    let hint = '';
+    if (next && every >= 1) {
+      const dates = [0, 1, 2].map(i => short(addDays(next, i * every)));
+      hint = next < t ? `That date has passed: anything due up to today is added as soon as you save. Then ${dates.slice(1).join(', ')}…`
+        : next === t ? `Arrives today, so it's added when you save. Then ${dates.slice(1).join(', ')}…`
+        : `Coming on ${dates.join(', ')}…`;
+    }
+    $('rsHint').textContent = hint;
+    $('rsWalletWrap').classList.toggle('hidden', db.wallets.length < 2);
+    $('rsWallets').innerHTML = walletChipsHtml(walletById(rsW) ? rsW : defWallet(), 'data-rsw');
+  }
+  // Changing the last arrival (or the interval) moves the next date with it, unless it was set by hand.
+  const followLast = () => {
+    const every = parseInt($('rsEvery').value, 10);
+    if (!rsNextTouched && $('rsLast').value && every >= 1) $('rsNext').value = addDays($('rsLast').value, every);
+    renderRecEdit();
+  };
+  $('rsLast').addEventListener('change', followLast);
+  $('rsEvery').addEventListener('input', followLast);
+  $('rsNext').addEventListener('change', () => { rsNextTouched = true; renderRecEdit(); });
+  $('rsShift').addEventListener('click', e => {
+    const b = e.target.closest('[data-shift]');
+    if (!b) return;
+    const s = b.dataset.shift, cur = $('rsNext').value || todayKey();
+    $('rsNext').value = s === 'today' ? todayKey() : s === 'tomorrow' ? addDays(todayKey(), 1) : addDays(cur, +s);
+    rsNextTouched = true;
+    renderRecEdit();
+  });
+  $('rsWallets').addEventListener('click', e => {
+    const b = e.target.closest('[data-rsw]');
+    if (b) { rsW = b.dataset.rsw; renderRecEdit(); }
+  });
+  $('rsSave').addEventListener('click', () => {
+    const r = recEdit;
+    if (!r) return;
+    const name = $('rsName').value.trim();
+    const amount = parseAmt($('rsAmt').value);
+    const every = parseInt($('rsEvery').value, 10);
+    const next = $('rsNext').value;
+    if (!name) { $('rsName').focus(); return; }
+    if (!amount) { $('rsAmt').focus(); return; }
+    if (!(every >= 1 && every <= 366)) { $('rsEvery').focus(); toast('How many days between payments?'); return; }
+    if (!next) { $('rsNext').focus(); return; }
+    const last = lastIncomeOf(r), lastDate = $('rsLast').value;
+    if (last && lastDate && lastDate !== last.date) {
+      last.date = lastDate;
+      last.t = dateOf(lastDate).getTime() + 9 * 36e5;
+    }
+    Object.assign(r, { name, amount, every, next, fund: $('rsFund').value || null, wallet: walletById(rsW) ? rsW : defWallet() });
+    if (r.next < r.start) r.start = r.next;
+    closeRecEdit();
+    save();
+    renderAll();
+    toast(`${name} saved · next ${whenText(r.next)}`);
+  });
+  holdToConfirm($('rsStop'), () => {
+    const r = recEdit;
+    if (!r) return;
+    db.recurring = db.recurring.filter(x => x !== r);
+    closeRecEdit();
+    save(); renderAll();
+    toast(`${r.name} stopped. Money already received stays.`);
+  });
+  $('recSheet').addEventListener('click', e => { if (e.target.id === 'recSheet') closeRecEdit(); });
 
   // ---------- wishlist ----------
   function renderWishes() {
